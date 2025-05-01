@@ -3,21 +3,21 @@ name: Build & Release RemoteHealth
 on:
   push:
     tags:
-      - 'v*'  # se ejecuta solo al pushear un tag vX.Y.Z
+      - 'v*'        # solo al hacer push de un tag vX.Y.Z
 
 permissions:
   contents: write
 
 env:
-  JAVAFX_VERSION: 21.0.6
+  JAVAFX_VERSION: 21.0.6          # misma versión que en el POM
 
+# ──────────────────────────────────────────────────────────────
+# 1️⃣ Release (se crea una sola vez)
+# ──────────────────────────────────────────────────────────────
 jobs:
-# ──────────────────────────────────────────────────────────────
-# 1️⃣ Crear el release una sola vez
-# ──────────────────────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
-    outputs:
+    outputs:                     # expone upload_url al resto de jobs
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v3
@@ -28,30 +28,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: RemoteHealth ${{ github.ref_name }}
-          body: Release generado automáticamente para ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          tag_name:      ${{ github.ref_name }}
+          release_name:  RemoteHealth ${{ github.ref_name }}
+          body:          Release generado automáticamente para ${{ github.ref_name }}
+          draft:         false
+          prerelease:    false
 
 # ──────────────────────────────────────────────────────────────
-# 2️⃣ Windows
+# 2️⃣ Windows (MSI)
 # ──────────────────────────────────────────────────────────────
   build-windows:
     needs: create-release
     runs-on: windows-latest
-    outputs:
-      msi_path: ${{ steps.find_artifact.outputs.msi_path }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Build Fat JAR
+      - name: Build fat JAR
         run: mvn -B clean package
 
       - name: Descargar JavaFX JMODS
@@ -59,40 +57,47 @@ jobs:
           Invoke-WebRequest https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_windows-x64_bin-jmods.zip -OutFile javafx-jmods.zip
           Expand-Archive javafx-jmods.zip -DestinationPath javafx-jmods
 
-      - name: Crear runtime image con jlink
+      - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$env:JAVA_HOME/jmods;javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" `
                 --add-modules javafx.controls,javafx.fxml,javafx.swing `
                 --output target/RemoteHealth-runtime
 
-      - name: Crear MSI con jpackage
+      - name: Crear MSI (jpackage)
         run: |
-          jpackage --input target `
-                   --name RemoteHealth `
-                   --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar `
-                   --main-class org.axolotlj.RemoteHealth.MainApp `
-                   --type msi `
-                   --runtime-image target/RemoteHealth-runtime `
-                   --win-shortcut `
-                   --win-menu `
-                   --win-menu-group "RemoteHealth" `
-                   --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
+          New-Item -ItemType Directory -Force -Path target/installers | Out-Null
+          jpackage `
+            --input target `
+            --dest target/installers `
+            --name RemoteHealth `
+            --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar `
+            --main-class org.axolotlj.RemoteHealth.MainApp `
+            --type msi `
+            --runtime-image target/RemoteHealth-runtime `
+            --win-shortcut `
+            --win-menu `
+            --win-menu-group "RemoteHealth" `
+            --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
-      - name: Buscar MSI generado
-        id: find_artifact
+      - name: Verificar MSI
+        id: find_msi
         run: |
-          $file = Get-ChildItem -Path ./target -Filter *.msi | Select-Object -First 1
-          echo "MSI found: $($file.FullName)"
-          echo "msi_path=$($file.FullName)" >> $env:GITHUB_OUTPUT
+          $msi = "target/installers/RemoteHealth.msi"
+          Write-Host "Buscando instalador en $msi"
+          if (-Not (Test-Path $msi)) {
+            Write-Error "No se encontró el MSI"
+            Exit 1
+          }
+          "msi_path=$msi" >> $env:GITHUB_OUTPUT
 
       - name: Subir MSI
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifact.outputs.msi_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}.msi
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ${{ steps.find_msi.outputs.msi_path }}
+          asset_name:  RemoteHealth-${{ github.ref_name }}.msi
           asset_content_type: application/octet-stream
 
       - name: Subir Fat JAR
@@ -100,29 +105,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-          asset_name: RemoteHealth-${{ github.ref_name }}-jar-with-dependencies.jar
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ./target/RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          asset_name:  RemoteHealth-${{ github.ref_name }}-jar-with-dependencies.jar
           asset_content_type: application/java-archive
 
 # ──────────────────────────────────────────────────────────────
-# 3️⃣ macOS
+# 3️⃣ macOS (DMG)
 # ──────────────────────────────────────────────────────────────
   build-macos:
     needs: create-release
     runs-on: macos-latest
-    outputs:
-      dmg_path: ${{ steps.find_artifact.outputs.dmg_path }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Build Fat JAR
+      - name: Build fat JAR
         run: mvn -B clean package
 
       - name: Descargar JavaFX JMODS
@@ -130,96 +133,102 @@ jobs:
           curl -L -o javafx-jmods.zip https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_osx-x64_bin-jmods.zip
           unzip javafx-jmods.zip -d javafx-jmods
 
-      - name: Crear runtime image con jlink
+      - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
                 --add-modules javafx.controls,javafx.fxml,javafx.swing \
                 --output target/RemoteHealth-runtime
 
-      - name: Crear DMG con jpackage
+      - name: Crear DMG (jpackage)
         run: |
+          mkdir -p target/installers
           jpackage \
             --input target \
+            --dest target/installers \
             --name RemoteHealth \
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type dmg \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Buscar DMG generado
-        id: find_artifact
+      - name: Verificar DMG
+        id: find_dmg
         run: |
-          dmg_file=$(find ./target -name '*.dmg' | head -n 1)
-          echo "DMG found: $dmg_file"
-          echo "dmg_path=$dmg_file" >> "$GITHUB_OUTPUT"
+          set -e
+          DMG=target/installers/RemoteHealth.dmg
+          echo "Buscando instalador en $DMG"
+          [ -f "$DMG" ] || { echo "::error::No se encontró el DMG"; exit 1; }
+          echo "dmg_path=$DMG" >> "$GITHUB_OUTPUT"
 
       - name: Subir DMG
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifact.outputs.dmg_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}.dmg
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ${{ steps.find_dmg.outputs.dmg_path }}
+          asset_name:  RemoteHealth-${{ github.ref_name }}.dmg
           asset_content_type: application/octet-stream
 
 # ──────────────────────────────────────────────────────────────
-# 4️⃣ Linux
+# 4️⃣ Linux (DEB)
 # ──────────────────────────────────────────────────────────────
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
-    outputs:
-      deb_path: ${{ steps.find_artifact.outputs.deb_path }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Build Fat JAR
+      - name: Build fat JAR
         run: mvn -B clean package
 
       - name: Instalar dependencias de jpackage
-        run: sudo apt-get install -y fakeroot dpkg rpm
+        run: sudo apt-get update -y && sudo apt-get install -y fakeroot dpkg rpm
 
       - name: Descargar JavaFX JMODS
         run: |
           wget https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_linux-x64_bin-jmods.zip -O javafx-jmods.zip
           unzip javafx-jmods.zip -d javafx-jmods
 
-      - name: Crear runtime image con jlink
+      - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
                 --add-modules javafx.controls,javafx.fxml,javafx.swing \
                 --output target/RemoteHealth-runtime
 
-      - name: Crear DEB con jpackage
+      - name: Crear DEB (jpackage)
         run: |
+          mkdir -p target/installers
           jpackage \
             --input target \
+            --dest target/installers \
             --name RemoteHealth \
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type deb \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Buscar DEB generado
-        id: find_artifact
+      - name: Verificar DEB
+        id: find_deb
         run: |
-          deb_file=$(find ./target -name '*.deb' | head -n 1)
-          echo "DEB found: $deb_file"
-          echo "deb_path=$deb_file" >> "$GITHUB_OUTPUT"
+          set -e
+          DEB=target/installers/RemoteHealth.deb
+          echo "Buscando instalador en $DEB"
+          [ -f "$DEB" ] || { echo "::error::No se encontró el DEB"; exit 1; }
+          echo "deb_path=$DEB" >> "$GITHUB_OUTPUT"
 
       - name: Subir DEB
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifact.outputs.deb_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}.deb
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ${{ steps.find_deb.outputs.deb_path }}
+          asset_name:  RemoteHealth-${{ github.ref_name }}.deb
           asset_content_type: application/octet-stream
