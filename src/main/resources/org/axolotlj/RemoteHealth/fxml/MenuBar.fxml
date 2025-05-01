@@ -6,7 +6,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
 
-<MenuBar xmlns="http://javafx.com/javafx/23.0.1"
+<MenuBar xmlns="http://javafx.com/javafx/21.0.6"
 	xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="org.axolotlj.RemoteHealth.controller.MenuBarController">
 	<menus>

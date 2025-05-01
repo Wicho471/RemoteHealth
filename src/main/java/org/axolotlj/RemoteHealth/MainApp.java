@@ -58,7 +58,6 @@ public class MainApp extends Application {
 	@Override
 	public void stop() throws Exception {
 		AppContext.getInstance().finalize();
-		Debug.printAllThreads(false);
 	}
 
 	public static void main(String[] args) {

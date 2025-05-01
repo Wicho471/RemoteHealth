@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fillWidth="true" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.FilterOptionsController">
+<VBox fillWidth="true" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/21.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.FilterOptionsController">
 	<children>
 		<TitledPane fx:id="bandPassPanel" animated="false" text="Pasa bandas">
 			<content>
