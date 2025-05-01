@@ -9,7 +9,6 @@ permissions:
   contents: write
 
 env:
-  GH_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
   JAVAFX_VERSION: 21.0.6
 
 jobs:
@@ -18,23 +17,22 @@ jobs:
 # ──────────────────────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Instalar GitHub CLI manualmente
-        run: |
-          curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_linux_amd64.tar.gz -o gh.tar.gz
-          tar -xzf gh.tar.gz
-          sudo cp gh_*/bin/gh /usr/local/bin/
-          gh --version
-
       - name: Crear Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
-          TAG: ${{ github.ref_name }}
-        run: |
-          gh release create "$TAG" \
-            --title "RemoteHealth $TAG" \
-            --notes "Release generado automáticamente para $TAG"
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: RemoteHealth ${{ github.ref_name }}
+          body: Release generado automáticamente para ${{ github.ref_name }}
+          draft: false
+          prerelease: false
 
 # ──────────────────────────────────────────────────────────────
 # 2️⃣ Windows
@@ -78,21 +76,25 @@ jobs:
                    --win-menu-group "RemoteHealth" `
                    --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
-      - name: Instalar GitHub CLI manualmente
-        run: |
-          $version = (Invoke-RestMethod https://api.github.com/repos/cli/cli/releases/latest).tag_name
-          $url = "https://github.com/cli/cli/releases/download/$version/gh_${version}_windows_amd64.zip"
-          Invoke-WebRequest $url -OutFile gh.zip
-          Expand-Archive gh.zip -DestinationPath gh
-          Copy-Item gh\gh_*_windows_amd64\bin\gh.exe C:\ProgramData\chocolatey\bin\
-          gh --version
-
-      - name: Subir artefactos (MSI + JAR)
+      - name: Subir MSI
+        uses: actions/upload-release-asset@v1
         env:
-          TAG: ${{ github.ref_name }}
-        run: |
-          gh release upload "$TAG" target/RemoteHealth-*.msi
-          gh release upload "$TAG" target/RemoteHealth-*-jar-with-dependencies.jar
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.msi
+          asset_name: RemoteHealth-${{ github.ref_name }}.msi
+          asset_content_type: application/octet-stream
+
+      - name: Subir Fat JAR
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          asset_name: RemoteHealth-${{ github.ref_name }}-jar-with-dependencies.jar
+          asset_content_type: application/java-archive
 
 # ──────────────────────────────────────────────────────────────
 # 3️⃣ macOS
@@ -133,19 +135,15 @@ jobs:
             --type dmg \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Instalar GitHub CLI manualmente
-        run: |
-          brew install gh || (
-            curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_macOS_amd64.tar.gz -o gh.tar.gz
-            tar -xzf gh.tar.gz
-            sudo cp gh_*/bin/gh /usr/local/bin/
-          )
-          gh --version
-
       - name: Subir DMG
+        uses: actions/upload-release-asset@v1
         env:
-          TAG: ${{ github.ref_name }}
-        run: gh release upload "$TAG" target/RemoteHealth-*.dmg
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.dmg
+          asset_name: RemoteHealth-${{ github.ref_name }}.dmg
+          asset_content_type: application/octet-stream
 
 # ──────────────────────────────────────────────────────────────
 # 4️⃣ Linux
@@ -189,14 +187,12 @@ jobs:
             --type deb \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Instalar GitHub CLI manualmente
-        run: |
-          curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_linux_amd64.tar.gz -o gh.tar.gz
-          tar -xzf gh.tar.gz
-          sudo cp gh_*/bin/gh /usr/local/bin/
-          gh --version
-
       - name: Subir DEB
+        uses: actions/upload-release-asset@v1
         env:
-          TAG: ${{ github.ref_name }}
-        run: gh release upload "$TAG" target/RemoteHealth-*.deb
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.deb
+          asset_name: RemoteHealth-${{ github.ref_name }}.deb
+          asset_content_type: application/octet-stream
