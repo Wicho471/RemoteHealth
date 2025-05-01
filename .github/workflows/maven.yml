@@ -21,15 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Instalar GitHub CLI
+      - name: Instalar GitHub CLI manualmente
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages -y
-          sudo apt-get update -y
-          sudo apt-get install gh -y
-
-      - name: Autenticar CLI
-        run: echo "$GH_TOKEN" | gh auth login --with-token
+          curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_linux_amd64.tar.gz -o gh.tar.gz
+          tar -xzf gh.tar.gz
+          sudo cp gh_*/bin/gh /usr/local/bin/
+          gh --version
 
       - name: Crear Release
         env:
@@ -81,13 +78,14 @@ jobs:
                    --win-menu-group "RemoteHealth" `
                    --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
-      - name: Instalar GitHub CLI
-        run: choco install gh -y
-
-      - name: Autenticar CLI
-        shell: pwsh
+      - name: Instalar GitHub CLI manualmente
         run: |
-          echo $env:GH_TOKEN | gh auth login --with-token
+          $version = (Invoke-RestMethod https://api.github.com/repos/cli/cli/releases/latest).tag_name
+          $url = "https://github.com/cli/cli/releases/download/$version/gh_${version}_windows_amd64.zip"
+          Invoke-WebRequest $url -OutFile gh.zip
+          Expand-Archive gh.zip -DestinationPath gh
+          Copy-Item gh\gh_*_windows_amd64\bin\gh.exe C:\ProgramData\chocolatey\bin\
+          gh --version
 
       - name: Subir artefactos (MSI + JAR)
         env:
@@ -135,11 +133,14 @@ jobs:
             --type dmg \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Instalar GitHub CLI
-        run: brew install gh
-
-      - name: Autenticar CLI
-        run: echo "$GH_TOKEN" | gh auth login --with-token
+      - name: Instalar GitHub CLI manualmente
+        run: |
+          brew install gh || (
+            curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_macOS_amd64.tar.gz -o gh.tar.gz
+            tar -xzf gh.tar.gz
+            sudo cp gh_*/bin/gh /usr/local/bin/
+          )
+          gh --version
 
       - name: Subir DMG
         env:
@@ -188,15 +189,12 @@ jobs:
             --type deb \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Instalar GitHub CLI
+      - name: Instalar GitHub CLI manualmente
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages -y
-          sudo apt-get update -y
-          sudo apt-get install gh -y
-
-      - name: Autenticar CLI
-        run: echo "$GH_TOKEN" | gh auth login --with-token
+          curl -L https://github.com/cli/cli/releases/latest/download/gh_$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')_linux_amd64.tar.gz -o gh.tar.gz
+          tar -xzf gh.tar.gz
+          sudo cp gh_*/bin/gh /usr/local/bin/
+          gh --version
 
       - name: Subir DEB
         env:
