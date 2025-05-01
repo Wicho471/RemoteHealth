@@ -40,6 +40,8 @@ jobs:
   build-windows:
     needs: create-release
     runs-on: windows-latest
+    outputs:
+      msi_path: ${{ steps.find_artifact.outputs.msi_path }}
     steps:
       - uses: actions/checkout@v3
 
@@ -76,13 +78,20 @@ jobs:
                    --win-menu-group "RemoteHealth" `
                    --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
+      - name: Buscar MSI generado
+        id: find_artifact
+        run: |
+          $file = Get-ChildItem -Path ./target -Filter *.msi | Select-Object -First 1
+          echo "MSI found: $($file.FullName)"
+          echo "msi_path=$($file.FullName)" >> $env:GITHUB_OUTPUT
+
       - name: Subir MSI
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.msi
+          asset_path: ${{ steps.find_artifact.outputs.msi_path }}
           asset_name: RemoteHealth-${{ github.ref_name }}.msi
           asset_content_type: application/octet-stream
 
@@ -102,6 +111,8 @@ jobs:
   build-macos:
     needs: create-release
     runs-on: macos-latest
+    outputs:
+      dmg_path: ${{ steps.find_artifact.outputs.dmg_path }}
     steps:
       - uses: actions/checkout@v3
 
@@ -135,13 +146,20 @@ jobs:
             --type dmg \
             --runtime-image target/RemoteHealth-runtime
 
+      - name: Buscar DMG generado
+        id: find_artifact
+        run: |
+          dmg_file=$(find ./target -name '*.dmg' | head -n 1)
+          echo "DMG found: $dmg_file"
+          echo "dmg_path=$dmg_file" >> "$GITHUB_OUTPUT"
+
       - name: Subir DMG
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.dmg
+          asset_path: ${{ steps.find_artifact.outputs.dmg_path }}
           asset_name: RemoteHealth-${{ github.ref_name }}.dmg
           asset_content_type: application/octet-stream
 
@@ -151,6 +169,8 @@ jobs:
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
+    outputs:
+      deb_path: ${{ steps.find_artifact.outputs.deb_path }}
     steps:
       - uses: actions/checkout@v3
 
@@ -187,12 +207,19 @@ jobs:
             --type deb \
             --runtime-image target/RemoteHealth-runtime
 
+      - name: Buscar DEB generado
+        id: find_artifact
+        run: |
+          deb_file=$(find ./target -name '*.deb' | head -n 1)
+          echo "DEB found: $deb_file"
+          echo "deb_path=$deb_file" >> "$GITHUB_OUTPUT"
+
       - name: Subir DEB
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/RemoteHealth-0.0.1-SNAPSHOT.deb
+          asset_path: ${{ steps.find_artifact.outputs.deb_path }}
           asset_name: RemoteHealth-${{ github.ref_name }}.deb
           asset_content_type: application/octet-stream
