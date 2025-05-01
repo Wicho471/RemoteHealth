@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+
+<MenuBar xmlns="http://javafx.com/javafx/23.0.1"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.axolotlj.RemoteHealth.controller.MenuBarController">
+	<menus>
+		<Menu fx:id="menuEsp32" mnemonicParsing="false">
+			<items>
+				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false"
+					onAction="#flashEsp32Handle" />
+			</items>
+		</Menu>
+		<Menu fx:id="menuAnalysis" mnemonicParsing="false">
+			<items>
+				<MenuItem fx:id="itemAnalyze" mnemonicParsing="false"
+					onAction="#openAnalysisHandler" />
+			</items>
+		</Menu>
+		<Menu fx:id="menuFilters" mnemonicParsing="false">
+			<items>
+				<MenuItem fx:id="itemFilterSettings"
+					mnemonicParsing="false" onAction="#filterSettingsHandler" />
+			</items>
+		</Menu>
+		<Menu fx:id="menuLanguage" mnemonicParsing="false">
+			<items>
+				<RadioMenuItem fx:id="langSpanish"
+					toggleGroup="$languageGroup" mnemonicParsing="false" />
+				<RadioMenuItem fx:id="langEnglish"
+					toggleGroup="$languageGroup" mnemonicParsing="false" />
+			</items>
+		</Menu>
+		<Menu fx:id="menuHelp" mnemonicParsing="false">
+			<items>
+				<MenuItem fx:id="itemUserManual" mnemonicParsing="false" />
+				<MenuItem fx:id="itemAbout" mnemonicParsing="false" />
+			</items>
+		</Menu>
+	</menus>
+</MenuBar>
+

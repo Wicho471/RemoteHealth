@@ -1,0 +1,50 @@
+.root {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #ffffff;
+}
+
+.label {
+    -fx-text-fill: #000000;
+}
+
+.axis {
+    -fx-tick-label-fill: #cccccc;
+    -fx-axis-line-visible: false;
+    -fx-tick-mark-visible: false;
+}
+
+.chart-plot-background {
+    -fx-background-color: #1e1e1e;
+}
+
+.chart-legend {
+    -fx-text-fill: #ffffff;
+}
+
+/* ECG en ECG Chart (serie 0) */
+.chart-line-symbol.default-color0,
+.default-color0.chart-series-line {
+    -fx-stroke: #00ff00;
+    -fx-stroke-width: 1.0px;
+}
+
+/* PLETH (IR) en PLETH Chart (serie 0) */
+.PLETH .default-color0.chart-series-line {
+    -fx-stroke: #3399ff;
+    -fx-stroke-width: 1.0px;
+}
+
+/* RED en PLETH Chart (serie 1) */
+.PLETH .default-color1.chart-series-line {
+    -fx-stroke: #ff4d4d;
+    -fx-stroke-width: 1.0px;
+}
+
+
+/* Ocultar los puntos en las líneas */
+.chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: "";
+}
