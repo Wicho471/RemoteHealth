@@ -1,51 +1,103 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Build and Package RemoteHealth
+name: Build & Release RemoteHealth
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'          # se ejecuta solo al pushear un tag vX.Y.Z
+
+permissions:
+  contents: write      # necesario para checkout; el PAT cubrirá el release
+
+env:                   # variable común para todos los jobs
+  GH_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
 
 jobs:
+# ──────────────────────────────────────────────────────────────
+# 1. Crear el release una sola vez
+# ──────────────────────────────────────────────────────────────
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Instalar GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages -y
+          sudo apt-get update -y
+          sudo apt-get install gh -y
+
+      - name: Autenticar CLI
+        run:  echo "$GH_TOKEN" | gh auth login --with-token
+
+      - name: Crear Release
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "RemoteHealth $TAG" \
+            --notes "Release generado automáticamente para $TAG"
+
+# ──────────────────────────────────────────────────────────────
+# 2. Windows
+# ──────────────────────────────────────────────────────────────
   build-windows:
+    needs: create-release
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Build Fat JAR
-        run: mvn clean package
-      - name: Package MSI with jpackage
-        run: |
-          jpackage ^
-            --input target ^
-            --name RemoteHealth ^
-            --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar ^
-            --main-class org.axolotlj.RemoteHealth.MainApp ^
-            --type msi
+          distribution: temurin
+          java-version: 17
 
+      - name: Build Fat JAR
+        run: mvn -B clean package
+
+      - name: Crear MSI con jpackage
+        run: |
+          jpackage --input target ^
+                   --name RemoteHealth ^
+                   --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar ^
+                   --main-class org.axolotlj.RemoteHealth.MainApp ^
+                   --type msi
+
+      - name: Instalar GitHub CLI
+        run: choco install gh -y
+
+      - name: Autenticar CLI
+        shell: pwsh
+        run: |
+          echo $env:GH_TOKEN | gh auth login --with-token
+
+      - name: Subir artefactos (MSI + JAR)
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$TAG" target/RemoteHealth-*.msi
+          gh release upload "$TAG" target/RemoteHealth-*-jar-with-dependencies.jar
+
+# ──────────────────────────────────────────────────────────────
+# 3. macOS
+# ──────────────────────────────────────────────────────────────
   build-macos:
+    needs: create-release
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
+
       - name: Build Fat JAR
-        run: mvn clean package
-      - name: Package DMG with jpackage
+        run: mvn -B clean package
+
+      - name: Crear DMG con jpackage
         run: |
           jpackage \
             --input target \
@@ -54,20 +106,39 @@ jobs:
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type dmg
 
+      - name: Instalar GitHub CLI
+        run: brew install gh
+
+      - name: Autenticar CLI
+        run: echo "$GH_TOKEN" | gh auth login --with-token
+
+      - name: Subir DMG
+        env:
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" target/RemoteHealth-*.dmg
+
+# ──────────────────────────────────────────────────────────────
+# 4. Linux
+# ──────────────────────────────────────────────────────────────
   build-linux:
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
+
       - name: Build Fat JAR
-        run: mvn clean package
-      - name: Install jpackage dependencies
+        run: mvn -B clean package
+
+      - name: Instalar dependencias de jpackage
         run: sudo apt-get install -y fakeroot dpkg rpm
-      - name: Package DEB with jpackage
+
+      - name: Crear DEB con jpackage
         run: |
           jpackage \
             --input target \
@@ -76,3 +147,17 @@ jobs:
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type deb
 
+      - name: Instalar GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages -y
+          sudo apt-get update -y
+          sudo apt-get install gh -y
+
+      - name: Autenticar CLI
+        run: echo "$GH_TOKEN" | gh auth login --with-token
+
+      - name: Subir DEB
+        env:
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" target/RemoteHealth-*.deb
