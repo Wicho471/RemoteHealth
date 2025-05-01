@@ -3,21 +3,21 @@ name: Build & Release RemoteHealth
 on:
   push:
     tags:
-      - 'v*'        # solo al hacer push de un tag vX.Y.Z
+      - 'v*'
 
 permissions:
   contents: write
 
 env:
-  JAVAFX_VERSION: 21.0.6          # misma versión que en el POM
+  JAVAFX_VERSION: 21.0.6
 
-# ──────────────────────────────────────────────────────────────
-# 1️⃣ Release (se crea una sola vez)
-# ──────────────────────────────────────────────────────────────
 jobs:
+# ─────────────────────────────────────────────
+# 1️⃣ Crear el release (solo una vez)
+# ─────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
-    outputs:                     # expone upload_url al resto de jobs
+    outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v3
@@ -34,9 +34,9 @@ jobs:
           draft:         false
           prerelease:    false
 
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
 # 2️⃣ Windows (MSI)
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
   build-windows:
     needs: create-release
     runs-on: windows-latest
@@ -79,16 +79,21 @@ jobs:
             --win-menu-group "RemoteHealth" `
             --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
-      - name: Verificar MSI
+      - name: Listar archivos generados (debug)
+        run: |
+          echo "Contenido de target/installers:"
+          Get-ChildItem -Path target/installers
+
+      - name: Buscar MSI generado
         id: find_msi
         run: |
-          $msi = "target/installers/RemoteHealth.msi"
-          Write-Host "Buscando instalador en $msi"
-          if (-Not (Test-Path $msi)) {
-            Write-Error "No se encontró el MSI"
+          $file = Get-ChildItem -Path target/installers -Filter 'RemoteHealth*.msi' | Select-Object -First 1
+          if ($null -eq $file) {
+            Write-Error "No se encontró ningún archivo MSI en target/installers"
             Exit 1
           }
-          "msi_path=$msi" >> $env:GITHUB_OUTPUT
+          echo "MSI encontrado: $($file.FullName)"
+          echo "msi_path=$($file.FullName)" >> $env:GITHUB_OUTPUT
 
       - name: Subir MSI
         uses: actions/upload-release-asset@v1
@@ -110,9 +115,9 @@ jobs:
           asset_name:  RemoteHealth-${{ github.ref_name }}-jar-with-dependencies.jar
           asset_content_type: application/java-archive
 
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
 # 3️⃣ macOS (DMG)
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
   build-macos:
     needs: create-release
     runs-on: macos-latest
@@ -151,14 +156,21 @@ jobs:
             --type dmg \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Verificar DMG
+      - name: Listar archivos generados (debug)
+        run: |
+          echo "Contenido de target/installers:"
+          ls -lh target/installers || echo "Carpeta no encontrada"
+
+      - name: Buscar DMG generado
         id: find_dmg
         run: |
-          set -e
-          DMG=target/installers/RemoteHealth.dmg
-          echo "Buscando instalador en $DMG"
-          [ -f "$DMG" ] || { echo "::error::No se encontró el DMG"; exit 1; }
-          echo "dmg_path=$DMG" >> "$GITHUB_OUTPUT"
+          dmg_file=$(find target/installers -name 'RemoteHealth*.dmg' | head -n 1)
+          echo "DMG encontrado: $dmg_file"
+          if [ -z "$dmg_file" ]; then
+            echo "::error::No se encontró ningún archivo DMG en target/installers"
+            exit 1
+          fi
+          echo "dmg_path=$dmg_file" >> "$GITHUB_OUTPUT"
 
       - name: Subir DMG
         uses: actions/upload-release-asset@v1
@@ -170,9 +182,9 @@ jobs:
           asset_name:  RemoteHealth-${{ github.ref_name }}.dmg
           asset_content_type: application/octet-stream
 
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
 # 4️⃣ Linux (DEB)
-# ──────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
@@ -214,14 +226,21 @@ jobs:
             --type deb \
             --runtime-image target/RemoteHealth-runtime
 
-      - name: Verificar DEB
+      - name: Listar archivos generados (debug)
+        run: |
+          echo "Contenido de target/installers:"
+          ls -lh target/installers || echo "Carpeta no encontrada"
+
+      - name: Buscar DEB generado
         id: find_deb
         run: |
-          set -e
-          DEB=target/installers/RemoteHealth.deb
-          echo "Buscando instalador en $DEB"
-          [ -f "$DEB" ] || { echo "::error::No se encontró el DEB"; exit 1; }
-          echo "deb_path=$DEB" >> "$GITHUB_OUTPUT"
+          deb_file=$(find target/installers -name 'RemoteHealth*.deb' | head -n 1)
+          echo "DEB encontrado: $deb_file"
+          if [ -z "$deb_file" ]; then
+            echo "::error::No se encontró ningún archivo DEB en target/installers"
+            exit 1
+          fi
+          echo "deb_path=$deb_file" >> "$GITHUB_OUTPUT"
 
       - name: Subir DEB
         uses: actions/upload-release-asset@v1
