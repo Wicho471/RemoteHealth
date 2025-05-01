@@ -62,7 +62,11 @@ jobs:
                    --name RemoteHealth ^
                    --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar ^
                    --main-class org.axolotlj.RemoteHealth.MainApp ^
-                   --type msi
+                   --type msi ^
+                   --win-shortcut ^
+                   --win-menu ^
+                   --win-menu-group "RemoteHealth"
+                   --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
 
       - name: Instalar GitHub CLI
         run: choco install gh -y
