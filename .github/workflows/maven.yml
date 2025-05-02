@@ -60,7 +60,7 @@ jobs:
       - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$env:JAVA_HOME/jmods;javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" `
-                --add-modules javafx.controls,javafx.fxml,javafx.swing `
+                --add-modules ALL-MODULE-PATH `
                 --output target/RemoteHealth-runtime
 
       - name: Crear MSI (jpackage)
@@ -141,7 +141,7 @@ jobs:
       - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
-                --add-modules javafx.controls,javafx.fxml,javafx.swing \
+                --add-modules ALL-MODULE-PATH \
                 --output target/RemoteHealth-runtime
 
       - name: Crear DMG (jpackage)
@@ -211,7 +211,7 @@ jobs:
       - name: Crear runtime image (jlink)
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
-                --add-modules javafx.controls,javafx.fxml,javafx.swing \
+                --add-modules ALL-MODULE-PATH \
                 --output target/RemoteHealth-runtime
 
       - name: Crear DEB (jpackage)
@@ -234,7 +234,7 @@ jobs:
       - name: Buscar DEB generado
         id: find_deb
         run: |
-          deb_file=$(find target/installers -name 'RemoteHealth*.deb' | head -n 1)
+          deb_file=$(find target/installers -name 'remotehealth*.deb' | head -n 1)
           echo "DEB encontrado: $deb_file"
           if [ -z "$deb_file" ]; then
             echo "::error::No se encontró ningún archivo DEB en target/installers"
