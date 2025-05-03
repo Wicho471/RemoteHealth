@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
-import org.axolotlj.RemoteHealth.app.ui.Alerts;
+import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
+import org.axolotlj.RemoteHealth.app.ui.ButtonUtils;
+import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
 import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
 import org.axolotlj.RemoteHealth.core.AppContext;
@@ -31,7 +33,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -114,12 +115,12 @@ public class StartupController implements ContextAware {
 			int index = event.getTablePosition().getRow();
 
 			if (newName == null || newName.trim().isEmpty()) {
-				Alerts.showWarningAlert("Nombre inválido", null, "El nombre no puede estar vacío.");
+				AlertUtil.showWarningAlert("Nombre inválido", null, "El nombre no puede estar vacío.");
 				deviceTable.refresh();
 				return;
 			}
 
-			Optional<ButtonType> result = Alerts.showConfirmationAlert("Confirmación de cambio",
+			Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmación de cambio",
 					"¿Deseas cambiar el nombre del dispositivo?", "De: " + data.getName() + "\nA: " + newName);
 
 			if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -141,7 +142,7 @@ public class StartupController implements ContextAware {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 					URI target = data.getUri4(); // ← IPV4
 					if (target == null) {
-						Alerts.showErrorAlert("Error de conexión", "Dirección inválida",
+						AlertUtil.showErrorAlert("Error de conexión", "Dirección inválida",
 								"Este dispositivo no tiene una dirección IPv4 válida para conexión.");
 						return;
 					}
@@ -158,29 +159,23 @@ public class StartupController implements ContextAware {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 					String ip = data.getIpV4();
 
-					connectButton.setText("Comprobando...");
-					connectButton.setDisable(true);
-					connectButton.setStyle("-fx-text-fill: orange;");
+					ButtonUtils.waitingButton(connectButton);
 
 					// Hilo para no bloquear la UI
 					new Thread(() -> {
 						boolean reachable = NetworkUtil.isReachable(ip);
 
 						if (!reachable) {
-							Platform.runLater(() -> {
-								disableButton(connectButton);
-							});
+							ButtonUtils.disableButton(connectButton);
 							return;
 						}
 
 						NetworkUtil.ping(data.getUri4(), isAvailable -> {
-							Platform.runLater(() -> {
-								if (isAvailable) {
-									enabledButton(connectButton);
-								} else {
-									disableButton(connectButton);
-								}
-							});
+							if (isAvailable) {
+								ButtonUtils.enabledButton(connectButton);
+							} else {
+								ButtonUtils.disableButton(connectButton);
+							}
 						});
 
 					}, "Check-Local-Ping").start();
@@ -202,7 +197,7 @@ public class StartupController implements ContextAware {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 					URI target = data.getUri6(); // ← IPV6
 					if (target == null) {
-						Alerts.showErrorAlert("Error de conexión", "Dirección inválida",
+						AlertUtil.showErrorAlert("Error de conexión", "Dirección inválida",
 								"Este dispositivo no tiene una dirección IPv6 válida para conexión.");
 						return;
 					}
@@ -219,28 +214,22 @@ public class StartupController implements ContextAware {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 					String ip = data.getIpV6();
 
-					connectButton.setText("Comprobando...");
-					connectButton.setDisable(true);
-					connectButton.setStyle("-fx-text-fill: orange;");
+					ButtonUtils.waitingButton(connectButton);
 
 					new Thread(() -> {
 						boolean reachable = NetworkUtil.isReachable(ip);
 
 						if (!reachable) {
-							Platform.runLater(() -> {
-								disableButton(connectButton);
-							});
+							ButtonUtils.disableButton(connectButton);
 							return;
 						}
 
 						NetworkUtil.ping(data.getUri6(), isAvailable -> {
-							Platform.runLater(() -> {
-								if (isAvailable) {
-									enabledButton(connectButton);
-								} else {
-									disableButton(connectButton);
-								}
-							});
+							if (isAvailable) {
+								ButtonUtils.enabledButton(connectButton);
+							} else {
+								ButtonUtils.disableButton(connectButton);
+							}
 						});
 					}, "Check-Remote-Ping").start();
 
@@ -260,7 +249,7 @@ public class StartupController implements ContextAware {
 				btn.setOnAction(event -> {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 
-					Optional<ButtonType> result = Alerts.showConfirmationAlert("Confirmacion elimnacion",
+					Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmacion elimnacion",
 							"¿Desas eliminar este dispositivo?", "Dispositivo: " + data.getName());
 					if (result.isPresent() && result.get() == ButtonType.OK) {
 						int index = getIndex();
@@ -287,22 +276,6 @@ public class StartupController implements ContextAware {
 		deviceTable.getColumns().setAll(deleteCol, numberCol, nameCol, statusLocalCol, statusRemoteCol);
 	}
 
-	private void enabledButton(Button button) {
-		Platform.runLater(() -> {
-			button.setText("Disponible");
-			button.setDisable(false);
-			button.setStyle("-fx-text-fill: green;");
-		});
-	}
-
-	private void disableButton(Button button) {
-		Platform.runLater(() -> {
-			button.setText("Sin conexión");
-			button.setDisable(true);
-			button.setStyle("-fx-text-fill: red;");
-		});
-	}
-
 	private <T> Callback<TableColumn<ConnectionData, T>, TableCell<ConnectionData, T>> centeredTextCellFactory() {
 		return column -> new TableCell<>() {
 			@Override
@@ -324,7 +297,7 @@ public class StartupController implements ContextAware {
 		dataLogger.logInfo("Intentando establecer conexion con -> " + data.toString());
 
 		Platform.runLater(() -> {
-			this.connectingAlert = Alerts.showInformationAlert("Conectando", null, "Estableciendo conexion...");
+			this.connectingAlert = AlertUtil.showInformationAlert("Conectando", null, "Estableciendo conexion...");
 		});
 
 		wsManager.connect(this::onConnectionSuccess, this::onConnectionFailure, data, isRemote);
@@ -351,7 +324,7 @@ public class StartupController implements ContextAware {
 			if (connectingAlert != null) {
 				connectingAlert.close();
 			}
-			Alerts.showErrorAlert("Error", "No se pudo conectar", "Verifica tus conexiones a la red");
+			AlertUtil.showErrorAlert("Error", "No se pudo conectar", "Verifica tus conexiones a la red");
 		});
 	}
 
@@ -363,7 +336,7 @@ public class StartupController implements ContextAware {
 	}
 
 	private void setStatusAsync(ImageView imageView, Supplier<Boolean> checkFunction) {
-		Platform.runLater(() -> imageView.setImage(new Image("org/axolotlj/RemoteHealth/img/trabajo-en-progreso.png")));
+		ImageViewUtils.setImage(imageView, "/org/axolotlj/RemoteHealth/img/trabajo-en-progreso.png");
 
 		new Thread(() -> {
 			boolean result = false;
@@ -376,11 +349,9 @@ public class StartupController implements ContextAware {
 			}
 
 			boolean finalResult = result;
-			Platform.runLater(() -> {
-				String imgPath = finalResult ? "org/axolotlj/RemoteHealth/img/comprobado.png"
-						: "org/axolotlj/RemoteHealth/img/boton-x.png";
-				imageView.setImage(new Image(imgPath));
-			});
+			String imgPath = finalResult ? "/org/axolotlj/RemoteHealth/img/comprobado.png"
+					: "/org/axolotlj/RemoteHealth/img/boton-x.png";
+			ImageViewUtils.setImage(imageView, imgPath);
 		}, "Thread-setStatusAsync").start();
 	}
 

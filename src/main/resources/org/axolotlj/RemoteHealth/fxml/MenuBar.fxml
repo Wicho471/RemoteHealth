@@ -1,47 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
-<MenuBar xmlns="http://javafx.com/javafx/21.0.6"
-	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="org.axolotlj.RemoteHealth.controller.MenuBarController">
+<MenuBar xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.MenuBarController">
 	<menus>
 		<Menu fx:id="menuEsp32" mnemonicParsing="false">
 			<items>
-				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false"
-					onAction="#flashEsp32Handle" />
+				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false" onAction="#flashEsp32Handle">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/favicons/Microcontroler.png" />
+                     </image>
+                  </ImageView>
+               </graphic></MenuItem>
 			</items>
 		</Menu>
 		<Menu fx:id="menuAnalysis" mnemonicParsing="false">
 			<items>
-				<MenuItem fx:id="itemAnalyze" mnemonicParsing="false"
-					onAction="#openAnalysisHandler" />
+				<MenuItem fx:id="itemAnalyze" mnemonicParsing="false" onAction="#openAnalysisHandler">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/favicons/Analysis.png" />
+                     </image>
+                  </ImageView>
+               </graphic></MenuItem>
 			</items>
 		</Menu>
 		<Menu fx:id="menuFilters" mnemonicParsing="false">
 			<items>
-				<MenuItem fx:id="itemFilterSettings"
-					mnemonicParsing="false" onAction="#filterSettingsHandler" />
+				<MenuItem fx:id="itemFilterSettings" mnemonicParsing="false" onAction="#filterSettingsHandler">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/favicons/Settings.png" />
+                     </image>
+                  </ImageView>
+               </graphic></MenuItem>
 			</items>
 		</Menu>
 		<Menu fx:id="menuLanguage" mnemonicParsing="false">
 			<items>
-				<RadioMenuItem fx:id="langSpanish"
-					toggleGroup="$languageGroup" mnemonicParsing="false" />
-				<RadioMenuItem fx:id="langEnglish"
-					toggleGroup="$languageGroup" mnemonicParsing="false" />
+				<RadioMenuItem fx:id="langSpanish" mnemonicParsing="false">
+               <toggleGroup>
+                  <ToggleGroup fx:id="languageGroup" />
+               </toggleGroup>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/langs/espana.png" />
+                     </image>
+                  </ImageView>
+               </graphic></RadioMenuItem>
+				<RadioMenuItem fx:id="langEnglish" mnemonicParsing="false" toggleGroup="$languageGroup">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/langs/estados-unidos.png" />
+                     </image>
+                  </ImageView>
+               </graphic></RadioMenuItem>
 			</items>
 		</Menu>
 		<Menu fx:id="menuHelp" mnemonicParsing="false">
 			<items>
-				<MenuItem fx:id="itemUserManual" mnemonicParsing="false" />
-				<MenuItem fx:id="itemAbout" mnemonicParsing="false" />
+				<MenuItem fx:id="itemUserManual" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/favicons/manual.png" />
+                     </image>
+                  </ImageView>
+               </graphic></MenuItem>
+				<MenuItem fx:id="itemAbout" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/favicons/acerca-de.png" />
+                     </image>
+                  </ImageView>
+               </graphic></MenuItem>
 			</items>
 		</Menu>
 	</menus>
 </MenuBar>
-

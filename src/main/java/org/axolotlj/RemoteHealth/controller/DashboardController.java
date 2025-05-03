@@ -1,11 +1,15 @@
 package org.axolotlj.RemoteHealth.controller;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.*;
 
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
-import org.axolotlj.RemoteHealth.app.ui.Alerts;
+import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
+import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
+import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
+import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
+import org.axolotlj.RemoteHealth.app.ui.SeriesUtils;
+import org.axolotlj.RemoteHealth.app.ui.TextFieldUtils;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
 import org.axolotlj.RemoteHealth.filters.RealTimeFilters;
@@ -16,13 +20,10 @@ import org.axolotlj.RemoteHealth.service.SystemMonitor;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
@@ -98,40 +99,36 @@ public class DashboardController implements ContextAware {
 
 	@FXML
 	private void handleRec() {
-	    DataProcessor dataProcessor = appContext.getDataProcessor();
+		DataProcessor dataProcessor = appContext.getDataProcessor();
 
-	    if (isRecoding) {
-	        boolean stopped = dataProcessor.stopRecordingData();
-	        if (!stopped) {
-	            Alerts.showErrorAlert("Error", "No se pudo detener la grabación", "Verifique el estado del sistema.");
-	            return;
-	        }
+		if (isRecoding) {
+			boolean stopped = dataProcessor.stopRecordingData();
+			if (!stopped) {
+				AlertUtil.showErrorAlert("Error", "No se pudo detener la grabación",
+						"Verifique el estado del sistema.");
+				return;
+			}
 
-	        isRecoding = false;
-	        Platform.runLater(() -> imgRecordStatus.setImage(new Image(
-	                getClass().getResource("/org/axolotlj/RemoteHealth/img/icons/rec-button.png").toExternalForm()
-	        )));
-	        return;
-	    }
+			isRecoding = false;
+			ImageViewUtils.setImage(imgRecordStatus, "/org/axolotlj/RemoteHealth/img/icons/rec-button.png");
+			return;
+		}
 
-	    String patientName = pacientNameField.getText().isBlank() ? "Unknown" : pacientNameField.getText();
-	    boolean started = dataProcessor.recordData(appContext.getWsManager().getConnectionData(), patientName);
-	    if (!started) {
-	        Alerts.showErrorAlert("Error", "No se pudo iniciar la grabación", "Ya hay una grabación activa o ocurrió un problema.");
-	        return;
-	    }
+		String patientName = pacientNameField.getText().isBlank() ? "Unknown" : pacientNameField.getText();
+		boolean started = dataProcessor.recordData(appContext.getWsManager().getConnectionData(), patientName);
+		if (!started) {
+			AlertUtil.showErrorAlert("Error", "No se pudo iniciar la grabación",
+					"Ya hay una grabación activa o ocurrió un problema.");
+			return;
+		}
 
-	    isRecoding = true;
-	    Platform.runLater(() -> imgRecordStatus.setImage(new Image(
-	            getClass().getResource("/org/axolotlj/RemoteHealth/img/icons/stop-record.png").toExternalForm()
-	    )));
+		isRecoding = true;
+		ImageViewUtils.setImage(imgRecordStatus, "/org/axolotlj/RemoteHealth/img/icons/stop-record.png");
 	}
-
-
 
 	@FXML
 	private void handleClose() {
-		Optional<ButtonType> result = Alerts.showConfirmationAlert("Confirma desconexion", null,
+		Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirma desconexion", null,
 				"¿Estas seguro de cerrar la conexion?");
 
 		if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -158,10 +155,7 @@ public class DashboardController implements ContextAware {
 	private void configEsp32Handle() {
 		System.out.println("Precionado config esp32");
 		try {
-			FXMLLoader loader = new FXMLLoader(
-					getClass().getResource("/org/axolotlj/RemoteHealth/fxml/ESP32ToolsScene.fxml")); // Cambia a la ruta
-																										// correcta
-			BorderPane page = (BorderPane) loader.load();
+			BorderPane page = (BorderPane) FxmlUtils.loadFXML("/org/axolotlj/RemoteHealth/fxml/ESP32ToolsScene.fxml").load();
 
 			Stage popupStage = new Stage();
 			Scene scene = new Scene(page);
@@ -173,16 +167,15 @@ public class DashboardController implements ContextAware {
 			popupStage.showAndWait();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-			Alerts.showErrorAlert("Error", "Error al abrir la ventana emergente", e.getMessage());
+			AlertUtil.showErrorAlert("Error", "Error al abrir la ventana emergente", e.getMessage());
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void setupCharts() {
-		ECG.getStylesheets()
-				.add(getClass().getResource("/org/axolotlj/RemoteHealth/css/DashboardStyle.css").toExternalForm());
-		PLETH.getStylesheets()
-				.add(getClass().getResource("/org/axolotlj/RemoteHealth/css/DashboardStyle.css").toExternalForm());
+		ChartUtils.setStyle(ECG, "/org/axolotlj/RemoteHealth/css/DashboardStyle.css");
+		ChartUtils.setStyle(PLETH, "/org/axolotlj/RemoteHealth/css/DashboardStyle.css");
+
 		PLETH.getStyleClass().add("PLETH");
 
 		ecgSeries.setName("ECG");
@@ -204,13 +197,8 @@ public class DashboardController implements ContextAware {
 		ECG.getData().add(ecgSeries);
 		PLETH.getData().addAll(plethSeries, redSeries);
 
-		((NumberAxis) ECG.getXAxis()).setAutoRanging(false);
-		((NumberAxis) ECG.getXAxis()).setLowerBound(0);
-		((NumberAxis) ECG.getXAxis()).setUpperBound(MAX_POINTS_ECG - 1);
-
-		((NumberAxis) PLETH.getXAxis()).setAutoRanging(false);
-		((NumberAxis) PLETH.getXAxis()).setLowerBound(0);
-		((NumberAxis) PLETH.getXAxis()).setUpperBound(MAX_POINTS_PLETH - 1);
+		ChartUtils.configureXAxis(ECG, MAX_POINTS_ECG, 0, null, true);
+		ChartUtils.configureXAxis(PLETH, MAX_POINTS_PLETH, 0, null, true);
 	}
 
 	private void initSystemMonitor() {
@@ -220,27 +208,10 @@ public class DashboardController implements ContextAware {
 				() -> {
 					int cpuProc = Integer.parseInt(cpuProcess.getText());
 					int cpuSys = Integer.parseInt(cpuSystem.getText());
-					updateTextFieldColor(cpuProcess, cpuProc, 0, 100);
-					updateTextFieldColor(cpuSystem, cpuSys, 0, 100);
+					TextFieldUtils.updateTextFieldColor(cpuProcess, cpuProc, 0, 100);
+					TextFieldUtils.updateTextFieldColor(cpuSystem, cpuSys, 0, 100);
 				});
 		monitor.start();
-	}
-
-	private void updateTextFieldColor(TextField textField, double value, double min, double max) {
-		double normalized = Math.max(0, Math.min(1, (value - min) / (max - min)));
-		int r, g;
-
-		if (normalized < 0.5) {
-			r = (int) (normalized * 2 * 255);
-			g = 255;
-		} else {
-			r = 255;
-			g = (int) ((1 - normalized) * 2 * 255);
-		}
-
-		String color = String.format("#%02x%02x00", r, g);
-		textField.setStyle("-fx-background-color: black;" + "-fx-text-fill: " + color + ";" + "-fx-font-weight: bold;"
-				+ "-fx-border-color: black;" + "-fx-border-width: 1;" + "-fx-opacity: 1;");
 	}
 
 	// ───────────────────── Actualización de datos ─────────────────────
@@ -270,14 +241,14 @@ public class DashboardController implements ContextAware {
 
 	private void applyToChart(StructureData data) {
 		if (data.getEcg().isValid()) {
-			updateSeriesData(ecgSeries, currentIndexEgc,
+			SeriesUtils.updateSeriesData(ecgSeries, currentIndexEgc,
 					butterworthFilterRealTime.filterECG(normECG(data.getEcg().getValue())));
 			currentIndexEgc = (currentIndexEgc + 1) % MAX_POINTS_ECG;
 		}
 		if (data.getIr().isValid() && data.getRed().isValid()) {
-			updateSeriesData(plethSeries, currentIndexPleth,
+			SeriesUtils.updateSeriesData(plethSeries, currentIndexPleth,
 					butterworthFilterRealTime.filterIr(normalizePleth(data.getIr().getValue())));
-			updateSeriesData(redSeries, currentIndexPleth,
+			SeriesUtils.updateSeriesData(redSeries, currentIndexPleth,
 					butterworthFilterRealTime.filterRed(normalizePleth(data.getRed().getValue())));
 			currentIndexPleth = (currentIndexPleth + 1) % MAX_POINTS_PLETH;
 		}
@@ -303,23 +274,19 @@ public class DashboardController implements ContextAware {
 
 			Platform.runLater(() -> {
 				SAMPLES.setText(String.valueOf(samplesPerSecond));
-				updateTextFieldColor(SAMPLES, samplesPerSecond, 500, 0);
+				TextFieldUtils.updateTextFieldColor(SAMPLES, samplesPerSecond, 500, 0);
 
 				dataRemaining.setText(String.valueOf(dataleft));
-				updateTextFieldColor(dataRemaining, dataleft, 0, 100);
+				TextFieldUtils.updateTextFieldColor(dataRemaining, dataleft, 0, 100);
 
 				LATENCY.setText(String.valueOf(latency));
-				updateTextFieldColor(LATENCY, latency, 0, 1000);
+				TextFieldUtils.updateTextFieldColor(LATENCY, latency, 0, 1000);
 			});
 		}
 	}
 
-	private void updateSeriesData(XYChart.Series<Number, Number> series, int index, double value) {
-		series.getData().get(index).setYValue(value);
-	}
-
 	private double normECG(short value) {
-		return (value / 4095.0) * 3.3; // <-- usar 4095.0 (un double) para forzar la división real
+		return (value / 4095.0) * 3.3; 
 	}
 
 	private double normalizePleth(int rawValue) {

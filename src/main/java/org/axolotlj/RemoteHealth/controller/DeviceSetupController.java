@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
-import org.axolotlj.RemoteHealth.app.ui.Alerts;
+import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
@@ -57,7 +57,9 @@ public class DeviceSetupController implements ContextAware {
 
 	@FXML
 	public void initialize() {
-
+	    Platform.runLater(() -> {
+	        appContext.getSceneManager().getStage().setResizable(false);
+	    });
 	}
 
 	@FXML
@@ -65,7 +67,9 @@ public class DeviceSetupController implements ContextAware {
 		if (qrScanner != null) {
 			qrScanner.stop();
 		}
-
+	    Platform.runLater(() -> {
+	        appContext.getSceneManager().getStage().setResizable(true);
+	    });
 		appContext.getSceneManager().switchTo(SceneType.DEVICE_SELECTOR);
 	}
 
@@ -79,9 +83,9 @@ public class DeviceSetupController implements ContextAware {
 				String qrContent = QRScanner.decodeQRCode(file.getAbsolutePath());
 				System.out.println(qrContent);
 				if (ConnectionsHandler.addConnetcionData(qrContent)) {
-					Alerts.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
+					AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
 				} else {
-					Alerts.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
+					AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
 				}
 
 			} catch (NotFoundException | IOException e) {
@@ -102,14 +106,14 @@ public class DeviceSetupController implements ContextAware {
 			String path = pathTextField.getText().trim().isEmpty() ? "/" : pathTextField.getText().trim();
 
 			if (ipv4.isEmpty() || ipv6.isEmpty() || portStr.isEmpty()) {
-				Alerts.showErrorAlert("Campos invalidos", "Algunos datos estan vacios",
+				AlertUtil.showErrorAlert("Campos invalidos", "Algunos datos estan vacios",
 						"Todos los campos excepto la ruta y el nombre son obligatorios");
 				return;
 			}
 
 			int port = Integer.parseInt(portStr);
 			if (port < 1 || port > 65535) {
-				Alerts.showErrorAlert("Campos invalidos", "Revisa que el campo puerto",
+				AlertUtil.showErrorAlert("Campos invalidos", "Revisa que el campo puerto",
 						"El puerto debe estar entre 1 y 65535");
 				return;
 			}
@@ -122,18 +126,18 @@ public class DeviceSetupController implements ContextAware {
 			json.addProperty("path", path);
 
 			if (ConnectionsHandler.addConnetcionData(json.toString())) {
-				Alerts.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
+				AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
 			} else {
-				Alerts.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
+				AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
 			}
 
 		} catch (NumberFormatException e) {
 			System.err.println("ConnectionFormHandler::processConnectionData - Puerto inválido: " + e.getMessage());
-			Alerts.showErrorAlert("Campos invalidos", "Revisa que el campo puerto",
+			AlertUtil.showErrorAlert("Campos invalidos", "Revisa que el campo puerto",
 					"El campo de puerto debe contener un número válido.");
 		} catch (Exception e) {
 			System.err.println("ConnectionFormHandler::processConnectionData - Error inesperado: " + e.getMessage());
-			Alerts.showErrorAlert("Campos invalidos", null, "Ocurrió un error al procesar los datos");
+			AlertUtil.showErrorAlert("Campos invalidos", null, "Ocurrió un error al procesar los datos");
 		}
 	}
 
@@ -160,10 +164,10 @@ public class DeviceSetupController implements ContextAware {
 				turnOnCameraBtn.setText("Encender camara");
 				if (qrContent != null) {
 					if (ConnectionsHandler.addConnetcionData(qrContent)) {
-						Alerts.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
+						AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
 
 					} else {
-						Alerts.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
+						AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
 					}
 				}
 			});

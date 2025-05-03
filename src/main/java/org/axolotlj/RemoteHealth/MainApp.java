@@ -6,11 +6,10 @@ import java.util.Optional;
 
 import org.axolotlj.RemoteHealth.app.SceneManager;
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
-import org.axolotlj.RemoteHealth.app.ui.Alerts;
+import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.files.LanguageConfig;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.service.logger.*;
-import org.axolotlj.RemoteHealth.util.Debug;
 import org.axolotlj.RemoteHealth.util.I18n;
 
 import javafx.application.Application;
@@ -46,7 +45,7 @@ public class MainApp extends Application {
 		primaryStage.setOnCloseRequest(event -> {
 			event.consume();
 
-			Optional<ButtonType> result = Alerts.showConfirmationAlert("Confirmar salida",
+			Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmar salida",
 					"¿Estás seguro de que deseas salir?", "El programa se cerrará completamente.");
 
 			if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -58,6 +57,7 @@ public class MainApp extends Application {
 	@Override
 	public void stop() throws Exception {
 		AppContext.getInstance().finalize();
+		System.exit(0);
 	}
 
 	public static void main(String[] args) {

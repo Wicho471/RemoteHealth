@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="637.0" prefWidth="939.0" xmlns="http://javafx.com/javafx/21.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.DashboardController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="637.0" prefWidth="939.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.DashboardController">
    <center>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -136,7 +136,14 @@
             </HBox>
             <ButtonBar prefHeight="40.0" prefWidth="200.0">
               <buttons>
-                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" text="Cerrar conexion" />
+                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" text="Cerrar conexion">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../img/buttons/cerrar-sesion.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
               </buttons>
                <padding>
                   <Insets right="10.0" />

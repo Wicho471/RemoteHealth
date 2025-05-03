@@ -2,7 +2,7 @@ package org.axolotlj.RemoteHealth.controller;
 
 import java.util.Optional;
 
-import org.axolotlj.RemoteHealth.app.ui.Alerts;
+import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.files.AnalysisFiltersConfig;
 import org.axolotlj.RemoteHealth.config.files.RealTimeFiltersConfig;
 import org.axolotlj.RemoteHealth.filters.WaveletDenoiser;
@@ -81,7 +81,7 @@ public class FilterOptionsController {
     @FXML
     private void restoreHandle() {
     	if (filterTypeOption == null) return;
-    	Optional<ButtonType> result = Alerts.showConfirmationAlert("Confirmacion", filterTypeOption.getDisplayName(), "Estas seguro de que deseas restaurar los filtros de fabrica?");
+    	Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmacion", filterTypeOption.getDisplayName(), "Estas seguro de que deseas restaurar los filtros de fabrica?");
     	if (result.isPresent() && result.get() == ButtonType.OK) {
         	switch (filterTypeOption) {
     		case ECG_ANALYSIS:
@@ -137,10 +137,10 @@ public class FilterOptionsController {
 			break;
 		default:
 			System.err.println("Enumeracion no reconocida");
-			Alerts.showInformationAlert("Error", null, "No se pudieron aplicar los cambios");
+			AlertUtil.showInformationAlert("Error", null, "No se pudieron aplicar los cambios");
 			return;
 		}
-    	Alerts.showInformationAlert("Exito", null, "Cambios aplicados exitosamente");
+    	AlertUtil.showInformationAlert("Exito", null, "Cambios aplicados exitosamente");
 	}
     
     public void setType(FilterTypeOption filterTypeOption) {

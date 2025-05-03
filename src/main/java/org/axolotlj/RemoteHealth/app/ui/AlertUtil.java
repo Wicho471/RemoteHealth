@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Utilidad para mostrar diferentes tipos de alertas.
  */
-public class Alerts {
+public class AlertUtil {
 
     /**
      * Muestra una alerta de tipo información.

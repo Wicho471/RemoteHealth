@@ -1,12 +1,20 @@
 package org.axolotlj.RemoteHealth.filters;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.axolotlj.RemoteHealth.config.files.AnalysisFiltersConfig;
 import org.axolotlj.RemoteHealth.filters.ButterworthFilter.FilterType;
+import org.axolotlj.RemoteHealth.model.StructureData;
+import org.axolotlj.RemoteHealth.util.DataHandler;
+import org.axolotlj.RemoteHealth.util.MutablePairHandler;
 
 import jwave.exceptions.JWaveException;
 
+/**
+ * Clase responsable de aplicar filtros de análisis a señales fisiológicas como ECG, IR y RED.
+ */
 public class AnalysisFilters {
 
     private final AnalysisFiltersConfig configFile;
@@ -16,18 +24,50 @@ public class AnalysisFilters {
         this.configFile.loadProperties();
     }
 
-    public double[] filterEgc(double[] values, double fs) {
+    /**
+     * Aplica el conjunto completo de filtros a la señal ECG.
+     * 
+     * @param structureDatas lista de datos sin procesar
+     * @return lista de pares timestamp-valor filtrados
+     */
+    public ArrayList<MutablePair<Long, Double>> applyFiltersToEcg(ArrayList<StructureData> structureDatas) {
+        ArrayList<MutablePair<Long, Double>> extractedData = DataHandler.extractValidPairs(structureDatas, DataHandler.SensorField.ECG);
+        long[] timestamps = MutablePairHandler.extractTimestamps(extractedData);
+        double[] values = MutablePairHandler.extractValues(extractedData);
+
+        double samplingRate = Misc.calculateAverageSamplingRate(timestamps);
+
+        double[] valuesFiltered = filterEgc(values, samplingRate);
+        MutablePairHandler.assignValuesToPairs(extractedData, valuesFiltered);
+
+        return extractedData;
+    }
+
+    /**
+     * Aplica el conjunto completo de filtros a la señal PPG (IR o RED).
+     * 
+     * @param extractedData lista de pares timestamp-valor sin procesar
+     * @return lista de pares timestamp-valor filtrados
+     */
+    public ArrayList<MutablePair<Long, Double>> applyFiltersToPleth(ArrayList<MutablePair<Long, Double>> extractedData) {
+        long[] timestamps = MutablePairHandler.extractTimestamps(extractedData);
+        double[] values = MutablePairHandler.extractValues(extractedData);
+
+        double samplingRate = Misc.calculateAverageSamplingRate(timestamps);
+
+        double[] valuesFiltered = filterPleth(values, samplingRate);
+        MutablePairHandler.assignValuesToPairs(extractedData, valuesFiltered);
+
+        return extractedData;
+    }
+
+    private double[] filterEgc(double[] values, double fs) {
         if (fs <= 0) throw new IllegalArgumentException("Frecuencia de muestreo inválida: " + fs);
 
         double[] filtered = Arrays.copyOf(values, values.length);
-        long start, duration;
 
-        start = System.nanoTime();
         filtered = Misc.normalize(filtered);
-        duration = System.nanoTime() - start;
-        System.out.println("ECG -> Normalization: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         filtered = ButterworthFilter.applyButterworthFilter(
             filtered, fs,
             configFile.getEcgBandstopOrder(),
@@ -35,10 +75,7 @@ public class AnalysisFilters {
             configFile.getEcgBandstopLow(),
             configFile.getEcgBandstopHigh()
         );
-        duration = System.nanoTime() - start;
-        System.out.println("ECG -> Butterworth BANDSTOP: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         filtered = ButterworthFilter.applyButterworthFilter(
             filtered, fs,
             configFile.getEcgBandpassOrder(),
@@ -46,10 +83,7 @@ public class AnalysisFilters {
             configFile.getEcgBandpassLow(),
             configFile.getEcgBandpassHigh()
         );
-        duration = System.nanoTime() - start;
-        System.out.println("ECG -> Butterworth BANDPASS: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         try {
             filtered = WaveletDenoiser.waveletDenoise(
                 filtered,
@@ -59,28 +93,19 @@ public class AnalysisFilters {
                 configFile.isEcgWaveletSoft()
             );
         } catch (JWaveException e) {
-            e.printStackTrace();
+            System.err.println("ECG -> Excepción en waveletDenoise: " + e.getMessage());
         }
-        duration = System.nanoTime() - start;
-        System.out.println("ECG -> Wavelet Denoising: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         filtered = SavitzkyGolayFilter.filter(filtered, configFile.getEcgSGWindow(), configFile.getEcgSGPoly());
-        duration = System.nanoTime() - start;
-        System.out.println("ECG -> Savitzky-Golay: " + duration / 1_000_000.0 + " ms");
 
         return filtered;
     }
 
-    public double[] filterToPleth(double[] values, double fs) {
+    private double[] filterPleth(double[] values, double fs) {
         if (fs <= 0) throw new IllegalArgumentException("Frecuencia de muestreo inválida: " + fs);
 
         double[] filtered = Arrays.copyOf(values, values.length);
-        long start, duration;
 
-        System.out.println("PLETH -> Original (5): " + Arrays.toString(Arrays.copyOf(filtered, 5)));
-
-        start = System.nanoTime();
         filtered = ButterworthFilter.applyButterworthFilter(
             filtered, fs,
             configFile.getPlethBandpassOrder(),
@@ -88,10 +113,7 @@ public class AnalysisFilters {
             configFile.getPlethBandpassLow(),
             configFile.getPlethBandpassHigh()
         );
-        duration = System.nanoTime() - start;
-        System.out.println("PLETH -> BANDPASS: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         try {
             filtered = WaveletDenoiser.waveletDenoise(
                 filtered,
@@ -101,17 +123,10 @@ public class AnalysisFilters {
                 configFile.isPlethWaveletSoft()
             );
         } catch (JWaveException e) {
-            e.printStackTrace();
+            System.err.println("Pleth -> Excepción en waveletDenoise: " + e.getMessage());
         }
-        duration = System.nanoTime() - start;
-        System.out.println("PLETH -> Wavelet: " + duration / 1_000_000.0 + " ms");
 
-        start = System.nanoTime();
         filtered = SavitzkyGolayFilter.filter(filtered, configFile.getPlethSGWindow(), configFile.getPlethSGPoly());
-        duration = System.nanoTime() - start;
-        System.out.println("PLETH -> Savitzky-Golay: " + duration / 1_000_000.0 + " ms");
-
-        System.out.println("PLETH -> Final (5): " + Arrays.toString(Arrays.copyOf(filtered, 5)));
 
         long countNaN = Arrays.stream(filtered).filter(Double::isNaN).count();
         if (countNaN > 0) {

@@ -14,19 +14,22 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Simulador de servidor WebSocket que envía datos de prueba en formato texto y
  * binario.
  */
 public class WebSocketServerSimu {
-	
+
 	private static final MRG32k3a rng = new MRG32k3a();
 	private static final NormalGen noiseGen = new NormalGen(rng, 0.0, 1.0); // Media 0, desviación estándar 1
 
 	private static double t = 0.0;
 	private static final double DT = 0.003; // 4ms = 250Hz
-
 
 	private Server server;
 	private ScheduledExecutorService executor;
@@ -37,6 +40,13 @@ public class WebSocketServerSimu {
 	 * @throws Exception Si ocurre un error al iniciar.
 	 */
 	public void start() {
+		Logger rootLogger = LogManager.getLogManager().getLogger("");
+		Handler[] handlers = rootLogger.getHandlers();
+		for (Handler handler : handlers) {
+			rootLogger.removeHandler(handler);
+		}
+		rootLogger.setLevel(Level.SEVERE);
+		
 		try {
 			server = new Server("localhost", 8081, "", null, SimulatedEndpoint.class);
 			server.start();
@@ -102,29 +112,29 @@ public class WebSocketServerSimu {
 	}
 
 	private static String generateSimulatedPayload() {
-	    // Señal ECG simulada con ruido blanco gaussiano
-	    double ecg = Math.sin(2 * Math.PI * 1 * t) + 0.5 * Math.sin(2 * Math.PI * 60 * t) + 0.2 * noiseGen.nextDouble();
-	    int ecgHex = (int) Math.round(ecg * 1000 + 2048); // Escalar y centrar en 12 bits
+		// Señal ECG simulada con ruido blanco gaussiano
+		double ecg = Math.sin(2 * Math.PI * 1 * t) + 0.5 * Math.sin(2 * Math.PI * 60 * t) + 0.2 * noiseGen.nextDouble();
+		int ecgHex = (int) Math.round(ecg * 1000 + 2048); // Escalar y centrar en 12 bits
 
-	    // Señal IR simulada con ruido blanco gaussiano
-	    double irSignal = 2048 + 200 * Math.sin(2 * Math.PI * 1.2 * t) + 0.1 * noiseGen.nextDouble();
-	    int ir = (int) Math.round(irSignal);
+		// Señal IR simulada con ruido blanco gaussiano
+		double irSignal = 2048 + 200 * Math.sin(2 * Math.PI * 1.2 * t) + 0.1 * noiseGen.nextDouble();
+		int ir = (int) Math.round(irSignal);
 
-	    // Señal RED simulada con ruido blanco gaussiano
-	    double redSignal = 2048 + 180 * Math.cos(2 * Math.PI * 0.8 * t) + 0.1 * noiseGen.nextDouble();
-	    int red = (int) Math.round(redSignal);
+		// Señal RED simulada con ruido blanco gaussiano
+		double redSignal = 2048 + 180 * Math.cos(2 * Math.PI * 0.8 * t) + 0.1 * noiseGen.nextDouble();
+		int red = (int) Math.round(redSignal);
 
-	    t += DT;
+		t += DT;
 
-	    String hexEcg = Integer.toHexString(clamp(ecgHex, 0, 0xFFFF)).toUpperCase();
-	    String hexIr = Integer.toHexString(clamp(ir, 0, 0xFFFF)).toUpperCase();
-	    String hexRed = Integer.toHexString(clamp(red, 0, 0xFFFF)).toUpperCase();
+		String hexEcg = Integer.toHexString(clamp(ecgHex, 0, 0xFFFF)).toUpperCase();
+		String hexIr = Integer.toHexString(clamp(ir, 0, 0xFFFF)).toUpperCase();
+		String hexRed = Integer.toHexString(clamp(red, 0, 0xFFFF)).toUpperCase();
 
-	    return "," + hexEcg + ",0.99,36.5," + hexIr + "," + hexRed;
+		return "," + hexEcg + ",0.99,36.5," + hexIr + "," + hexRed;
 	}
 
 	private static int clamp(int val, int min, int max) {
-	    return Math.max(min, Math.min(max, val));
+		return Math.max(min, Math.min(max, val));
 	}
 
 }

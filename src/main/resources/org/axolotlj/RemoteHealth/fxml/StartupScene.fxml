@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="834.0" xmlns="http://javafx.com/javafx/21.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.StartupController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="834.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.StartupController">
    <top>
       <fx:include fx:id="menuBar" source="MenuBar.fxml" />
    </top>
@@ -40,11 +40,25 @@
                                  <HBox.margin>
                                     <Insets left="50.0" right="50.0" />
                                  </HBox.margin>
+                                 <graphic>
+                                    <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/buttons/actualizar.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </Button>
                               <Button fx:id="addDeviceBtn" mnemonicParsing="false" text="Añadir dispositivo" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets left="50.0" right="50.0" />
                                  </HBox.margin>
+                                 <graphic>
+                                    <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/buttons/anadir.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </Button>
                            </children>
                            <padding>
@@ -142,6 +156,13 @@
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
+               <graphic>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/buttons/actualizar.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
             </Button>
          </children>
          <opaqueInsets>

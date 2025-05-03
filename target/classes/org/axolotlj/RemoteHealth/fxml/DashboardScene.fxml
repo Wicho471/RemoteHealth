@@ -136,7 +136,14 @@
             </HBox>
             <ButtonBar prefHeight="40.0" prefWidth="200.0">
               <buttons>
-                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" text="Cerrar conexion" />
+                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" text="Cerrar conexion">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../img/buttons/cerrar-sesion.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
               </buttons>
                <padding>
                   <Insets right="10.0" />

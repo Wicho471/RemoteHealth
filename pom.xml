@@ -92,9 +92,6 @@
 	    <artifactId>javafx-swing</artifactId>
 	    <version>21.0.6</version> 
 	</dependency>
-	
-	
-	
 
   	<!-- Dependecias WebSocket -->
   	
