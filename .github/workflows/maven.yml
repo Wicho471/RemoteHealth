@@ -66,6 +66,7 @@ jobs:
       - name: Crear MSI (jpackage)
         run: |
           New-Item -ItemType Directory -Force -Path target/installers | Out-Null
+          Copy-Item -Path "src/main/resources/org/axolotlj/RemoteHealth/img/favicon.ico" -Destination "target/app-icon.ico"
           jpackage `
             --input target `
             --dest target/installers `
@@ -77,7 +78,7 @@ jobs:
             --win-shortcut `
             --win-menu `
             --win-menu-group "RemoteHealth" `
-            --icon src/main/resources/org/axolotlj/RemoteHealth/img/favicons/app-icon.png
+            --icon target/app-icon.ico
 
       - name: Listar archivos generados (debug)
         run: |
@@ -147,6 +148,7 @@ jobs:
       - name: Crear DMG (jpackage)
         run: |
           mkdir -p target/installers
+          cp src/main/resources/org/axolotlj/RemoteHealth/img/favicon.icns target/app-icon.icns
           jpackage \
             --input target \
             --dest target/installers \
@@ -154,7 +156,8 @@ jobs:
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type dmg \
-            --runtime-image target/RemoteHealth-runtime
+            --runtime-image target/RemoteHealth-runtime \
+            --icon target/app-icon.icns
 
       - name: Listar archivos generados (debug)
         run: |
@@ -217,6 +220,7 @@ jobs:
       - name: Crear DEB (jpackage)
         run: |
           mkdir -p target/installers
+          cp src/main/resources/org/axolotlj/RemoteHealth/img/favicon.png target/app-icon.png
           jpackage \
             --input target \
             --dest target/installers \
@@ -224,7 +228,9 @@ jobs:
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
             --main-class org.axolotlj.RemoteHealth.MainApp \
             --type deb \
-            --runtime-image target/RemoteHealth-runtime
+            --runtime-image target/RemoteHealth-runtime \
+            --icon target/app-icon.png \
+            --linux-shortcut
 
       - name: Listar archivos generados (debug)
         run: |
