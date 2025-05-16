@@ -1,7 +1,6 @@
 package org.axolotlj.RemoteHealth.controller;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -18,8 +17,9 @@ import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
 import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
-import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
 import org.axolotlj.RemoteHealth.model.CsvFileInfo;
+import org.axolotlj.RemoteHealth.service.logger.DataLogger;
+import org.axolotlj.RemoteHealth.service.logger.Log;
 import org.axolotlj.RemoteHealth.util.CsvUtils;
 import org.axolotlj.RemoteHealth.util.DataHandler;
 
@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class CsvSelectorController {
+	private DataLogger dataLogger;
 	
 	private List<CsvFileInfo> allCsvData = List.of();
 
@@ -47,6 +48,7 @@ public class CsvSelectorController {
 
 	@FXML
 	public void initialize() {
+		this.dataLogger = Log.get();
 		loadCsvFiles();
 		setupSearchField();
 	}
@@ -254,15 +256,18 @@ public class CsvSelectorController {
 							if (desktop.isSupported(Desktop.Action.OPEN)) {
 								desktop.open(tempFilePath.toFile());
 							} else {
+								dataLogger.logWarn("La acción OPEN no está soportada en este sistema.");
 								AlertUtil.showErrorAlert("Error", "No se puede abrir el archivo",
 										"La acción OPEN no está soportada en este sistema.");
 							}
 						} else {
+							dataLogger.logWarn("Desktop no está soportado en este sistema.");
 							AlertUtil.showErrorAlert("Error", "No se puede abrir el archivo",
 									"Desktop no está soportado en este sistema.");
 						}
 
 					} catch (IOException e) {
+						dataLogger.logError("No se puede abrir el archivo -> "+e.getMessage());
 						AlertUtil.showErrorAlert("Error", "No se puede abrir el archivo", e.getMessage());
 					}
 				});
@@ -293,7 +298,7 @@ public class CsvSelectorController {
 				btn.setGraphic(iconView);
 				btn.setOnAction(event -> {
 					CsvFileInfo info = getTableView().getItems().get(getIndex());
-					System.out.println("Seleccionado: " + info.getFile().getName());
+					dataLogger.logDebug("Seleccionado: " + info.getFile().getName());
 					if (parentController != null) {
 						parentController.loadFile(info.getFile().getAbsolutePath());
 					}

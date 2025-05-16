@@ -30,6 +30,7 @@ public class Paths {
 
 	// ========================= IMG =========================
 	public static final String IMG_PATH = MAIN_PATH + "img/";
+	public static final String IMG_FAVICONS_MONITOREO_CARDIACO_PNG = IMG_PATH + "favicon.png";
 
 	// -------- Buttons --------
 	private static final String IMG_BUTTONS_PATH = IMG_PATH + "buttons/";
@@ -73,7 +74,7 @@ public class Paths {
 	public static final String IMG_FAVICONS_INTERACTIVO_PNG = IMG_FAVICONS_PATH + "interactivo.png";
 	public static final String IMG_FAVICONS_MANUAL_PNG = IMG_FAVICONS_PATH + "manual.png";
 	public static final String IMG_FAVICONS_MICROCONTROLER_PNG = IMG_FAVICONS_PATH + "Microcontroler.png";
-	public static final String IMG_FAVICONS_MONITOREO_CARDIACO_PNG = IMG_FAVICONS_PATH + "monitoreo-cardiaco.png";
+
 	public static final String IMG_FAVICONS_OPTIONS_PNG = IMG_FAVICONS_PATH + "Options.png";
 	public static final String IMG_FAVICONS_QR_PNG = IMG_FAVICONS_PATH + "Qr.png";
 	public static final String IMG_FAVICONS_RENDIMIENTO_PNG = IMG_FAVICONS_PATH + "rendimiento.png";

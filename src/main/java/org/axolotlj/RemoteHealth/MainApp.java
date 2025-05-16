@@ -26,7 +26,7 @@ public class MainApp extends Application {
 	@Override
 	public void start(Stage stage) {
 		DataLogger logger = initalizeLogger();
-
+		Log.setLogger(logger);
 		logger.logInfo("Iniciando sistema");
 		
 	    Locale savedLocale = LanguageConfig.loadSavedLocale();

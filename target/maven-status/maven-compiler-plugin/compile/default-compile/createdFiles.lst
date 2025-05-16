@@ -38,6 +38,7 @@ org\axolotlj\RemoteHealth\filters\FIRFiltering.class
 org\axolotlj\RemoteHealth\analysis\DataAnalysis.class
 org\axolotlj\RemoteHealth\config\files\AnalysisFiltersConfig.class
 org\axolotlj\RemoteHealth\app\Images.class
+org\axolotlj\RemoteHealth\service\logger\Log.class
 org\axolotlj\RemoteHealth\analysis\test\SpO2Calculator.class
 org\axolotlj\RemoteHealth\controller\DashboardController.class
 org\axolotlj\RemoteHealth\lang\LocaleChangeNotifier.class
@@ -85,6 +86,7 @@ org\axolotlj\RemoteHealth\model\SensorValue$Status.class
 org\axolotlj\RemoteHealth\service\datawriter\NoOpCsvDataWriter.class
 org\axolotlj\RemoteHealth\app\ui\TableUtils$FilterFactory.class
 org\axolotlj\RemoteHealth\app\SceneManager.class
+org\axolotlj\RemoteHealth\controller\MenuBarController$1.class
 org\axolotlj\RemoteHealth\app\ui\TextUtils.class
 org\axolotlj\RemoteHealth\analysis\test\SpO2Calibrator.class
 org\axolotlj\RemoteHealth\app\ui\AlertUtil.class

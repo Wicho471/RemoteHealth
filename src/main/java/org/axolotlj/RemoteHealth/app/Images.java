@@ -1,5 +1,7 @@
 package org.axolotlj.RemoteHealth.app;
 
+import java.net.URL;
+
 import org.axolotlj.RemoteHealth.util.Paths;
 
 import javafx.scene.image.Image;
@@ -15,7 +17,16 @@ public class Images {
 
 	/** Método auxiliar que centraliza la creación de la instancia {@link Image}. */
 	private static Image load(String resourcePath) {
-		return new Image(Images.class.getResource(resourcePath).toExternalForm());
+		if(resourcePath == null) return null; 
+		
+		URL resourceUrl = Images.class.getResource(resourcePath);
+
+		if (resourceUrl == null) {
+		    throw new IllegalArgumentException("No se encontró el recurso: " + resourcePath);
+		}
+
+		return new Image(resourceUrl.toExternalForm());
+
 	}
 
 	// ========================= IMG/buttons =========================

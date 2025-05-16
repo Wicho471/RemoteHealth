@@ -53,16 +53,11 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	@FXML
 	private RadioMenuItem langSpanish, langEnglish, option1Sim, option2Sim;
 	@FXML
-	private ToggleGroup languageGroup;
-
-	private ToggleGroup simToggleGroup = new ToggleGroup();
+	private ToggleGroup languageGroup, simToggleGroup;
 
 	@FXML
 	public void initialize() {
 		LocaleChangeNotifier.addListener(this);
-
-		langSpanish.setToggleGroup(languageGroup);
-		langEnglish.setToggleGroup(languageGroup);
 
 		onLocaleChanged();
 		languageGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
@@ -87,29 +82,27 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 
 		// Selección por defecto (opcional)
 		option1Sim.setSelected(true);
-		simu.setGenerationMode(GenerationMode.REAL);
 
-		option1Sim.setOnAction(event -> {
-			if (option1Sim.isSelected()) {
-				simu.setGenerationMode(GenerationMode.REAL);
-				simu.restart();
-			}
-		});
+		switch (WebSocketServerSimulator.getGenerationMode()) {
+		case REAL:
+			option1Sim.setSelected(true);
+			break;
 
-		option2Sim.setOnAction(event -> {
-			if (option2Sim.isSelected()) {
-				simu.setGenerationMode(GenerationMode.SYNTHETIC);
-				simu.restart();
-			}
-		});
+		case SYNTHETIC:
+			option2Sim.setSelected(true);
+			break;
 
-		// También puedes agregar un listener si prefieres
+		default:
+			break;
+		}
+
 		simToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-			if (newVal == option1Sim) {
-				simu.setGenerationMode(GenerationMode.REAL);
-			} else if (newVal == option2Sim) {
-				simu.setGenerationMode(GenerationMode.SYNTHETIC);
-			}
+		    if (newVal == option1Sim) {
+		        simu.setGenerationMode(GenerationMode.REAL);
+		    } else if (newVal == option2Sim) {
+		        simu.setGenerationMode(GenerationMode.SYNTHETIC);
+		    }
+		    simu.restart();
 		});
 	}
 
@@ -164,7 +157,8 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	private void aboutHandler() {
 		String content = TxtUtils.loadAboutText(Paths.IMG_MISC_ABOUT_TXT);
 
-		Alert alert = AlertUtil.showInformationAlert("Acerca de RemoteHealth", "Información de la aplicación", content, false);
+		Alert alert = AlertUtil.showInformationAlert("Acerca de RemoteHealth", "Información de la aplicación", content,
+				false);
 
 		Text text = new Text(content);
 		text.setFont(Font.font("Monospaced", 12));
@@ -201,19 +195,19 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	@FXML
 	private void dirHandler() {
 		Path path = ConfigFileHelper.resolveMainDir();
-        try {
-            File file = new File(path.toAbsolutePath().toString());
-            if (!file.exists()) {
-                System.err.println("La ruta no existe: " + path);
-                return;
-            }
-            Desktop desktop = Desktop.getDesktop();
-            desktop.open(file); 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		try {
+			File file = new File(path.toAbsolutePath().toString());
+			if (!file.exists()) {
+				System.err.println("La ruta no existe: " + path);
+				return;
+			}
+			Desktop desktop = Desktop.getDesktop();
+			desktop.open(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Override
 	public void setAppContext(AppContext context) {
 		this.appContext = context;
@@ -221,7 +215,7 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 		this.simu = appContext.getSimulator();
 		this.dataLogger = context.getDataLogger();
 	}
-	
+
 	@Override
 	public void onLocaleChanged() {
 		menuEsp32.setText(I18n.get("menu.esp32"));

@@ -93,7 +93,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		updateSimuStatusIcon(appContext.getSimulator().isActive());
 		simulatorListener = (obs, wasActive, isActive) -> updateSimuStatusIcon(isActive);
 		appContext.getSimulator().activeProperty().addListener(simulatorListener);
-
+		
 	}
 
 	private void updateSimuStatusIcon(boolean isActive) {
