@@ -26,7 +26,6 @@ public class SerialMonitorService {
 	private final ComboBox<SerialPort> deviceSelector;
 	private final Button flashBtn;
 	private final ImageView imgEsp32;
-	private final TextArea outputSerialTextArea;
 	private final SerialOutputBuffer serialBuffer;
 
 	private SerialPort connectedPort;
@@ -36,7 +35,6 @@ public class SerialMonitorService {
 		this.deviceSelector = deviceSelector;
 		this.flashBtn = flashBtn;
 		this.imgEsp32 = imgEsp32;
-		this.outputSerialTextArea = outputSerialTextArea;
 	    this.serialBuffer = new SerialOutputBuffer(outputSerialTextArea);
 	    serialBuffer.start();
 	}
@@ -98,6 +96,7 @@ public class SerialMonitorService {
 		});
 	}
 
+	@SuppressWarnings("unused")
 	private void handleNoneDevice() {
 		Platform.runLater(() -> {
 			deviceSelector.getItems().clear();
@@ -110,6 +109,7 @@ public class SerialMonitorService {
 		});
 	}
 
+	@SuppressWarnings("unused")
 	private void handleDeviceDetection(SerialPort port) {
 		Platform.runLater(() -> {
 			if (deviceSelector.isDisabled()) {

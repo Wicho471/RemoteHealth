@@ -60,21 +60,25 @@ public class FileDataLogger extends DataLogger {
 
     @Override
     public void logInfo(String message) {
+    	System.out.println("[INFO ] -> "+message);
         log("INFO", message);
     }
 
     @Override
     public void logWarn(String message) {
-        log("WARN", message);
+    	System.err.println("[WARN ] -> "+message);
+    	log("WARN", message);
     }
 
     @Override
     public void logError(String message) {
+    	System.err.println("[ERROR] -> "+message);
         log("ERROR", message);
     }
 
     @Override
     public void logDebug(String message) {
+    	System.out.println("[DEBUG] -> "+message);
         log("DEBUG", message);
     }
 
@@ -91,9 +95,15 @@ public class FileDataLogger extends DataLogger {
     public void close() {
         running = false;
         writerThread.interrupt();
+
         try {
             writerThread.join();
             writer.close();
+
+            LogCompressor.overwriteLatest(logFile);
+            LogCompressor.compress(logFile);
+            LogCompressor.deleteOriginal(logFile);
+
         } catch (IOException | InterruptedException e) {
             System.err.println("Error al cerrar FileDataLogger: " + e.getMessage());
         }

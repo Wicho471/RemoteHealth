@@ -73,8 +73,6 @@ public class FilterOptionsController {
     // --- Métodos de inicialización (opcional) ---
     @FXML
     public void initialize() {
-    	this.realTimeFiltersConfig = new RealTimeFiltersConfig();
-    	this.analysisFiltersConfig = new AnalysisFiltersConfig();
     	filterWaveletTypeField.getItems().addAll(WaveletDenoiser.AVAILABLE_WAVELETS);
     }
     
@@ -137,13 +135,15 @@ public class FilterOptionsController {
 			break;
 		default:
 			System.err.println("Enumeracion no reconocida");
-			AlertUtil.showInformationAlert("Error", null, "No se pudieron aplicar los cambios");
+			AlertUtil.showInformationAlert("Error", null, "No se pudieron aplicar los cambios", true);
 			return;
 		}
-    	AlertUtil.showInformationAlert("Exito", null, "Cambios aplicados exitosamente");
+    	AlertUtil.showInformationAlert("Exito", null, "Cambios aplicados exitosamente", true);
 	}
     
-    public void setType(FilterTypeOption filterTypeOption) {
+    public void setType(FilterTypeOption filterTypeOption, AnalysisFiltersConfig analysisFiltersConfig, RealTimeFiltersConfig realTimeFiltersConfig) {
+    	this.analysisFiltersConfig = analysisFiltersConfig;
+    	this.realTimeFiltersConfig = realTimeFiltersConfig;
     	this.filterTypeOption = filterTypeOption;
     	switch (filterTypeOption) {
 		case ECG_ANALYSIS:

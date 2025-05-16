@@ -200,6 +200,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>org.axolotlj.RemoteHealth.MainApp</mainClass>
+                       		
                         </configuration>
                     </execution>
                 </executions>
@@ -228,6 +229,7 @@
 			        </execution>
 			    </executions>
 			</plugin>
+			
         </plugins>
     </build>
 </project>

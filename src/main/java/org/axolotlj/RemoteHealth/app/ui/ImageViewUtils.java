@@ -4,17 +4,50 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+/**
+ * Utilidades para establecer imágenes en componentes ImageView en JavaFX.
+ */
 public class ImageViewUtils {
-	
-	public static void setImage(ImageView imageView, String path) {
-        Platform.runLater(() -> {
+
+    /**
+     * Establece una imagen ya cargada a un ImageView con dimensiones específicas.
+     *
+     * @param imageView componente donde se mostrará la imagen
+     * @param image imagen previamente cargada
+     * @param width ancho de la imagen
+     * @param height alto de la imagen
+     */
+    public static void setImage(ImageView imageView, Image image, int width, int height) {
+        if (Platform.isFxApplicationThread()) {
             try {
-                Image image = new Image(ImageViewUtils.class.getResource(path).toExternalForm());
+                imageView.setFitWidth(width);
+                imageView.setFitHeight(height);
                 imageView.setImage(image);
             } catch (Exception e) {
-                System.err.println("No se pudo cargar la imagen: " + path);
-                e.printStackTrace();
+                System.err.println("ImageViewUtils.setImage (Image, width, height): " + e.getMessage());
             }
-        });
+        } else {
+            Platform.runLater(() -> setImage(imageView, image, width, height));
+        }
     }
+    
+    
+    /**
+     * Establece una imagen desde un recurso a un ImageView.
+     *
+     * @param imageView componente donde se mostrará la imagen
+     * @param path ruta del recurso de la imagen
+     */
+    public static void setImage(ImageView imageView, Image image) {
+        if (Platform.isFxApplicationThread()) {
+            try {
+                imageView.setImage(image);
+            } catch (Exception e) {
+                System.err.println("ImageViewUtils.setImage (image): " + e.getMessage());
+            }
+        } else {
+            Platform.runLater(() -> setImage(imageView, image));
+        }
+    }
+
 }

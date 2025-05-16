@@ -67,7 +67,27 @@ public class ConnectionData {
     public void setName(String name) {
 		this.name = name;
 	}
+    
+    public void setIpv4(String ipv4) {
+		this.ipv4 = ipv4;
+	}
+    
+    public void setIpv6(String ipv6) {
+		this.ipv6 = ipv6;
+	}
+    
+    public void setPort(int port) {
+		this.port = port;
+	}
+    
+    public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
 
+    public void setPath(String path) {
+		this.path = path;
+	}
+    
     @Override
     public String toString() {
         return "ConnectionData{" +

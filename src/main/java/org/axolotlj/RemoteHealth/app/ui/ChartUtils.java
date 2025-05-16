@@ -1,7 +1,16 @@
 package org.axolotlj.RemoteHealth.app.ui;
 
+import java.util.ArrayList;
+
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.axolotlj.RemoteHealth.analysis.FrequencyDomainAnalyzer;
+import org.axolotlj.RemoteHealth.filters.Misc;
+import org.axolotlj.RemoteHealth.util.MutablePairHandler;
+
+import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 
 public class ChartUtils {
 	
@@ -24,5 +33,73 @@ public class ChartUtils {
 	        xAxis.setTickUnit(tickUnit);
 	    }
 	}
+	
+    /** Construye una serie desde pares (timestamp, valor) para dominio del tiempo. */
+    public static XYChart.Series<Number, Number> buildSeries(ArrayList<MutablePair<Long, Double>> pairs, String name) {
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName(name);
+        if (pairs == null || pairs.isEmpty()) return series;
+
+        long t0 = pairs.get(0).getLeft();
+        for (MutablePair<Long, Double> p : pairs) {
+            double x = (p.getLeft() - t0) / 1000.0;
+            series.getData().add(new XYChart.Data<>(x, p.getRight()));
+        }
+        return series;
+    }
+
+    /** Construye una serie desde la FFT (frecuencia vs magnitud). */
+    public static XYChart.Series<Number, Number> buildFFTSeries(ArrayList<MutablePair<Long, Double>> pairs, String name) {
+        if (pairs == null || pairs.isEmpty()) return new XYChart.Series<>();
+
+        double[] signal = MutablePairHandler.extractValues(pairs);
+        long[] timestamps = MutablePairHandler.extractTimestamps(pairs);
+        double fs = Misc.calculateAverageSamplingRate(timestamps);
+
+        var fft = FrequencyDomainAnalyzer.computeFFT(signal, fs);
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName(name);
+        for (var p : fft) {
+            series.getData().add(new XYChart.Data<>(p.getLeft(), p.getRight()));
+        }
+        return series;
+    }
+
+    /** Limpia el chart y agrega una serie (thread-safe). */
+    public static void clearAndAddSeries(LineChart<Number, Number> chart, XYChart.Series<Number, Number> series, Double upperX) {
+        Platform.runLater(() -> {
+            chart.getData().clear();
+            chart.getData().add(series);
+
+            // Ajustamos eje X si upperX está definido
+            if (upperX != null) {
+                configureXAxis(chart, upperX, 0, null, false);
+            }
+        });
+    }
+
+    /** Grafica en dominio del tiempo de forma directa. */
+    public static void plotTimeSeries(LineChart<Number, Number> chart, ArrayList<MutablePair<Long, Double>> pairs, String seriesName) {
+        XYChart.Series<Number, Number> series = buildSeries(pairs, seriesName);
+        if (pairs != null && !pairs.isEmpty()) {
+            long t0 = pairs.get(0).getLeft();
+            long tN = pairs.get(pairs.size() - 1).getLeft();
+            double durationSec = (tN - t0) / 1000.0;
+            clearAndAddSeries(chart, series, durationSec);
+        } else {
+            clearAndAddSeries(chart, series, null);
+        }
+    }
+
+    /** Grafica la FFT directamente. */
+    public static void plotFrequencySeries(LineChart<Number, Number> chart, ArrayList<MutablePair<Long, Double>> pairs, String seriesName) {
+        if (pairs == null || pairs.isEmpty()) return;
+
+        long[] timestamps = MutablePairHandler.extractTimestamps(pairs);
+        double fs = Misc.calculateAverageSamplingRate(timestamps);
+        XYChart.Series<Number, Number> fftSeries = buildFFTSeries(pairs, seriesName);
+
+        clearAndAddSeries(chart, fftSeries, fs / 2);
+    }
 
 }

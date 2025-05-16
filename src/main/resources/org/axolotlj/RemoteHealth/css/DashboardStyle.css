@@ -21,27 +21,28 @@
     -fx-text-fill: #ffffff;
 }
 
-/* ECG en ECG Chart (serie 0) */
+/* ───────────── ECG en ECG Chart (serie 0) ───────────── */
 .chart-line-symbol.default-color0,
 .default-color0.chart-series-line {
-    -fx-stroke: #00ff00;
-    -fx-stroke-width: 1.0px;
+    -fx-stroke: #00ff00; /* verde brillante */
+    -fx-stroke-width: 1.5px;
 }
 
-/* PLETH (IR) en PLETH Chart (serie 0) */
+/* ───────────── PLETH (IR) en PLETH Chart (serie 0) ───────────── */
+.PLETH .chart-line-symbol.default-color0,
 .PLETH .default-color0.chart-series-line {
-    -fx-stroke: #3399ff;
-    -fx-stroke-width: 1.0px;
+    -fx-stroke: #3399ff; /* azul celeste */
+    -fx-stroke-width: 1.5px;
 }
 
-/* RED en PLETH Chart (serie 1) */
+/* ───────────── RED en PLETH Chart (serie 1) ───────────── */
+.PLETH .chart-line-symbol.default-color1,
 .PLETH .default-color1.chart-series-line {
-    -fx-stroke: #ff4d4d;
-    -fx-stroke-width: 1.0px;
+    -fx-stroke: #ff4d4d; /* rojo brillante */
+    -fx-stroke-width: 1.5px;
 }
 
-
-/* Ocultar los puntos en las líneas */
+/* ───────────── Ocultar los puntos en todas las series ───────────── */
 .chart-line-symbol {
     -fx-background-color: transparent;
     -fx-background-insets: 0;

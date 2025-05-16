@@ -99,6 +99,7 @@ public class NetworkUtil {
         }
     }
     
+    @Deprecated
     public static void ping(URI uri, Consumer<Boolean> resultHandler) {
         ClientManager client = ClientManager.createClient();
         try {

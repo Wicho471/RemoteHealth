@@ -1,22 +1,32 @@
 package org.axolotlj.RemoteHealth.controller;
 
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.axolotlj.RemoteHealth.analysis.RealtimeCardioProcessor;
+import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
 import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
 import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.SeriesUtils;
-import org.axolotlj.RemoteHealth.app.ui.TextFieldUtils;
+import org.axolotlj.RemoteHealth.app.ui.TextUtils;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
+import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
 import org.axolotlj.RemoteHealth.filters.RealTimeFilters;
 import org.axolotlj.RemoteHealth.model.SensorValue;
+import org.axolotlj.RemoteHealth.model.SensorValue.Status;
 import org.axolotlj.RemoteHealth.model.StructureData;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.SystemMonitor;
+import org.axolotlj.RemoteHealth.util.Paths;
+
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,7 +42,7 @@ import javafx.stage.Stage;
 /**
  * Controlador para la vista del panel de datos en tiempo real.
  */
-public class DashboardController implements ContextAware {
+public class DashboardController implements ContextAware, DisposableController {
 	private boolean isRecoding = false;
 
 	// ───────────────────── Constantes ─────────────────────
@@ -47,6 +57,7 @@ public class DashboardController implements ContextAware {
 	private ExecutorService parallelExecutor;
 	private ScheduledExecutorService scheduler;
 	private AppContext appContext;
+	private RealtimeCardioProcessor cardio;
 
 	private RealTimeFilters butterworthFilterRealTime;
 	private int processedSamples = 0;
@@ -66,7 +77,7 @@ public class DashboardController implements ContextAware {
 	@FXML
 	private LineChart<Number, Number> PLETH;
 	@FXML
-	private TextArea BPM, SPO2, TEMP1, TEMP2, MOV;
+	private TextArea BPM, SPO2, TEMP1, MOV;
 	@FXML
 	private TextField LATENCY, SAMPLES, cpuProcess, cpuSystem, totalMemory, usedMemory, threads, cpuTime, dataRemaining;
 	@FXML
@@ -74,13 +85,18 @@ public class DashboardController implements ContextAware {
 	@FXML
 	private TextField pacientNameField;
 	@FXML
-	private ImageView imgRecordStatus;
+	private ImageView imgRecordStatus, statusBpm, statusSpo2, statusTemp, statusMov;
 
 	// ───────────────────── Inicialización ─────────────────────
 
 	@FXML
 	public void initialize() {
-		butterworthFilterRealTime = new RealTimeFilters(300);
+		cardio = new RealtimeCardioProcessor(new RealtimeCardioProcessor.Config(275.0, // sampleRate Hz (ajústalo)
+				5, // latidos para la mediana
+				6.0, // ventana SpO₂ en segundos
+				110.0, 25.0)); // coef A, B
+
+		butterworthFilterRealTime = new RealTimeFilters(275);
 		initalTime = System.currentTimeMillis();
 		parallelExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -99,6 +115,14 @@ public class DashboardController implements ContextAware {
 
 	@FXML
 	private void handleRec() {
+		if (pacientNameField.getText().isBlank()) {
+			AlertUtil.showWarningAlert("Requerimientos incompletos",
+					"Para grabar debes de poner el nombre del paciente", "Revisa el campo nombre del paciente");
+			pacientNameField.requestFocus();
+			return;
+		}
+		String patientName = pacientNameField.getText().isBlank() ? "Unknown" : pacientNameField.getText();
+
 		DataProcessor dataProcessor = appContext.getDataProcessor();
 
 		if (isRecoding) {
@@ -110,11 +134,10 @@ public class DashboardController implements ContextAware {
 			}
 
 			isRecoding = false;
-			ImageViewUtils.setImage(imgRecordStatus, "/org/axolotlj/RemoteHealth/img/icons/rec-button.png");
+			ImageViewUtils.setImage(imgRecordStatus, Images.IMG_ICONS_REC_BUTTON);
 			return;
 		}
 
-		String patientName = pacientNameField.getText().isBlank() ? "Unknown" : pacientNameField.getText();
 		boolean started = dataProcessor.recordData(appContext.getWsManager().getConnectionData(), patientName);
 		if (!started) {
 			AlertUtil.showErrorAlert("Error", "No se pudo iniciar la grabación",
@@ -123,7 +146,7 @@ public class DashboardController implements ContextAware {
 		}
 
 		isRecoding = true;
-		ImageViewUtils.setImage(imgRecordStatus, "/org/axolotlj/RemoteHealth/img/icons/stop-record.png");
+		ImageViewUtils.setImage(imgRecordStatus, Images.IMG_ICONS_STOP_RECORD);
 	}
 
 	@FXML
@@ -132,21 +155,42 @@ public class DashboardController implements ContextAware {
 				"¿Estas seguro de cerrar la conexion?");
 
 		if (result.isPresent() && result.get() == ButtonType.OK) {
-			appContext.getWsManager().disconnect();
-			appContext.getDataProcessor().stop();
-			appContext.getWsManager().disconnect();
-			if (parallelExecutor != null) {
-				parallelExecutor.shutdownNow();
-				parallelExecutor = null;
-			}
-			if (scheduler != null) {
-				scheduler.shutdownNow();
-				scheduler = null;
-			}
+			// Detener y limpiar el monitor
 			if (monitor != null) {
 				monitor.stop();
 				monitor = null;
 			}
+
+			// Detener el scheduler
+			if (scheduler != null) {
+				scheduler.shutdownNow();
+				try {
+					scheduler.awaitTermination(3, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+				scheduler = null;
+			}
+
+			// Detener el executor paralelo
+			if (parallelExecutor != null) {
+				parallelExecutor.shutdownNow();
+				try {
+					parallelExecutor.awaitTermination(3, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+				parallelExecutor = null;
+			}
+
+			updateQueue.clear();
+
+			System.out.println("DashboardController cleaned up.");
+
+			appContext.getMessageQueue().clear();
+			appContext.getDataProcessor().stop();
+			appContext.getWsManager().disconnect();
+
 			appContext.getSceneManager().switchTo(SceneType.DEVICE_SELECTOR);
 		}
 	}
@@ -155,12 +199,12 @@ public class DashboardController implements ContextAware {
 	private void configEsp32Handle() {
 		System.out.println("Precionado config esp32");
 		try {
-			BorderPane page = (BorderPane) FxmlUtils.loadFXML("/org/axolotlj/RemoteHealth/fxml/ESP32ToolsScene.fxml").load();
+			BorderPane page = (BorderPane) FxmlUtils.loadFXML(Paths.VIEW_SCENE_ESP32TOOLSSCENE_FXML).load();
 
 			Stage popupStage = new Stage();
 			Scene scene = new Scene(page);
 			popupStage.setScene(scene);
-			popupStage.setTitle("Ventana Emergente");
+			popupStage.setTitle("Configuracion");
 
 			popupStage.initModality(Modality.APPLICATION_MODAL);
 
@@ -173,8 +217,8 @@ public class DashboardController implements ContextAware {
 
 	@SuppressWarnings("unchecked")
 	private void setupCharts() {
-		ChartUtils.setStyle(ECG, "/org/axolotlj/RemoteHealth/css/DashboardStyle.css");
-		ChartUtils.setStyle(PLETH, "/org/axolotlj/RemoteHealth/css/DashboardStyle.css");
+		ChartUtils.setStyle(ECG, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(PLETH, Paths.CSS_DASHBOARDSTYLE_CSS);
 
 		PLETH.getStyleClass().add("PLETH");
 
@@ -185,14 +229,9 @@ public class DashboardController implements ContextAware {
 		ECG.setAnimated(false);
 		PLETH.setAnimated(false);
 
-		for (int i = 0; i < MAX_POINTS_ECG; i++) {
-			ecgSeries.getData().add(new XYChart.Data<>(i, 0));
-		}
-
-		for (int i = 0; i < MAX_POINTS_PLETH; i++) {
-			plethSeries.getData().add(new XYChart.Data<>(i, 0));
-			redSeries.getData().add(new XYChart.Data<>(i, 0));
-		}
+		SeriesUtils.initializeSeries(ecgSeries, MAX_POINTS_ECG);
+		SeriesUtils.initializeSeries(plethSeries, MAX_POINTS_PLETH);
+		SeriesUtils.initializeSeries(redSeries, MAX_POINTS_PLETH);
 
 		ECG.getData().add(ecgSeries);
 		PLETH.getData().addAll(plethSeries, redSeries);
@@ -208,8 +247,8 @@ public class DashboardController implements ContextAware {
 				() -> {
 					int cpuProc = Integer.parseInt(cpuProcess.getText());
 					int cpuSys = Integer.parseInt(cpuSystem.getText());
-					TextFieldUtils.updateTextFieldColor(cpuProcess, cpuProc, 0, 100);
-					TextFieldUtils.updateTextFieldColor(cpuSystem, cpuSys, 0, 100);
+					TextUtils.updateTextFieldColor(cpuProcess, cpuProc, 0, 100);
+					TextUtils.updateTextFieldColor(cpuSystem, cpuSys, 0, 100);
 				});
 		monitor.start();
 	}
@@ -241,26 +280,74 @@ public class DashboardController implements ContextAware {
 
 	private void applyToChart(StructureData data) {
 		if (data.getEcg().isValid()) {
-			SeriesUtils.updateSeriesData(ecgSeries, currentIndexEgc,
-					butterworthFilterRealTime.filterECG(normECG(data.getEcg().getValue())));
+			double filtered = butterworthFilterRealTime.filterECG(normECG(data.getEcg().getValue()));
+			SeriesUtils.updateSeriesData(ecgSeries, currentIndexEgc, filtered);
 			currentIndexEgc = (currentIndexEgc + 1) % MAX_POINTS_ECG;
+			cardio.addEcgSample(filtered, data.getTimeStamp()).ifPresent(bpm -> {
+				int intBpm = (int) bpm;
+				TextUtils.setText(BPM, intBpm);
+				if (intBpm > 100 || intBpm < 60) {
+					ImageViewUtils.setImage(statusBpm, Images.IMG_VITALS_HEARTH_ALERT);
+				} else {
+					ImageViewUtils.setImage(statusBpm, Images.IMG_VITALS_OK);
+				}
+			});
+
+		} else if (data.getEcg().getStatus() == Status.ERROR){
+			ImageViewUtils.setImage(statusBpm, Images.IMG_VITALS_ASK);
 		}
+		
+		
 		if (data.getIr().isValid() && data.getRed().isValid()) {
-			SeriesUtils.updateSeriesData(plethSeries, currentIndexPleth,
-					butterworthFilterRealTime.filterIr(normalizePleth(data.getIr().getValue())));
-			SeriesUtils.updateSeriesData(redSeries, currentIndexPleth,
-					butterworthFilterRealTime.filterRed(normalizePleth(data.getRed().getValue())));
+			double irFiltered = butterworthFilterRealTime.filterIr(normalizePleth(data.getIr().getValue()));
+			double redFiltered = butterworthFilterRealTime.filterRed(normalizePleth(data.getRed().getValue()));
+
+			SeriesUtils.updateSeriesData(plethSeries, currentIndexPleth, irFiltered);
+			SeriesUtils.updateSeriesData(redSeries, currentIndexPleth, redFiltered);
 			currentIndexPleth = (currentIndexPleth + 1) % MAX_POINTS_PLETH;
+
+			if (irFiltered < 10.0 || redFiltered < 10.0) {
+				TextUtils.setText(SPO2, "???");
+				ImageViewUtils.setImage(statusSpo2, Images.IMG_VITALS_ASK);
+			} else {
+				cardio.addPlethSample(irFiltered, redFiltered, data.getTimeStamp()).ifPresent(spo2 -> {
+					int intSpo2 = (int) spo2;
+					TextUtils.setText(SPO2, intSpo2);
+					if (intSpo2 < 90) {
+						ImageViewUtils.setImage(statusSpo2, Images.IMG_VITALS_DYSPNOEA_ALERT);
+					} else {
+						ImageViewUtils.setImage(statusSpo2, Images.IMG_VITALS_OK);
+					}
+				});
+			}
 		}
 
-		if (data.getTemp().isValid())
-			TEMP1.setText(String.valueOf(data.getTemp().getValue()));
-		else if (data.getTemp().getStatus() == SensorValue.Status.ERROR)
-			TEMP1.setText("ERR");
-		if (data.getAccel().isValid())
-			MOV.setText(String.valueOf(data.getAccel().getValue()));
-		else if (data.getAccel().getStatus() == SensorValue.Status.ERROR)
-			MOV.setText("ERR");
+		if (data.getTemp().isValid()) {
+			float currentTemp = data.getTemp().getValue();
+			TextUtils.setText(TEMP1, currentTemp + "°C");
+			if (currentTemp < 36.1f || currentTemp > 37.8) {
+				ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_TEMP_ALERT);
+			} else {
+				ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_OK);
+			}
+		} else if (data.getTemp().getStatus() == SensorValue.Status.ERROR) {
+			TextUtils.setText(TEMP1, "ERR");
+			ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_ASK);
+		}
+		
+		if (data.getAccel().isValid()) {
+			float mov = data.getAccel().getValue();
+			TextUtils.setText(MOV, mov + "g");
+			if(mov < 0.95f || mov > 1.05) {
+				ImageViewUtils.setImage(statusMov, Images.IMG_VITALS_STOP_ALERT);
+			} else {
+				ImageViewUtils.setImage(statusMov, Images.IMG_VITALS_OK);
+			}
+		}
+		else if (data.getAccel().getStatus() == SensorValue.Status.ERROR) {
+			TextUtils.setText(MOV, "ERR");
+			ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_ASK);
+		}
 
 		processedSamples++;
 		long now = System.currentTimeMillis();
@@ -272,24 +359,69 @@ public class DashboardController implements ContextAware {
 			processedSamples = 0;
 			lastSampleUpdate = now;
 
-			Platform.runLater(() -> {
-				SAMPLES.setText(String.valueOf(samplesPerSecond));
-				TextFieldUtils.updateTextFieldColor(SAMPLES, samplesPerSecond, 500, 0);
+			TextUtils.setText(SAMPLES, samplesPerSecond);
+			TextUtils.updateTextFieldColor(SAMPLES, samplesPerSecond, 300, 0);
 
-				dataRemaining.setText(String.valueOf(dataleft));
-				TextFieldUtils.updateTextFieldColor(dataRemaining, dataleft, 0, 100);
+			TextUtils.setText(dataRemaining, dataleft);
+			TextUtils.updateTextFieldColor(dataRemaining, dataleft, 0, 100);
 
-				LATENCY.setText(String.valueOf(latency));
-				TextFieldUtils.updateTextFieldColor(LATENCY, latency, 0, 1000);
-			});
+			TextUtils.setText(LATENCY, latency);
+			TextUtils.updateTextFieldColor(LATENCY, latency, 0, 1000);
 		}
 	}
 
 	private double normECG(short value) {
-		return (value / 4095.0) * 3.3; 
+		return ((value / 4095.0) * 3.3) - 1.65;
 	}
 
 	private double normalizePleth(int rawValue) {
 		return (rawValue / 262143.0) * 100;
 	}
+
+	@Override
+	public void dispose() {
+		System.out.println("Disposing DashboardController...");
+
+		// 🚨 Detener el SystemMonitor
+		if (monitor != null) {
+			monitor.stop();
+			monitor = null;
+		}
+
+		// 🚨 Detener el scheduler
+		if (scheduler != null) {
+			scheduler.shutdownNow();
+			try {
+				scheduler.awaitTermination(3, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			scheduler = null;
+		}
+
+		// 🚨 Detener el executor paralelo
+		if (parallelExecutor != null) {
+			parallelExecutor.shutdownNow();
+			try {
+				parallelExecutor.awaitTermination(3, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			parallelExecutor = null;
+		}
+
+		// 🚨 Limpiar la cola de actualización
+		updateQueue.clear();
+
+		// 🚨 Limpiar las gráficas
+		if (ECG != null) {
+			ECG.getData().clear();
+		}
+		if (PLETH != null) {
+			PLETH.getData().clear();
+		}
+
+		System.out.println("DashboardController disposed.");
+	}
+
 }

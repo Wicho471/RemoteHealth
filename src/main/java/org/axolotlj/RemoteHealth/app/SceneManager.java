@@ -7,10 +7,13 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
+import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
+import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.util.Paths;
 
 /**
@@ -18,23 +21,32 @@ import org.axolotlj.RemoteHealth.util.Paths;
  */
 public class SceneManager {
 
+	private final Stage stage;
+	private SceneType lastScene;
+	private Object currentController;
+	private DataLogger dataLogger;
+
+	/**
+	 * Tipos de escenas disponibles en la aplicación.
+	 */
 	public enum SceneType {
-		DEVICE_SELECTOR("Selector de Dispositivo", Paths.FXML_STARTUP_SCENE, Paths.IMG_APP_ICON),
-		DEVICE_SETUP("Configuración de Dispositivo", Paths.FXML_DEVICE_SETUP_SCENE, Paths.QR_ICON),
-		ESP32_TOOLS("Herramientas ESP32", Paths.FXML_ESP32_TOOLS_SCENE, Paths.ESP32_ICON),
-		DASHBOARD("Panel de Control", Paths.FXML_DASHBOARD_SCENE, Paths.DASHBOARD_ICON),
-		FLASH_ESP("Flashear ESP32", Paths.FXML_FLASH_ESP32_SCENE, Paths.UPLOAD_ICON),
-		ANALYSIS("Análisis de Datos", Paths.FXML_DATA_ANALYSIS_SCENE, Paths.ANALYSIS_ICON),
-		FILTERS_SETTINGS("Configuración de Filtros", Paths.FXML_FILTER_SETTINGS_SCENE, Paths.SETTING_ICON);
+		DEVICE_SELECTOR("Selector de Dispositivo", Paths.VIEW_SCENE_STARTUPSCENE_FXML, Images.IMG_FAVICONS_APP_ICON),
+		DEVICE_SETUP("Configuración de Dispositivo", Paths.VIEW_SCENE_DEVICESETUPSCENE_FXML, Images.IMG_FAVICONS_QR),
+		ESP32_TOOLS("Herramientas ESP32", Paths.VIEW_SCENE_ESP32TOOLSSCENE_FXML, Images.IMG_FAVICONS_MICROCONTROLER),
+		DASHBOARD("Panel de Control", Paths.VIEW_SCENE_DASHBOARDSCENE_FXML, Images.IMG_FAVICONS_DASHBOARD),
+		FLASH_ESP("Flashear ESP32", Paths.VIEW_SCENE_FLASHESP32SCENE_FXML, Images.IMG_FAVICONS_UPLOAD),
+		ANALYSIS("Análisis de Datos", Paths.VIEW_SCENE_DATAANALYSISSCENE_FXML, Images.IMG_FAVICONS_ANALYSIS),
+		FILTERS_SETTINGS("Configuración de Filtros", Paths.VIEW_SCENE_FILTERSETTINGSSCENE_FXML,
+				Images.IMG_FAVICONS_SETTINGS);
 
 		private final String title;
 		private final String fxmlPath;
-		private final String iconPath;
+		private final Image icon;
 
-		SceneType(String title, String fxmlPath, String iconPath) {
+		SceneType(String title, String fxmlPath, Image icon) {
 			this.title = title;
 			this.fxmlPath = fxmlPath;
-			this.iconPath = iconPath;
+			this.icon = icon;
 		}
 
 		public String getTitle() {
@@ -45,22 +57,33 @@ public class SceneManager {
 			return fxmlPath;
 		}
 
-		public String getIconPath() {
-			return iconPath;
+		public Image getImage() {
+			return icon;
 		}
 	}
 
-	private final Stage stage;
-	private SceneType lastScene;
-
+	/**
+	 * Crea una instancia del administrador de escenas.
+	 *
+	 * @param stage ventana principal de la aplicación
+	 */
 	public SceneManager(Stage stage) {
 		this.stage = stage;
 	}
 
+	/**
+	 * Cambia la escena activa a una nueva escena del tipo especificado.
+	 *
+	 * @param sceneType tipo de escena a mostrar
+	 */
 	public void switchTo(SceneType sceneType) {
 		try {
-			FXMLLoader loader = FxmlUtils.loadFXML(sceneType.getFxmlPath());
+			if (currentController instanceof DisposableController disposable) {
+				dataLogger.logDebug("Cerrando " + currentController.getClass().getSimpleName() + "...");
+				disposable.dispose();
+			}
 
+			FXMLLoader loader = FxmlUtils.loadFXML(sceneType.getFxmlPath());
 			loader.setControllerFactory(clazz -> {
 				try {
 					Object controller = clazz.getDeclaredConstructor().newInstance();
@@ -69,38 +92,50 @@ public class SceneManager {
 					}
 					return controller;
 				} catch (Exception e) {
-					throw new RuntimeException("Error creando el controlador: " + clazz.getName(), e);
+					dataLogger.logError("SceneManager.switchTo -> Error creando el controlador: " + clazz.getName()
+							+ " - " + e.getMessage());
+					return null;
 				}
 			});
-
 			Parent root = loader.load();
+
+			this.currentController = loader.getController();
+
 			Scene scene = new Scene(root);
-
 			stage.setScene(scene);
-//			stage.setMaximized(true);
-//			stage.setFullScreen(true);
-
-			// Cambiar título
+			stage.centerOnScreen();
 			stage.setTitle(sceneType.getTitle());
-
-            // Cambiar icono
-            stage.getIcons().clear(); // Limpiar iconos antiguos
-            stage.getIcons().add(new Image(getClass().getResourceAsStream(sceneType.getIconPath())));
-
+			stage.getIcons().clear();
+			stage.getIcons().add(sceneType.getImage());
 			this.lastScene = sceneType;
 
 			System.gc();
-
 		} catch (IOException e) {
-			System.err.println("Error cargando la escena: " + sceneType.name() + " - " + e.getMessage());
-			e.printStackTrace();
+			dataLogger.logError(
+					"SceneManager.switchTo -> Error cargando la escena " + sceneType.name() + ": " + e.getMessage());
+		} finally {
+			ManagementFactory.getMemoryMXBean().gc();
 		}
 	}
+	
+	public void setDataLogger(DataLogger dataLogger) {
+		this.dataLogger = dataLogger;
+	}
 
+	/**
+	 * Obtiene la última escena mostrada.
+	 *
+	 * @return tipo de la última escena
+	 */
 	public SceneType getLastScene() {
 		return lastScene;
 	}
 
+	/**
+	 * Obtiene la ventana principal asociada al administrador de escenas.
+	 *
+	 * @return instancia de Stage
+	 */
 	public Stage getStage() {
 		return stage;
 	}

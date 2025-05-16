@@ -5,7 +5,7 @@ import org.axolotlj.RemoteHealth.model.StructureData;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketManager;
-import org.axolotlj.RemoteHealth.service.websocket.WebSocketServerSimu;
+import org.axolotlj.RemoteHealth.service.websocket.WebSocketServerSimulator;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -17,7 +17,7 @@ public class AppContext {
     private static AppContext instance;
     
     private final SceneManager sceneManager;
-    private final WebSocketServerSimu simulator;
+    private final WebSocketServerSimulator simulator;
     private final LinkedBlockingQueue<String> messageQueue;
     private final LinkedBlockingQueue<StructureData> processedQueue;
     
@@ -28,7 +28,7 @@ public class AppContext {
     private AppContext(SceneManager sceneManager, DataLogger dataLogger) {
         this.messageQueue = new LinkedBlockingQueue<>();
         this.processedQueue = new LinkedBlockingQueue<>();
-        this.simulator = new WebSocketServerSimu();
+        this.simulator = new WebSocketServerSimulator(dataLogger);
         this.sceneManager = sceneManager;
         this.dataLogger = dataLogger;
         this.wsManager = new WebSocketManager(messageQueue, dataLogger);
@@ -55,7 +55,7 @@ public class AppContext {
         return wsManager;
     }
 
-    public WebSocketServerSimu getSimulator() {
+    public WebSocketServerSimulator getSimulator() {
         return simulator;
     }
 
@@ -83,6 +83,10 @@ public class AppContext {
      */
     public interface ContextAware {
         void setAppContext(AppContext context);
+    }
+    
+    public interface DisposableController {
+        void dispose();
     }
     
     public void finalize() {

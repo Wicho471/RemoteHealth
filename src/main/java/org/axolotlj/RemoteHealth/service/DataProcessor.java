@@ -9,6 +9,7 @@ import org.axolotlj.RemoteHealth.model.ConnectionData;
 import org.axolotlj.RemoteHealth.model.StructureData;
 import org.axolotlj.RemoteHealth.service.datawriter.CsvDataWriter;
 import org.axolotlj.RemoteHealth.service.datawriter.FileCsvDataWriter;
+import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.util.DataHandler;
 import org.axolotlj.RemoteHealth.util.cmd.CommandHandler;
 import org.axolotlj.RemoteHealth.util.cmd.CommandHandler.CommandType;
@@ -20,6 +21,8 @@ public class DataProcessor {
 	
     private BlockingQueue<String> messageQueue;
     private BlockingQueue<StructureData> processedQueue;
+    private Thread processorThread;
+    private DataLogger dataLogger;
     
     private final List<CommandResponseListener> listeners = new CopyOnWriteArrayList<>();
     
@@ -45,15 +48,16 @@ public class DataProcessor {
         }
     }
 
-    public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<StructureData> processedQueue) {
+    public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<StructureData> processedQueue, DataLogger dataLogger) {
         this.active = true;
     	this.messageQueue = messageQueue;
         this.processedQueue = processedQueue;
+        this.dataLogger = dataLogger;
     }
 
     public void startProcessing() {
 
-        new Thread(() -> {
+    	processorThread = new Thread(() -> {
             while (active) {
                 try {
                 	String data = messageQueue.take();
@@ -75,13 +79,14 @@ public class DataProcessor {
                     break;
                 }
             }
-        }, "DataProcessorThread").start();
+        }, "DataProcessorThread");
+    	processorThread.start();
     }
 
     public boolean recordData(ConnectionData connectionData, String patientName) {
         if (isCsvEnabled || csvDataWriter != null) return false;
         try {
-            csvDataWriter = new FileCsvDataWriter(connectionData, patientName);
+            csvDataWriter = new FileCsvDataWriter(connectionData, patientName, dataLogger);
             isCsvEnabled = true;
             return true;
         } catch (Exception e) {
@@ -101,8 +106,21 @@ public class DataProcessor {
     }
     
     public void stop() {
-    	stopRecordingData();
-    	this.active = false;
-    	messageQueue.offer("STOP");
-	}
+        stopRecordingData();
+        this.active = false;
+        if (messageQueue != null) {
+            messageQueue.offer("STOP"); // Despierta el take()
+        }
+        if (processorThread != null && processorThread.isAlive()) {
+            processorThread.interrupt();  // fuerza la parada si está atascado
+            try {
+                processorThread.join(2000); // opcional: espera hasta 2 segundos para terminar
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            processorThread = null;
+        }
+        listeners.clear(); // 🔥 liberar los listeners por seguridad
+    }
+
 }

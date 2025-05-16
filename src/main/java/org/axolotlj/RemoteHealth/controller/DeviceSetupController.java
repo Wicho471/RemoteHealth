@@ -1,10 +1,10 @@
 package org.axolotlj.RemoteHealth.controller;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
+import org.axolotlj.RemoteHealth.app.ui.FileChooserUtils;
 import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
@@ -18,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 
 public class DeviceSetupController implements ContextAware {
 
@@ -57,9 +56,9 @@ public class DeviceSetupController implements ContextAware {
 
 	@FXML
 	public void initialize() {
-	    Platform.runLater(() -> {
-	        appContext.getSceneManager().getStage().setResizable(false);
-	    });
+		Platform.runLater(() -> {
+			appContext.getSceneManager().getStage().setResizable(false);
+		});
 	}
 
 	@FXML
@@ -67,33 +66,32 @@ public class DeviceSetupController implements ContextAware {
 		if (qrScanner != null) {
 			qrScanner.stop();
 		}
-	    Platform.runLater(() -> {
-	        appContext.getSceneManager().getStage().setResizable(true);
-	    });
+		Platform.runLater(() -> {
+			appContext.getSceneManager().getStage().setResizable(true);
+		});
 		appContext.getSceneManager().switchTo(SceneType.DEVICE_SELECTOR);
 	}
 
 	@FXML
 	private void handleQrScan() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes PNG", "*.png"));
-		File file = fileChooser.showOpenDialog(appContext.getSceneManager().getStage());
-		if (file != null) {
-			try {
-				String qrContent = QRScanner.decodeQRCode(file.getAbsolutePath());
-				System.out.println(qrContent);
-				if (ConnectionsHandler.addConnetcionData(qrContent)) {
-					AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
-				} else {
-					AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
-				}
-
-			} catch (NotFoundException | IOException e) {
-				System.err.println("Archivo no encontrado -> " + e.getMessage());
-			} catch (Exception e) {
-				System.err.println("Ocurrio un error inesperado -> " + e.getMessage());
-			}
-		}
+		FileChooserUtils
+				.chooseFile(appContext.getSceneManager().getStage(), "Seleccionar código QR", "Imágenes PNG", "*.png")
+				.ifPresent(file -> {
+					try {
+						String qrContent = QRScanner.decodeQRCode(file.getAbsolutePath());
+						if (ConnectionsHandler.addConnetcionData(qrContent)) {
+							AlertUtil.showInformationAlert("Éxito", null, "Se añadió correctamente el dispositivo",
+									true);
+						} else {
+							AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo",
+									"Verifica el código QR");
+						}
+					} catch (NotFoundException | IOException e) {
+						System.err.println("Archivo no encontrado -> " + e.getMessage());
+					} catch (Exception e) {
+						System.err.println("Ocurrió un error inesperado -> " + e.getMessage());
+					}
+				});
 	}
 
 	@FXML
@@ -103,7 +101,7 @@ public class DeviceSetupController implements ContextAware {
 			String ipv4 = ipv4TextField.getText().trim();
 			String ipv6 = ipv6TextField.getText().trim();
 			String portStr = portTextField.getText().trim();
-			String path = pathTextField.getText().trim().isEmpty() ? "/" : pathTextField.getText().trim();
+			String path = pathTextField.getText().trim();
 
 			if (ipv4.isEmpty() || ipv6.isEmpty() || portStr.isEmpty()) {
 				AlertUtil.showErrorAlert("Campos invalidos", "Algunos datos estan vacios",
@@ -126,7 +124,7 @@ public class DeviceSetupController implements ContextAware {
 			json.addProperty("path", path);
 
 			if (ConnectionsHandler.addConnetcionData(json.toString())) {
-				AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
+				AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo", true);
 			} else {
 				AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");
 			}
@@ -164,7 +162,7 @@ public class DeviceSetupController implements ContextAware {
 				turnOnCameraBtn.setText("Encender camara");
 				if (qrContent != null) {
 					if (ConnectionsHandler.addConnetcionData(qrContent)) {
-						AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo");
+						AlertUtil.showInformationAlert("Exito", null, "Se añadio correctamente el dispositivo", true);
 
 					} else {
 						AlertUtil.showErrorAlert("Error", "No se pudo añadir el dispositivo", "Verifica el codigo QR");

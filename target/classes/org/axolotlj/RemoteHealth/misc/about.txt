@@ -1,0 +1,68 @@
+RemoteHealth - Acerca de
+
+Nombre de la aplicación: RemoteHealth
+Versión: 0.0.1-SNAPSHOT
+Organización: Axolotlj Tech
+Lenguaje y plataforma: Java 17 + JavaFX
+Sistema de construcción: Maven
+
+Descripción:
+ RemoteHealth es una aplicación para la supervisión remota
+ y el procesamiento de señales biomédicas provenientes de
+ dispositivos médicos conectados. Ofrece una interfaz moderna,
+ análisis en tiempo real y comunicación vía WebSocket.
+
+Características principales:
+- Comunicación serial y por WebSocket.
+- Procesamiento digital de señales (DSP).
+- Exportación y análisis de datos biomédicos (CSV/JSON).
+- Visualización con JavaFX.
+- Generación de códigos QR y captura de video.
+- Análisis de anomalías en datos biomédicos.
+
+Tecnologías:
+- DSP: jdsp, iirj, JTransforms, jwave
+- Matemáticas: commons-math3, ssj
+- Interfaz: JavaFX, FXML, Swing
+- Comunicación: Tyrus, jSerialComm
+- Formatos: gson, commons-csv, ZXing
+- Logging: SLF4J
+
+Integración con Arduino/ESP32:
+ La parte embebida está implementada sobre ESP32 usando el entorno Arduino,
+ y se encarga de la adquisición y transmisión de datos biomédicos en
+ tiempo real. Utiliza tareas concurrentes y comunicación asíncrona para
+ optimizar la recolección de datos y la estabilidad del sistema.
+
+Sensores soportados:
+- Adafruit MLX90614 (sensor de temperatura IR)
+- MAX30105 (oxímetro y pulsómetro)
+- SparkFun MMA8452Q (acelerómetro)
+- AD8232 (sensor de ECG)
+
+Comunicación:
+- HTTP y WebSocket asíncronos (ESPAsyncWebServer + WebSocketsServer)
+- Configuración Wi-Fi (modo AP/STA dual)
+- Soporte de IPv6 y NTP para sincronización horaria
+- JSON (ArduinoJson) para la estructura de mensajes
+
+Procesamiento embebido:
+- Filtrado y empaquetado de datos en formato HEX y JSON
+- Gestión de concurrencia con FreeRTOS (tareas y semáforos)
+- Protección de recursos compartidos con `portMUX` y mutexes I2C
+- Persistencia de configuración con Preferences.h
+
+Extras técnicos:
+- Detección automática de sensores y fallos
+- Protección contra corrupción de heap
+- Gestión avanzada de interrupciones (para desconexión ECG)
+- Modularidad y comandos vía puerto serie
+
+Librerías Arduino utilizadas:
+- Sistema: Preferences, WiFi, HTTPClient, esp_system, time
+- Servidores: ESPAsyncWebServer, WebSocketsServer, AsyncTCP
+- Sensores: Adafruit_MLX90614, MAX30105, SparkFun_MMA8452Q
+- Utilidades: ArduinoJson, Wire
+
+Licencia: MIT
+Contacto: luisemmanuel471@gmail.com

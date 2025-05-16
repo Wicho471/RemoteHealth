@@ -96,6 +96,7 @@ public class SystemMonitor {
         if (monitorThread != null && monitorThread.isAlive()) {
             monitorThread.interrupt();
         }
+        monitorThread = null;
     }
 
     

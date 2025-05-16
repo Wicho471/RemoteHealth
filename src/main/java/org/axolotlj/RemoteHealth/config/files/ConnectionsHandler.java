@@ -25,6 +25,8 @@ import java.util.UUID;
  */
 public class ConnectionsHandler {
 
+	private ConnectionsHandler() {}
+	
     private static final String CONFIG_FILE_NAME = "device_connections.json";
 
     /**
@@ -114,6 +116,21 @@ public class ConnectionsHandler {
         if (connections != null && index >= 0 && index < connections.size()) {
             ConnectionData data = connections.get(index);
             data.setName(newName);
+            return save(connections);
+        }
+        return false;
+    }
+    
+    /**
+     * Actualiza los datos generales de una conexion.
+     *
+     * @param index Índice del dispositivo a modificar
+     * @param connectionData Datos de la conexion para actualizar
+     */
+    public static boolean update(int index, ConnectionData connectionData) {
+        ArrayList<ConnectionData> connections = load();
+        if (connections != null && index >= 0 && index < connections.size()) {
+        	connections.set(index, connectionData);
             return save(connections);
         }
         return false;

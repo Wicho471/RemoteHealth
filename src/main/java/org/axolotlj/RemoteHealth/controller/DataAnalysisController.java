@@ -2,24 +2,29 @@ package org.axolotlj.RemoteHealth.controller;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.axolotlj.RemoteHealth.analysis.DataAnalysis;
+import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
+import org.axolotlj.RemoteHealth.app.ui.FileChooserUtils;
+import org.axolotlj.RemoteHealth.app.ui.SceneUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
-import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
+import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
 import org.axolotlj.RemoteHealth.filters.AnalysisFilters;
 import org.axolotlj.RemoteHealth.model.AnomalyData;
+import org.axolotlj.RemoteHealth.model.ParameterValue;
 import org.axolotlj.RemoteHealth.model.StructureData;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.util.DataHandler;
+import org.axolotlj.RemoteHealth.util.Paths;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -29,106 +34,59 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 
-public class DataAnalysisController implements ContextAware {
-
+public class DataAnalysisController implements ContextAware, DisposableController {
+	// Campos no FXML
+	private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	private long currentStartTimeMs = 0;
 	private long totalDurationMs = 0;
 	private AppContext appContext;
 	private DataLogger dataLogger;
-	private ArrayList<StructureData> structureDatas;
-	private ArrayList<MutablePair<Long, Double>> egc;
-	private ArrayList<MutablePair<Long, Double>> ir;
-	private ArrayList<MutablePair<Long, Double>> red;
-	private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	private AnalysisFilters filters;
+	private ArrayList<StructureData> structureDatas;
+	private ArrayList<ParameterValue> processedData;
+	private ArrayList<MutablePair<Long, Double>> egc, ir, red;
 
-	// Tabla de anomalías
-	@FXML
-	private TableView<AnomalyData> anomalyTable;
-
-	// Controles para selección de archivos
-	@FXML
-	private ComboBox<String> choiseFile;
-	@FXML
-	private Button selectFileBtn;
-
-	// Controles para selección de tiempo
-	@FXML
-	private ComboBox<String> choiseTimeLenght;
-	@FXML
-	private TextField initialTimeField;
-	@FXML
-	private TextField finalTimeField;
-
-	// Controles de navegación temporal
-	@FXML
-	private Button startBtn;
-	@FXML
-	private Button backwardBtn;
-	@FXML
-	private Button nextBtn;
-	@FXML
-	private Button endBtn;
-
-	// Botón de regreso
-	@FXML
-	private Button backBtn;
-
-	// Gráficas
-	@FXML
-	private LineChart<Number, Number> ecgChart;
-	@FXML
-	private LineChart<Number, Number> ppgChart;
-	@FXML
-	private LineChart<Number, Number> bpmChart;
-	@FXML
-	private LineChart<Number, Number> tempChart;
-	@FXML
-	private LineChart<Number, Number> spo2Chart;
-	@FXML
-	private LineChart<Number, Number> motionChart;
-
+	// Componentes FXML
 	@FXML
 	private StackPane rootPane;
-
+	@FXML
+	private VBox loadingOverlay;
 	@FXML
 	private ProgressIndicator loadingIndicator;
 
 	@FXML
-	private VBox loadingOverlay;
+	private TableView<AnomalyData> anomalyTable;
+
+	@FXML
+	private Button selectFileBtn, openRecHandle;
+	@FXML
+	private Button startBtn, backwardBtn, nextBtn, endBtn;
+	@FXML
+	private Button backBtn;
+
+	@FXML
+	private ComboBox<String> choiseTimeLenght;
+	@FXML
+	private TextField initialTimeField, finalTimeField;
+
+	@FXML
+	private LineChart<Number, Number> ecgChart, ppgChart, bpmChart, tempChart, spo2Chart, motionChart;
 
 	@FXML
 	public void initialize() {
 		this.filters = new AnalysisFilters();
 
+		ChartUtils.setStyle(ecgChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(ppgChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(bpmChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(tempChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(spo2Chart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(motionChart, Paths.CSS_DASHBOARDSTYLE_CSS);
 		TableUtils.adjustColumns(anomalyTable, false);
+
 		initializeChoiseTimeLength();
-
-		Task<Void> initTask = new Task<>() {
-			@Override
-			protected Void call() {
-				loadChoiseFile();
-				return null;
-			}
-		};
-
-		initTask.setOnSucceeded(event -> {
-			showLoading(false);
-		});
-
-		initTask.setOnFailed(event -> {
-			showLoading(false);
-			Throwable e = initTask.getException();
-			if (e != null) {
-				e.printStackTrace();
-				dataLogger.logError("Error al inicializar DataAnalysisController: " + e.getMessage());
-			}
-		});
-
-		showLoading(true);
-		new Thread(initTask, "InitDataAnalysis-Thread").start();
+		showLoading(false);
 	}
 
 	private void initializeChoiseTimeLength() {
@@ -154,13 +112,8 @@ public class DataAnalysisController implements ContextAware {
 
 	@FXML
 	private void selectFileHandler() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
-		File file = fileChooser.showOpenDialog(appContext.getSceneManager().getStage());
-		if (file != null) {
-			String pathFile = file.getAbsolutePath();
-			loadFile(pathFile);
-		}
+		FileChooserUtils.chooseFile(appContext.getSceneManager().getStage(), "Selecciona archivo CSV", "Archivos CSV", "*.csv")
+				.map(File::getAbsolutePath).ifPresent(this::loadFile);
 	}
 
 	@FXML
@@ -215,42 +168,20 @@ public class DataAnalysisController implements ContextAware {
 		this.dataLogger = context.getDataLogger();
 	}
 
-	private void loadChoiseFile() {
-		Path folderPath = ConfigFileHelper.getDataDir();
-
-		File folder = folderPath.toFile();
-		if (!folder.exists() || !folder.isDirectory()) {
-			dataLogger.logError("Directorio inválido: " + folderPath);
-			return;
-		}
-
-		File[] csvFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
-		if (csvFiles == null || csvFiles.length == 0) {
-			dataLogger.logInfo("No se encontraron archivos CSV en: " + folderPath);
-			return;
-		}
-
-		Platform.runLater(() -> {
-			choiseFile.getItems().clear();
-			choiseFile.getItems().add("--- Selecciona ---");
-			for (File file : csvFiles) {
-				choiseFile.getItems().add(file.getName());
-			}
-			choiseFile.getSelectionModel().selectFirst();
-
-			choiseFile.setOnAction(e -> {
-			    String selectedFile = choiseFile.getSelectionModel().getSelectedItem();
-			    if (selectedFile != null && !"--- Selecciona ---".equals(selectedFile)) {
-			        Path selectedPath = folderPath.resolve(selectedFile);
-			        loadFile(selectedPath.toString());
-			    }
-			});
-		});
+	@FXML
+	private void openRecHandle() {
+		SceneUtils.openModalWindow(
+			    Paths.VIEW_WINDOW_CSVSELECTORWINDOW_FXML,
+			    "Seleccionar archivo CSV",
+			    this, 
+			    Images.IMG_FAVICONS_CSV,
+			    msg -> dataLogger.logError(msg)
+			);
 	}
 
-	private void loadFile(String pathString) {
+	public void loadFile(String pathString) {
 		dataLogger.logInfo("Leyendo archivo -> " + pathString);
-		Path path = Paths.get(pathString);
+		Path path = java.nio.file.Paths.get(pathString);
 
 		showLoading(true);
 
@@ -266,6 +197,9 @@ public class DataAnalysisController implements ContextAware {
 						.applyFiltersToPleth(DataHandler.extractValidPairs(structureDatas, DataHandler.SensorField.IR));
 				red = filters.applyFiltersToPleth(
 						DataHandler.extractValidPairs(structureDatas, DataHandler.SensorField.RED));
+
+				DataAnalysis dataAnalysis = new DataAnalysis(structureDatas);
+				processedData = dataAnalysis.getParameterValues();
 				if (egc != null && !egc.isEmpty()) {
 					long start = egc.get(0).getLeft();
 					long end = egc.get(egc.size() - 1).getLeft();
@@ -304,6 +238,10 @@ public class DataAnalysisController implements ContextAware {
 				// Ploteo paralelo
 				var ecgFuture = executor.submit(() -> buildEcgSeries());
 				var plethFuture = executor.submit(() -> buildPlethSeries());
+				var tempFuture = executor.submit(() -> buildTempSeries());
+				var motionFuture = executor.submit(() -> buildMotionSeries());
+				var bpmFuture = executor.submit(() -> buildBpmSeries());
+				var spo2Future = executor.submit(() -> buildSpO2Series());
 
 				// Esperamos que terminen
 				XYChart.Series<Number, Number> ecgSeries = ecgFuture.get();
@@ -317,6 +255,27 @@ public class DataAnalysisController implements ContextAware {
 					ppgChart.getData().clear();
 					ppgChart.getData().addAll(plethSeries.getLeft(), plethSeries.getRight());
 					adjustXAxis(ppgChart);
+
+					try {
+						tempChart.getData().clear();
+						tempChart.getData().add(tempFuture.get());
+						adjustXAxis(tempChart);
+
+						motionChart.getData().clear();
+						motionChart.getData().add(motionFuture.get());
+						adjustXAxis(motionChart);
+
+						bpmChart.getData().clear();
+						bpmChart.getData().add(bpmFuture.get());
+						adjustXAxis(bpmChart);
+
+						spo2Chart.getData().clear();
+						spo2Chart.getData().add(spo2Future.get());
+						adjustXAxis(spo2Chart);
+					} catch (Exception e) {
+						e.printStackTrace();
+						dataLogger.logError("Error al plotear datos adicionales: " + e.getMessage());
+					}
 
 					updateTimeFields();
 					showLoading(false);
@@ -403,6 +362,108 @@ public class DataAnalysisController implements ContextAware {
 		return Pair.of(irSeries, redSeries);
 	}
 
+	private XYChart.Series<Number, Number> buildTempSeries() {
+		XYChart.Series<Number, Number> series = new XYChart.Series<>();
+		series.setName("Temp");
+
+		if (processedData == null || processedData.isEmpty())
+			return series;
+
+		long startTime = processedData.get(0).getTimeStamp();
+		long absoluteStart = startTime + currentStartTimeMs;
+		int seconds = getSelectedSeconds();
+		long maxTime = absoluteStart + seconds * 1000;
+
+		for (ParameterValue pv : processedData) {
+			long ts = pv.getTimeStamp();
+			if (ts < absoluteStart)
+				continue;
+			if (ts > maxTime)
+				break;
+			double relativeTime = (ts - startTime) / 1000.0;
+			if (!Double.isNaN(pv.getTemp())) {
+				series.getData().add(new XYChart.Data<>(relativeTime, pv.getTemp()));
+			}
+		}
+		return series;
+	}
+
+	private XYChart.Series<Number, Number> buildMotionSeries() {
+		XYChart.Series<Number, Number> series = new XYChart.Series<>();
+		series.setName("Movimiento");
+
+		if (processedData == null || processedData.isEmpty())
+			return series;
+
+		long startTime = processedData.get(0).getTimeStamp();
+		long absoluteStart = startTime + currentStartTimeMs;
+		int seconds = getSelectedSeconds();
+		long maxTime = absoluteStart + seconds * 1000;
+
+		for (ParameterValue pv : processedData) {
+			long ts = pv.getTimeStamp();
+			if (ts < absoluteStart)
+				continue;
+			if (ts > maxTime)
+				break;
+			double relativeTime = (ts - startTime) / 1000.0;
+			if (!Double.isNaN(pv.getMov())) {
+				series.getData().add(new XYChart.Data<>(relativeTime, pv.getMov()));
+			}
+		}
+		return series;
+	}
+
+	private XYChart.Series<Number, Number> buildBpmSeries() {
+		XYChart.Series<Number, Number> series = new XYChart.Series<>();
+		series.setName("BPM");
+
+		if (processedData == null || processedData.isEmpty())
+			return series;
+
+		long startTime = processedData.get(0).getTimeStamp();
+		long absoluteStart = startTime + currentStartTimeMs;
+		int seconds = getSelectedSeconds();
+		long maxTime = absoluteStart + seconds * 1000;
+
+		for (ParameterValue pv : processedData) {
+			long ts = pv.getTimeStamp();
+			if (ts < absoluteStart)
+				continue;
+			if (ts > maxTime)
+				break;
+			double relativeTime = (ts - startTime) / 1000.0;
+			series.getData().add(new XYChart.Data<>(relativeTime, pv.getBpm()));
+		}
+		return series;
+	}
+
+	private XYChart.Series<Number, Number> buildSpO2Series() {
+		XYChart.Series<Number, Number> series = new XYChart.Series<>();
+		series.setName("SpO2");
+
+		if (processedData == null || processedData.isEmpty())
+			return series;
+
+		long startTime = processedData.get(0).getTimeStamp();
+		long absoluteStart = startTime + currentStartTimeMs;
+		int seconds = getSelectedSeconds();
+		long maxTime = absoluteStart + seconds * 1000;
+
+		for (ParameterValue pv : processedData) {
+			long ts = pv.getTimeStamp();
+			if (ts < absoluteStart)
+				continue;
+			if (ts > maxTime)
+				break;
+			double relativeTime = (ts - startTime) / 1000.0;
+			if (!Double.isNaN(pv.getSpO2())) {
+				series.getData().add(new XYChart.Data<>(relativeTime, pv.getSpO2()));
+			}
+		}
+		return series;
+	}
+
 	private int getSelectedSeconds() {
 		String selected = choiseTimeLenght.getSelectionModel().getSelectedItem();
 		if (selected != null && selected.contains("segundos")) {
@@ -426,6 +487,11 @@ public class DataAnalysisController implements ContextAware {
 		double tickUnit = seconds / 5.0;
 
 		ChartUtils.configureXAxis(chart, maxX, minX, tickUnit, false);
+	}
+
+	@Override
+	public void dispose() {
+		
 	}
 
 }

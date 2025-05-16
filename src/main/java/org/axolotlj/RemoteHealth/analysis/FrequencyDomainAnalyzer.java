@@ -17,7 +17,7 @@ public class FrequencyDomainAnalyzer {
 	 * @return ArrayList de (frecuencia, magnitud)
 	 */
 	public static ArrayList<MutablePair<Double, Double>> computeFFT(double[] signal,
-			int FS) {
+			double FS) {
 		// ==========================
 		// 1) Copiar señal a array
 		// ==========================
@@ -110,24 +110,14 @@ public class FrequencyDomainAnalyzer {
 		// ==========================
 		ArrayList<MutablePair<Double, Double>> result = new ArrayList<>(halfSize);
 		for (int i = 0; i < halfSize; i++) {
-			result.add(new MutablePair<>(magnitudes[i], freqAxis[i]));
+			// ✅ AHORA (bien)
+			result.add(new MutablePair<>(freqAxis[i], magnitudes[i]));
+
 		}
 
 		endTime = System.currentTimeMillis();
 		System.out.println("Generar objeto de retorno: " + (endTime - startTime) + " ms");
 
 		return result;
-	}
-
-	/**
-	 * Función auxiliar para encontrar la siguiente potencia de 2 mayor o igual a n.
-	 * (Útil si quieres padear a potencia de 2 para más velocidad en JTransforms)
-	 */
-	private static int nextPowerOfTwo(int n) {
-		int v = 1;
-		while (v < n) {
-			v <<= 1;
-		}
-		return v;
 	}
 }

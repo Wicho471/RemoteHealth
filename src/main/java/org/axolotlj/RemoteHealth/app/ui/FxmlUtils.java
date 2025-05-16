@@ -3,6 +3,7 @@ package org.axolotlj.RemoteHealth.app.ui;
 import javafx.fxml.FXMLLoader;
 
 public class FxmlUtils {
+	private FxmlUtils() { } 
 	
 	public static FXMLLoader loadFXML(String path) {
 		try {

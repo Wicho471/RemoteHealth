@@ -9,8 +9,9 @@ import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.files.LanguageConfig;
 import org.axolotlj.RemoteHealth.core.AppContext;
+import org.axolotlj.RemoteHealth.lang.I18n;
 import org.axolotlj.RemoteHealth.service.logger.*;
-import org.axolotlj.RemoteHealth.util.I18n;
+import org.axolotlj.RemoteHealth.util.Debug;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -23,26 +24,25 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
 	@Override
-	public void start(Stage primaryStage) {
-		DataLogger logger;
-		try {
-			logger = new FileDataLogger();
-		} catch (IOException e) {
-			System.err.println("Fallo al inicializar el logger, se usará NoOp: " + e.getMessage());
-			logger = new NoOpDataLogger();
-		}
+	public void start(Stage stage) {
+		DataLogger logger = initalizeLogger();
+
 		logger.logInfo("Iniciando sistema");
 		
 	    Locale savedLocale = LanguageConfig.loadSavedLocale();
 	    I18n.setLocale(savedLocale);
 
-		AppContext.initialize(new SceneManager(primaryStage), logger);
+		AppContext.initialize(new SceneManager(stage), logger);
+		AppContext.getInstance().getSceneManager().setDataLogger(logger);
 		AppContext.getInstance().getSceneManager().switchTo(SceneType.DEVICE_SELECTOR);
-		AppContext.getInstance().getSimulator().start();
 
-		primaryStage.show();
-
-		primaryStage.setOnCloseRequest(event -> {
+		stage.show();
+		
+		catchEventOnClose(stage);
+	}
+	
+	private void catchEventOnClose(Stage stage) {
+		stage.setOnCloseRequest(event -> {
 			event.consume();
 
 			Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmar salida",
@@ -53,11 +53,20 @@ public class MainApp extends Application {
 			}
 		});
 	}
+	
+	private DataLogger initalizeLogger() {
+		try {
+			return new FileDataLogger();
+		} catch (IOException e) {
+			System.err.println("Fallo al inicializar el logger, se usará NoOp: " + e.getMessage());
+			return new NoOpDataLogger();
+		}
+	}
 
 	@Override
 	public void stop() throws Exception {
 		AppContext.getInstance().finalize();
-		System.exit(0);
+		Debug.printAllThreads(false);
 	}
 
 	public static void main(String[] args) {

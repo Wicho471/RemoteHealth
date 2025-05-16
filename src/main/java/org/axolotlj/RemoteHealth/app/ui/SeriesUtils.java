@@ -25,4 +25,10 @@ public class SeriesUtils {
 		series.getData().get(index).setYValue(value);
 	}
 
+	public static void initializeSeries(XYChart.Series<Number, Number> series, int points) {
+	    for (int i = 0; i < points; i++) {
+	        series.getData().add(new XYChart.Data<>(i, 0));
+	    }
+	}
+
 }
