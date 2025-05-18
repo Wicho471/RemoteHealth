@@ -2,7 +2,7 @@ package org.axolotlj.RemoteHealth.app;
 
 import java.net.URL;
 
-import org.axolotlj.RemoteHealth.util.Paths;
+import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.scene.image.Image;
 
@@ -101,6 +101,7 @@ public class Images {
 	public static final Image IMG_VITALS_OK = load(Paths.IMG_OK_PNG);
 	public static final Image IMG_VITALS_STOP_ALERT = load(Paths.IMG_STOP_ALERT_PNG);
 	public static final Image IMG_VITALS_TEMP_ALERT = load(Paths.IMG_TEMP_ALERT_PNG);
+	public static final Image IMG_VITALS_HIP_ALERT = load(Paths.IMG_HIP_ALERT_PNG);
 
 	// ========================= IMG/langs =========================
 	public static final Image IMG_LANGS_ES = load(Paths.IMG_LANGS_ES_PNG);

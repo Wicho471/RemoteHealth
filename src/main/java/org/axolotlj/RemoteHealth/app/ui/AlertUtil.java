@@ -78,6 +78,10 @@ public class AlertUtil {
         return alert.showAndWait();
     }
     
+    public static void buildingModule() {
+		showInformationAlert("Modulo en contruccion", "Verifica la version mas reciente", "Este modulo aun se encuenta en desarollo", true);
+	}
+    
     private static void setIcon(Alert alert, Image image) {
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.getIcons().add(image);

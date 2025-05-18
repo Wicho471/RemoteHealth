@@ -3,9 +3,9 @@ package org.axolotlj.RemoteHealth.app.ui;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.axolotlj.RemoteHealth.analysis.FrequencyDomainAnalyzer;
+import org.axolotlj.RemoteHealth.analysis.utis.FrequencyDomainAnalyzer;
 import org.axolotlj.RemoteHealth.filters.Misc;
-import org.axolotlj.RemoteHealth.util.MutablePairHandler;
+import org.axolotlj.RemoteHealth.sensor.TuplaUtil;
 
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -52,11 +52,11 @@ public class ChartUtils {
     public static XYChart.Series<Number, Number> buildFFTSeries(ArrayList<MutablePair<Long, Double>> pairs, String name) {
         if (pairs == null || pairs.isEmpty()) return new XYChart.Series<>();
 
-        double[] signal = MutablePairHandler.extractValues(pairs);
-        long[] timestamps = MutablePairHandler.extractTimestamps(pairs);
+        double[] signal = TuplaUtil.extractValues(pairs);
+        long[] timestamps = TuplaUtil.extractTimestamps(pairs);
         double fs = Misc.calculateAverageSamplingRate(timestamps);
 
-        var fft = FrequencyDomainAnalyzer.computeFFT(signal, fs);
+        var fft = FrequencyDomainAnalyzer.computeFFTv2(signal, fs);
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName(name);
         for (var p : fft) {
@@ -95,7 +95,7 @@ public class ChartUtils {
     public static void plotFrequencySeries(LineChart<Number, Number> chart, ArrayList<MutablePair<Long, Double>> pairs, String seriesName) {
         if (pairs == null || pairs.isEmpty()) return;
 
-        long[] timestamps = MutablePairHandler.extractTimestamps(pairs);
+        long[] timestamps = TuplaUtil.extractTimestamps(pairs);
         double fs = Misc.calculateAverageSamplingRate(timestamps);
         XYChart.Series<Number, Number> fftSeries = buildFFTSeries(pairs, seriesName);
 

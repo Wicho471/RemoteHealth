@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.axolotlj.RemoteHealth.app.SceneManager;
-import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
+import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.files.LanguageConfig;
 import org.axolotlj.RemoteHealth.core.AppContext;

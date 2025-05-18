@@ -1,13 +1,12 @@
 package org.axolotlj.RemoteHealth.controller;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.axolotlj.RemoteHealth.app.Images;
-import org.axolotlj.RemoteHealth.app.SceneManager.SceneType;
+import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ButtonUtils;
 import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
@@ -15,6 +14,8 @@ import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
 import org.axolotlj.RemoteHealth.app.ui.ToolTipUtil;
 import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
+import org.axolotlj.RemoteHealth.controller.include.MenuBarController;
+import org.axolotlj.RemoteHealth.controller.window.DeviceConfigController;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
 import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
@@ -25,8 +26,9 @@ import org.axolotlj.RemoteHealth.model.ConnectionData;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketManager;
+import org.axolotlj.RemoteHealth.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.RemoteHealth.util.NetworkUtil;
-import org.axolotlj.RemoteHealth.util.Paths;
+import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -61,6 +63,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 	private static Alert connectingAlert;
 	private static WebSocketManager wsManager;
 	private javafx.beans.value.ChangeListener<Boolean> simulatorListener;
+	private MenuBarController menuBarController;
 
 	// FXML components
 	@FXML
@@ -68,7 +71,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 	@FXML
 	private ImageView imgDriverStatus, imgLANStatus, imgInternetStatus, imgIpv6Status, simuStatusImg;
 	@FXML
-	private Button refreshStatusBtn, refreshDevicesBtn, addDeviceBtn;
+	private Button refreshStatusBtn, refreshDevicesBtn, addDeviceBtn, connectSimuBtn;
 	@FXML
 	private MenuBar menuBar;
 	@FXML
@@ -90,18 +93,24 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		onLocaleChanged();
 		setToolTips();
 		setupSearchField();
-		updateSimuStatusIcon(appContext.getSimulator().isActive());
-		simulatorListener = (obs, wasActive, isActive) -> updateSimuStatusIcon(isActive);
+		updateSimuStatus(appContext.getSimulator().isActive());
+		simulatorListener = (obs, wasActive, isActive) -> updateSimuStatus(isActive);
 		appContext.getSimulator().activeProperty().addListener(simulatorListener);
 		
 	}
-
-	private void updateSimuStatusIcon(boolean isActive) {
-		if (isActive) {
-			ImageViewUtils.setImage(simuStatusImg, Images.IMG_ICONS_GREEN); // imagen cuando está activo
-		} else {
-			ImageViewUtils.setImage(simuStatusImg, Images.IMG_ICONS_RED); // imagen cuando está apagado
+	
+	@FXML
+	private void connectSimuBtnHandle() {
+		WebSocketServerSimulator simulator = appContext.getSimulator();
+		if(simulator.isActive()) {
+			startConnection(simulator.getConnection(), false);
 		}
+	}
+
+	private void updateSimuStatus(boolean isActive) {
+		Image image = isActive ? Images.IMG_ICONS_GREEN : Images.IMG_ICONS_RED;
+		ImageViewUtils.setImage(simuStatusImg, image);
+		connectSimuBtn.setDisable(!isActive);
 	}
 
 	private void setupSearchField() {
@@ -165,13 +174,12 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 				connectButton.setText("Conectando...");
 				connectButton.setOnAction(event -> {
 					ConnectionData data = getTableView().getItems().get(getIndex());
-					URI target = data.getUri4(); // ← IPV4
-					if (target == null) {
+					if (data.getUri4() == null) {
 						AlertUtil.showErrorAlert("Error de conexión", "Dirección inválida",
 								"Este dispositivo no tiene una dirección IPv4 válida para conexión.");
 						return;
 					}
-					startConnection(data, target, false);
+					startConnection(data, false);
 				});
 			}
 
@@ -222,13 +230,12 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 				connectButton.setText("Conectando...");
 				connectButton.setOnAction(event -> {
 					ConnectionData data = getTableView().getItems().get(getIndex());
-					URI target = data.getUri6(); // ← IPV6
-					if (target == null) {
+					if (data.getUri6() == null) {
 						AlertUtil.showErrorAlert("Error de conexión", "Dirección inválida",
 								"Este dispositivo no tiene una dirección IPv6 válida para conexión.");
 						return;
 					}
-					startConnection(data, target, true);
+					startConnection(data, true);
 				});
 			}
 
@@ -350,7 +357,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		};
 	}
 
-	private void startConnection(ConnectionData data, URI uri, boolean isRemote) {
+	private void startConnection(ConnectionData data, boolean isRemote) {
 		dataLogger.logInfo("Intentando establecer conexion con -> " + data.toString());
 
 		Platform.runLater(() -> {

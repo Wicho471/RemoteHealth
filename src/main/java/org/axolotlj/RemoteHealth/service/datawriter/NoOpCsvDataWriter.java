@@ -1,6 +1,6 @@
 package org.axolotlj.RemoteHealth.service.datawriter;
 
-import org.axolotlj.RemoteHealth.model.StructureData;
+import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 
 /**
  * Implementación nula que no realiza ninguna operación. Útil para evitar comprobaciones de null.
@@ -23,7 +23,7 @@ public class NoOpCsvDataWriter extends CsvDataWriter {
     }
 
 	@Override
-	public void writeData(StructureData csvLine) {
+	public void writeData(DataPoint csvLine) {
 		
 	}
 }

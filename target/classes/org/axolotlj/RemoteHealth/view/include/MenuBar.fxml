@@ -9,7 +9,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 
-<MenuBar xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.MenuBarController">
+<MenuBar xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.include.MenuBarController">
 	<menus>
 		<Menu fx:id="menuEsp32" mnemonicParsing="false">
 			<items>
@@ -89,6 +89,38 @@
 
 			</items>
 		</Menu>
+      <Menu mnemonicParsing="false" text="Herramientas">
+         <items>
+				<MenuItem mnemonicParsing="false" onAction="#benchmarkHandle" text="Rendimiento">
+					<graphic>
+						<ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="@../../img/favicons/rendimiento.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#dirHandler" text="Directorio">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/favicons/carpetas.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <SeparatorMenuItem />
+            <RadioMenuItem mnemonicParsing="false" text="Modo desarrollador">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/favicons/dev.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </RadioMenuItem>
+         </items>
+      </Menu>
 		<Menu fx:id="menuLanguage" mnemonicParsing="false">
 			<items>
 				<RadioMenuItem fx:id="langSpanish" mnemonicParsing="false">
@@ -125,20 +157,20 @@
 						</ImageView>
 					</graphic>
 				</MenuItem>
-				<MenuItem mnemonicParsing="false" onAction="#benchmarkHandle" text="Rendimiento">
-					<graphic>
-						<ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-							<image>
-								<Image url="@../../img/favicons/rendimiento.png" />
-							</image>
-						</ImageView>
-					</graphic>
-				</MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#dirHandler" text="Directorio">
+            <MenuItem mnemonicParsing="false" onAction="#licenseHandler" text="Licencia">
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../../img/favicons/carpetas.png" />
+                        <Image url="@../../img/favicons/licencia.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#creditHandle" text="Creditos">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/favicons/credit.png" />
                      </image>
                   </ImageView>
                </graphic>

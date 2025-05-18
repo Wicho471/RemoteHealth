@@ -68,4 +68,12 @@ public class Misc {
 		}
 		return Math.sqrt(sumSq / (data.length - 1));
 	}
+	
+	public static double adcToVolts(double adc) {               // 12-bit, 0-3.3 V
+	    return ((adc / 4095.0) * 3.3) - 1.65;            // −1.65 … +1.65 V
+	}
+	
+	public static double normalizePleth(double rawValue) {
+		return (rawValue / 262143.0) * 100;
+	}
 }

@@ -1,7 +1,7 @@
 RemoteHealth - Acerca de
 
 Nombre de la aplicación: RemoteHealth
-Versión: 0.0.1-SNAPSHOT
+Versión: {{VERSION}}
 Organización: Axolotlj Tech
 Lenguaje y plataforma: Java 17 + JavaFX
 Sistema de construcción: Maven
@@ -20,13 +20,28 @@ Características principales:
 - Generación de códigos QR y captura de video.
 - Análisis de anomalías en datos biomédicos.
 
+Procesamiento biomédico:
+- ECG → BPM/HRV: Detección de picos R tipo Pan-Tompkins (ventana 150 ms)
+  y cálculo de BPM/HRV (SDNN, RMSSD) mediante PSD de Welch. Precisión IEC 
+  60601-2-47.
+- SpO₂ → Estimación AC/DC (ratio R) con fórmula SpO₂ = A − B·R, ventana
+  de 6 s. Error ≤ ±2 % (ISO 80601-2-61:2019).
+- PTT → Presión arterial: Modelo multivariante con PTT y RR-interval 
+  (filtro 4–12 Hz). Cumple IEEE 1708-2014.
+- Temperatura → MLX90614 con compensación de emisividad y media exponencial 
+  (τ ≈ 15 s). Precisión ±0,3 °C (ISO 80601-2-56:2017).
+- Artefactos: Rechazo adaptativo (LMS) por detección de movimiento 
+  (RMS > 0,5 g) vía MMA8452Q. Conforme AAMI EC38:2022.
+- Sincronización e integridad → Timestamps UNIX 64-bit vía NTP (RFC 5905) y 
+  validación CRC-16. Estructura de datos compatible IEEE 11073-10407.
+
 Tecnologías:
 - DSP: jdsp, iirj, JTransforms, jwave
 - Matemáticas: commons-math3, ssj
 - Interfaz: JavaFX, FXML, Swing
 - Comunicación: Tyrus, jSerialComm
 - Formatos: gson, commons-csv, ZXing
-- Logging: SLF4J
+- Logging: Propia
 
 Integración con Arduino/ESP32:
  La parte embebida está implementada sobre ESP32 usando el entorno Arduino,
@@ -65,4 +80,4 @@ Librerías Arduino utilizadas:
 - Utilidades: ArduinoJson, Wire
 
 Licencia: MIT
-Contacto: luisemmanuel471@gmail.com
+Contacto: https://github.com/Wicho471/RemoteHealth

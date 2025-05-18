@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.axolotlj.RemoteHealth.config.files.AnalysisFiltersConfig;
-import org.axolotlj.RemoteHealth.filters.ButterworthFilter.FilterType;
-import org.axolotlj.RemoteHealth.model.StructureData;
-import org.axolotlj.RemoteHealth.util.DataHandler;
-import org.axolotlj.RemoteHealth.util.MutablePairHandler;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.axolotlj.RemoteHealth.config.filt.AnalysisFiltersConfig;
+import org.axolotlj.RemoteHealth.filters.core.IIRFilterring;
+import org.axolotlj.RemoteHealth.filters.core.SavitzkyGolayFilter;
+import org.axolotlj.RemoteHealth.filters.core.WaveletDenoiser;
+import org.axolotlj.RemoteHealth.sensor.TuplaUtil;
+import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
+import org.axolotlj.RemoteHealth.sensor.handle.DataExtractor;
+import org.axolotlj.RemoteHealth.sensor.handle.SensorField;
 
 import jwave.exceptions.JWaveException;
 
@@ -30,15 +34,15 @@ public class AnalysisFilters {
      * @param structureDatas lista de datos sin procesar
      * @return lista de pares timestamp-valor filtrados
      */
-    public ArrayList<MutablePair<Long, Double>> applyFiltersToEcg(ArrayList<StructureData> structureDatas) {
-        ArrayList<MutablePair<Long, Double>> extractedData = DataHandler.extractValidPairs(structureDatas, DataHandler.SensorField.ECG);
-        long[] timestamps = MutablePairHandler.extractTimestamps(extractedData);
-        double[] values = MutablePairHandler.extractValues(extractedData);
+    public ArrayList<MutablePair<Long, Double>> getEcg(ArrayList<DataPoint> structureDatas) {
+        ArrayList<MutablePair<Long, Double>> extractedData = DataExtractor.extractValidValues(structureDatas, SensorField.ECG);
+        long[] timestamps = TuplaUtil.extractTimestamps(extractedData);
+        double[] values = TuplaUtil.extractValues(extractedData);
 
         double samplingRate = Misc.calculateAverageSamplingRate(timestamps);
 
         double[] valuesFiltered = filterEgc(values, samplingRate);
-        MutablePairHandler.assignValuesToPairs(extractedData, valuesFiltered);
+        TuplaUtil.assignTuplaValues(extractedData, valuesFiltered);
 
         return extractedData;
     }
@@ -49,14 +53,20 @@ public class AnalysisFilters {
      * @param extractedData lista de pares timestamp-valor sin procesar
      * @return lista de pares timestamp-valor filtrados
      */
-    public ArrayList<MutablePair<Long, Double>> applyFiltersToPleth(ArrayList<MutablePair<Long, Double>> extractedData) {
-        long[] timestamps = MutablePairHandler.extractTimestamps(extractedData);
-        double[] values = MutablePairHandler.extractValues(extractedData);
-
+    public ArrayList<MutableTriple<Long, Double, Double>> getPleth(ArrayList<DataPoint> structureDatas) {
+    	
+    	ArrayList<MutableTriple<Long, Double, Double>> extractedData = DataExtractor.extractValidValues(structureDatas, SensorField.IR, SensorField.RED);
+    	
+        long[] timestamps = TuplaUtil.extractTimestamps(extractedData);
+        double[] ir = TuplaUtil.extractMiddleValues(extractedData);
+        double[] red = TuplaUtil.extractRightValues(extractedData);
+        
         double samplingRate = Misc.calculateAverageSamplingRate(timestamps);
 
-        double[] valuesFiltered = filterPleth(values, samplingRate);
-        MutablePairHandler.assignValuesToPairs(extractedData, valuesFiltered);
+        double[] irFiltered = filterPleth(ir, samplingRate);
+        double[] redFiltered = filterPleth(red, samplingRate);
+        
+        TuplaUtil.assignTuplaValues(extractedData, irFiltered, redFiltered);
 
         return extractedData;
     }
@@ -66,9 +76,12 @@ public class AnalysisFilters {
 
         double[] filtered = Arrays.copyOf(values, values.length);
 
-        filtered = Misc.normalize(filtered);
+        
+        for (int i = 0; i < filtered.length; i++) {
+			filtered[i] = Misc.adcToVolts(filtered[i]);
+		}
 
-        filtered = ButterworthFilter.applyButterworthFilter(
+        filtered = IIRFilterring.applyButterworthFilter(
             filtered, fs,
             configFile.getEcgBandstopOrder(),
             FilterType.BANDSTOP,
@@ -76,7 +89,7 @@ public class AnalysisFilters {
             configFile.getEcgBandstopHigh()
         );
 
-        filtered = ButterworthFilter.applyButterworthFilter(
+        filtered = IIRFilterring.applyButterworthFilter(
             filtered, fs,
             configFile.getEcgBandpassOrder(),
             FilterType.BANDPASS,
@@ -106,7 +119,11 @@ public class AnalysisFilters {
 
         double[] filtered = Arrays.copyOf(values, values.length);
 
-        filtered = ButterworthFilter.applyButterworthFilter(
+        for (int i = 0; i < filtered.length; i++) {
+			filtered[i] = Misc.normalizePleth(filtered[i]);
+		}
+        
+        filtered = IIRFilterring.applyButterworthFilter(
             filtered, fs,
             configFile.getPlethBandpassOrder(),
             FilterType.BANDPASS,

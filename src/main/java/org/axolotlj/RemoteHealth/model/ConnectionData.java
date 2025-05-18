@@ -80,6 +80,10 @@ public class ConnectionData {
 		this.port = port;
 	}
     
+    public void setPort(String port) {
+		this.port = Integer.valueOf(port);
+	}
+    
     public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}

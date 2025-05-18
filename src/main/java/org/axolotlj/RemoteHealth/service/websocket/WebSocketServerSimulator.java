@@ -1,8 +1,11 @@
 package org.axolotlj.RemoteHealth.service.websocket;
 
+import org.axolotlj.RemoteHealth.model.ConnectionData;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
+import org.axolotlj.RemoteHealth.simulation.GenerationMode;
 import org.glassfish.tyrus.server.Server;
 
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -17,9 +20,11 @@ import javafx.beans.property.SimpleBooleanProperty;
  */
 public class WebSocketServerSimulator {
 	
-	public enum GenerationMode {
-	    REAL, SYNTHETIC
-	}
+	private static final String LOCAL_IPV4 = "127.0.0.1";
+	private static final String LOCAL_IPV6 = "::1";
+	private static final int PORT = 8081;
+	private static final String PATH = "/simulator";
+	private static final String NAME = "Simulador";
 
     private Server server;
     private ScheduledExecutorService executor;
@@ -40,7 +45,7 @@ public class WebSocketServerSimulator {
         rootLogger.setLevel(Level.SEVERE);
 
         try {
-            server = new Server("localhost", 8081, "", null, SimulatedEndpoint.class);
+        	server = new Server(LOCAL_IPV4, PORT, "", null, SimulatedEndpoint.class);
             server.start();
             dataLogger.logInfo("Servidor WebSocket iniciado en ws://localhost:8081/simulator");
             this.isActive = true;
@@ -100,5 +105,9 @@ public class WebSocketServerSimulator {
     public static GenerationMode getGenerationMode() {
         return generationMode;
     }
+    
+    public ConnectionData getConnection() {
+    	return new ConnectionData(UUID.randomUUID(), LOCAL_IPV4, LOCAL_IPV6, PATH, PORT, NAME);
+	}
 
 }

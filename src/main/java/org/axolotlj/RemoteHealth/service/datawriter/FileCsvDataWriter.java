@@ -4,7 +4,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
 import org.axolotlj.RemoteHealth.model.ConnectionData;
-import org.axolotlj.RemoteHealth.model.StructureData;
+import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.util.FileCompressor;
 
@@ -111,7 +111,7 @@ public class FileCsvDataWriter extends CsvDataWriter {
     }
 
 	@Override
-	public void writeData(StructureData data) {
+	public void writeData(DataPoint data) {
 	    writeData(data.toCsvLine());
 	}
 	

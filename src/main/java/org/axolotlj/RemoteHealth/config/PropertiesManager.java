@@ -3,6 +3,7 @@ package org.axolotlj.RemoteHealth.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -13,14 +14,24 @@ import java.util.Properties;
 public class PropertiesManager {
 
     private Path configPath;
-
+    private boolean readOnly = false;
     private final Properties properties;
-    
+
     public PropertiesManager(Path path) {
-    	System.out.println("PropertiesManager::PropertiesManager "+path.toString());
+        System.out.println("PropertiesManager::PropertiesManager " + path.toString());
         this.configPath = path;
-    	this.properties = new Properties();
-        load();
+        this.properties = new Properties();
+        loadFromFileSystem();
+    }
+
+    /**
+     * Constructor para cargar propiedades desde resources (classpath).
+     * @param relativePath Ruta relativa dentro de resources, por ejemplo "config/app.properties".
+     */
+    public PropertiesManager(String relativePath) {
+        this.properties = new Properties();
+        this.readOnly = true;
+        loadFromClasspath(relativePath);
     }
 
     /**
@@ -38,6 +49,7 @@ public class PropertiesManager {
      * @param value Valor que se desea asociar.
      */
     public void set(String key, String value) {
+        if (readOnly) return;
         properties.setProperty(key, value);
         save();
     }
@@ -47,6 +59,7 @@ public class PropertiesManager {
      * @param key Clave de la propiedad a eliminar.
      */
     public void remove(String key) {
+        if (readOnly) return;
         properties.remove(key);
         save();
     }
@@ -55,6 +68,7 @@ public class PropertiesManager {
      * Elimina todas las preferencias guardadas.
      */
     public void clear() {
+        if (readOnly) return;
         properties.clear();
         save();
     }
@@ -68,7 +82,7 @@ public class PropertiesManager {
         return properties.containsKey(key);
     }
 
-    private void load() {
+    private void loadFromFileSystem() {
         try {
             File configFile = configPath.toFile();
             if (configFile.exists()) {
@@ -80,7 +94,19 @@ public class PropertiesManager {
                 Files.createFile(configPath);
             }
         } catch (Exception e) {
-            System.err.println("Error al cargar preferencias: " + e.getMessage());
+            System.err.println("PropertiesManager::loadFromFileSystem - Error al cargar preferencias: " + e.getMessage());
+        }
+    }
+
+    private void loadFromClasspath(String relativePath) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(relativePath)) {
+            if (input != null) {
+                properties.load(input);
+            } else {
+                System.err.println("PropertiesManager::loadFromClasspath - Archivo no encontrado en resources: " + relativePath);
+            }
+        } catch (Exception e) {
+            System.err.println("PropertiesManager::loadFromClasspath - Error al cargar desde classpath: " + e.getMessage());
         }
     }
 
@@ -88,11 +114,13 @@ public class PropertiesManager {
         try (FileOutputStream out = new FileOutputStream(configPath.toFile())) {
             properties.store(out, "RemoteHealth Properties");
         } catch (Exception e) {
-            System.err.println("Error al guardar: " + e.getMessage());
+            System.err.println("PropertiesManager::save - Error al guardar: " + e.getMessage());
         }
     }
-    
+
     public void saveAll() {
-        save();
+        if (!readOnly) {
+            save();
+        }
     }
 }

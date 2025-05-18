@@ -8,13 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
 
 /**
- * Implementación concreta de DataLogger que escribe logs en archivos locales.
+ * Implementación de DataLogger que escribe logs en archivos locales de forma inmediata.
  */
 public class FileDataLogger extends DataLogger {
 
@@ -23,12 +21,9 @@ public class FileDataLogger extends DataLogger {
 
     private final File logFile;
     private final BufferedWriter writer;
-    private final BlockingQueue<String> writeQueue;
-    private final Thread writerThread;
-    private volatile boolean running = true;
 
     public FileDataLogger() throws IOException {
-        super(null); 
+        super(null);
 
         Path logDir = ConfigFileHelper.getDLogsDir();
         Files.createDirectories(logDir);
@@ -37,74 +32,54 @@ public class FileDataLogger extends DataLogger {
         this.logFile = logDir.resolve(fileName).toFile();
 
         this.writer = new BufferedWriter(new FileWriter(logFile, true));
-        this.writeQueue = new LinkedBlockingQueue<>();
-
-        this.writerThread = new Thread(() -> {
-            while (running || !writeQueue.isEmpty()) {
-                try {
-                    String message = writeQueue.take();
-                    writer.write(message);
-                    writer.newLine();
-                    writer.flush();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } catch (IOException e) {
-                    System.err.println("Error al escribir en archivo: " + e.getMessage());
-                }
-            }
-        }, "DataLogger-WriterThread");
-
-        writerThread.setDaemon(true);
-        writerThread.start();
     }
 
     @Override
     public void logInfo(String message) {
-    	System.out.println("[INFO ] -> "+message);
-        log("INFO", message);
+        System.out.println("[INFO ] -> " + message);
+        writeLog("INFO", message);
     }
 
     @Override
     public void logWarn(String message) {
-    	System.err.println("[WARN ] -> "+message);
-    	log("WARN", message);
+        System.err.println("[WARN ] -> " + message);
+        writeLog("WARN", message);
     }
 
     @Override
     public void logError(String message) {
-    	System.err.println("[ERROR] -> "+message);
-        log("ERROR", message);
+        System.err.println("[ERROR] -> " + message);
+        writeLog("ERROR", message);
     }
 
     @Override
     public void logDebug(String message) {
-    	System.out.println("[DEBUG] -> "+message);
-        log("DEBUG", message);
+        System.out.println("[DEBUG] -> " + message);
+        writeLog("DEBUG", message);
     }
 
-    private void log(String level, String message) {
-        if (running) {
-            String timestamp = LocalDateTime.now().format(LOG_FORMATTER);
-            String threadName = Thread.currentThread().getName();
-            String formatted = String.format("[%s] [%-5s] [%s] %s", timestamp, level, threadName, message);
-            writeQueue.offer(formatted);
+    private void writeLog(String level, String message) {
+        String timestamp = LocalDateTime.now().format(LOG_FORMATTER);
+        String threadName = Thread.currentThread().getName();
+        String formatted = String.format("[%s] [%-5s] [%s] %s", timestamp, level, threadName, message);
+
+        try {
+            writer.write(formatted);
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            System.err.println("Error al escribir log en archivo: " + e.getMessage());
         }
     }
 
     @Override
     public void close() {
-        running = false;
-        writerThread.interrupt();
-
         try {
-            writerThread.join();
             writer.close();
-
             LogCompressor.overwriteLatest(logFile);
             LogCompressor.compress(logFile);
             LogCompressor.deleteOriginal(logFile);
-
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.err.println("Error al cerrar FileDataLogger: " + e.getMessage());
         }
     }

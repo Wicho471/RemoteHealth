@@ -1,7 +1,7 @@
 package org.axolotlj.RemoteHealth.core;
 
 import org.axolotlj.RemoteHealth.app.SceneManager;
-import org.axolotlj.RemoteHealth.model.StructureData;
+import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketManager;
@@ -19,7 +19,7 @@ public class AppContext {
     private final SceneManager sceneManager;
     private final WebSocketServerSimulator simulator;
     private final LinkedBlockingQueue<String> messageQueue;
-    private final LinkedBlockingQueue<StructureData> processedQueue;
+    private final LinkedBlockingQueue<DataPoint> processedQueue;
     
     private final WebSocketManager wsManager;
     private DataLogger dataLogger;
@@ -63,7 +63,7 @@ public class AppContext {
         return messageQueue;
     }
 
-    public LinkedBlockingQueue<StructureData> getProcessedQueue() {
+    public LinkedBlockingQueue<DataPoint> getProcessedQueue() {
         return processedQueue;
     }
     
@@ -90,6 +90,9 @@ public class AppContext {
     }
     
     public void finalize() {
+		if (sceneManager != null) {
+			sceneManager.finalize();
+		}
 		if (simulator != null) {
 			try {
 				simulator.stop();

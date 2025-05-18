@@ -7,6 +7,8 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -19,276 +21,315 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootPane" prefHeight="798.0" prefWidth="1309.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.DataAnalysisController">
+<StackPane fx:id="rootPane" prefHeight="798.0" prefWidth="1309.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.RemoteHealth.controller.scene.DataAnalysisController">
    <AnchorPane prefHeight="200.0" prefWidth="200.0">
       <children>
       
       	<!-- Tu ventana principal envuelta -->
       	<BorderPane maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="814.0" prefWidth="1309.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      		<center>
-      			<HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-      				<children>
-      					<VBox alignment="CENTER">
-      						<children>
-      							<HBox alignment="CENTER" prefHeight="40.0">
-      								<children>
-      									<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-      										<children>
-                                       <Button mnemonicParsing="false" onAction="#openRecHandle" text="Selecciona una grabacion">
-                                          <graphic>
-                                             <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                                <image>
-                                                   <Image url="@../../img/buttons/grabacion.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </Button>
-      										</children>
-      									</HBox>
-      									<Label text="ó">
-      										<HBox.margin>
-      											<Insets left="10.0" right="10.0" />
-      										</HBox.margin>
-      									</Label>
-      									<HBox alignment="CENTER" prefHeight="28.0" prefWidth="169.0">
-      										<children>
-      											<Button fx:id="selectFileBtn" mnemonicParsing="false" onAction="#selectFileHandler" text="Selecciona un archivo">
-                                          <graphic>
-                                             <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                                <image>
-                                                   <Image url="@../../img/buttons/agregar-archivo.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic></Button>
-      										</children>
-      									</HBox>
-      								</children>
-      								<VBox.margin>
-      									<Insets bottom="10.0" top="10.0" />
-      								</VBox.margin>
-      							</HBox>
-      							<TableView fx:id="anomalyTable" prefHeight="649.0" prefWidth="144.0" VBox.vgrow="ALWAYS">
-      								<columns>
-      									<TableColumn prefWidth="75.0" text="Hora" />
-      									<TableColumn prefWidth="75.0" text="Anomalia" />
-      									<TableColumn prefWidth="75.0" text="Severidad" />
-      									<TableColumn prefWidth="75.0" text="Detalle" />
-      									<TableColumn prefWidth="75.0" text="Mostrar" />
-      								</columns>
-      							</TableView>
-                           <HBox alignment="CENTER" prefHeight="40.0">
-                              <VBox.margin>
+            <left>
+					<VBox alignment="CENTER" prefHeight="798.0" prefWidth="468.0" BorderPane.alignment="CENTER">
+						<children>
+							<HBox alignment="CENTER" prefHeight="40.0">
+								<children>
+									<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+										<children>
+                                 <Button mnemonicParsing="false" onAction="#openRecHandle" text="Selecciona una grabacion">
+                                    <graphic>
+                                       <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                             <Image url="@../../img/buttons/grabacion.png" />
+                                          </image>
+                                       </ImageView>
+                                    </graphic>
+                                 </Button>
+										</children>
+									</HBox>
+									<Label text="ó">
+										<HBox.margin>
+											<Insets left="10.0" right="10.0" />
+										</HBox.margin>
+									</Label>
+									<HBox alignment="CENTER" prefHeight="28.0" prefWidth="169.0">
+										<children>
+											<Button fx:id="selectFileBtn" mnemonicParsing="false" onAction="#selectFileHandler" text="Selecciona un archivo">
+                                    <graphic>
+                                       <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                             <Image url="@../../img/buttons/agregar-archivo.png" />
+                                          </image>
+                                       </ImageView>
+                                    </graphic>
+                                 </Button>
+										</children>
+									</HBox>
+								</children>
+								<VBox.margin>
+									<Insets bottom="10.0" top="10.0" />
+								</VBox.margin>
+							</HBox>
+							<TableView fx:id="anomalyTable" prefHeight="649.0" prefWidth="144.0" VBox.vgrow="ALWAYS">
+								<columns>
+									<TableColumn prefWidth="75.0" text="Hora" />
+									<TableColumn prefWidth="75.0" text="Anomalia" />
+									<TableColumn prefWidth="75.0" text="Severidad" />
+									<TableColumn prefWidth="75.0" text="Detalle" />
+									<TableColumn prefWidth="75.0" text="Mostrar" />
+								</columns>
+							</TableView>
+                     <HBox alignment="CENTER" prefHeight="40.0">
+                        <VBox.margin>
+                           <Insets bottom="10.0" top="10.0" />
+                        </VBox.margin>
+                        <children>
+                           <Button alignment="CENTER" mnemonicParsing="false" onAction="#analysisHandle" text="Analizar anomalias" textAlignment="CENTER">
+                              <HBox.margin>
+                                 <Insets left="10.0" right="10.0" />
+                              </HBox.margin>
+                              <graphic>
+                                 <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@../../img/buttons/busqueda.png" />
+                                    </image>
+                                 </ImageView>
+                              </graphic>
+                           </Button>
+                           <Button alignment="CENTER" mnemonicParsing="false" onAction="#downloadInfoHandle" text="Decargar informe" textAlignment="CENTER">
+                              <HBox.margin>
+                                 <Insets left="10.0" right="10.0" />
+                              </HBox.margin>
+                              <graphic>
+                                 <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@../../img/buttons/descargar.png" />
+                                    </image>
+                                 </ImageView>
+                              </graphic>
+                           </Button>
+                        </children>
+                     </HBox>
+						</children>
+					</VBox>
+            </left>
+            <center>
+               <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                  <children>
+                     <AnchorPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                        <children>
+                           <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                             <tabs>
+                               <Tab text="Electro y PPG">
+                                 <content>
+                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                             <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <children>
+                              							<LineChart fx:id="ecgChart" animated="false" createSymbols="false" title="Electro cardiograma" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" label="Amplitud (mV)" side="LEFT" />
+                              								</yAxis>
+                              							</LineChart>
+                              							<LineChart fx:id="ppgChart" animated="false" createSymbols="false" title="Fotopletismografía" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" label="Absorción medible (%)" side="LEFT" />
+                              								</yAxis>
+                              							</LineChart>
+                                                </children>
+                                             </VBox>
+                                          </children>
+                                       </AnchorPane>
+                                 </content>
+                               </Tab>
+                               <Tab text="BPM y Spo2">
+                                 <content>
+                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                             <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <children>
+                              							<LineChart fx:id="bpmChart" animated="false" createSymbols="false" title="Pulsos por Minuto" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" label="Pulsos (bpm/seg)" side="LEFT" upperBound="200.0" />
+                              								</yAxis>
+                              							</LineChart>
+                              							<LineChart fx:id="spo2Chart" animated="false" createSymbols="false" title="SpO2" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" autoRanging="false" label="Saturacion (%)" side="LEFT" />
+                              								</yAxis>
+                              							</LineChart>
+                                                </children>
+                                             </VBox>
+                                          </children>
+                                       </AnchorPane>
+                                 </content>
+                               </Tab>
+                                 <Tab text="Mov y Temp">
+                                   <content>
+                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                             <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <children>
+                              							<LineChart fx:id="tempChart" animated="false" title="Temperaturas" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" label="Grados centigrados (°C)" side="LEFT" />
+                              								</yAxis>
+                                                      <VBox.margin>
+                                                         <Insets right="10.0" />
+                                                      </VBox.margin>
+                              							</LineChart>
+                              							<LineChart fx:id="motionChart" animated="false" title="Movimiento" VBox.vgrow="ALWAYS">
+                              								<xAxis>
+                              									<NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                              								</xAxis>
+                              								<yAxis>
+                              									<NumberAxis animated="false" label="Gravedades (g)" side="LEFT" />
+                              								</yAxis>
+                              							</LineChart>
+                                                </children>
+                                             </VBox>
+                                          </children>
+                                       </AnchorPane>
+                                   </content>
+                                 </Tab>
+                                 <Tab text="Presion arterial">
+                                   <content>
+                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                             <LineChart fx:id="bpChart" animated="false" title="Presion arterial" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <xAxis>
+                                                   <NumberAxis animated="false" label="Tiempo (s)" side="BOTTOM" upperBound="5.0" />
+                                                </xAxis>
+                                                <yAxis>
+                                                   <NumberAxis animated="false" label="Presion (mmHg)" side="LEFT" />
+                                                </yAxis>
+                                             </LineChart>
+                                          </children>
+                                       </AnchorPane>
+                                   </content>
+                                 </Tab>
+                             </tabs>
+                           </TabPane>
+                        </children>
+                     </AnchorPane>
+							<HBox alignment="CENTER">
+								<children>
+									<HBox alignment="CENTER" prefHeight="25.0" prefWidth="255.0">
+										<children>
+											<Label alignment="CENTER" prefHeight="17.0" prefWidth="201.0" text="Seccion de tiempo:" HBox.hgrow="ALWAYS" />
+											<ComboBox fx:id="choiseTimeLenght" prefHeight="25.0" prefWidth="228.0">
+												<HBox.margin>
+													<Insets left="10.0" right="10.0" />
+												</HBox.margin>
+											</ComboBox>
+										</children>
+										<HBox.margin>
+											<Insets left="10.0" right="10.0" />
+										</HBox.margin>
+									</HBox>
+									<HBox alignment="CENTER" prefHeight="40.0" prefWidth="152.0">
+										<children>
+											<TextField fx:id="initialTimeField" />
+											<Label text="a">
+												<HBox.margin>
+													<Insets left="5.0" right="5.0" />
+												</HBox.margin>
+											</Label>
+											<TextField fx:id="finalTimeField" />
+										</children>
+										<HBox.margin>
+											<Insets left="10.0" right="10.0" />
+										</HBox.margin>
+									</HBox>
+									<HBox alignment="CENTER" prefHeight="40.0" prefWidth="152.0">
+										<children>
+											<Button fx:id="startBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#startHandle">
+												<HBox.margin>
+													<Insets left="5.0" right="5.0" />
+												</HBox.margin>
+												<graphic>
+													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
+														<image>
+															<Image url="@../../img/buttons/rewind.png" />
+														</image>
+													</ImageView>
+												</graphic>
+											</Button>
+											<Button fx:id="backwardBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#backwardHandle">
+												<graphic>
+													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
+														<image>
+															<Image url="@../../img/buttons/back.png" />
+														</image>
+													</ImageView>
+												</graphic>
+												<HBox.margin>
+													<Insets left="5.0" right="5.0" />
+												</HBox.margin>
+											</Button>
+											<Button fx:id="nextBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#nextHandle">
+												<graphic>
+													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
+														<image>
+															<Image url="@../../img/buttons/next.png" />
+														</image>
+													</ImageView>
+												</graphic>
+												<HBox.margin>
+													<Insets left="5.0" right="5.0" />
+												</HBox.margin>
+											</Button>
+											<Button fx:id="endBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#endHandle">
+												<graphic>
+													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
+														<image>
+															<Image url="@../../img/buttons/fast-forward.png" />
+														</image>
+													</ImageView>
+												</graphic>
+												<HBox.margin>
+													<Insets left="5.0" right="5.0" />
+												</HBox.margin>
+											</Button>
+										</children>
+										<HBox.margin>
+											<Insets left="10.0" right="10.0" />
+										</HBox.margin>
+									</HBox>
+								</children>
+							</HBox>
+                     <HBox alignment="CENTER">
+                        <children>
+      							<Button fx:id="backBtn" alignment="CENTER" mnemonicParsing="false" onAction="#backHandle" text="Regresar" textAlignment="CENTER">
+                              <HBox.margin>
                                  <Insets bottom="10.0" top="10.0" />
-                              </VBox.margin>
-                              <children>
-                                 <Button alignment="CENTER" mnemonicParsing="false" text="Analizar anomalias" textAlignment="CENTER">
-                                    <HBox.margin>
-                                       <Insets left="10.0" right="10.0" />
-                                    </HBox.margin>
-                                    <graphic>
-                                       <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                          <image>
-                                             <Image url="@../../img/buttons/busqueda.png" />
-                                          </image>
-                                       </ImageView>
-                                    </graphic>
-                                 </Button>
-                                 <Button alignment="CENTER" mnemonicParsing="false" text="Decargar informe" textAlignment="CENTER">
-                                    <HBox.margin>
-                                       <Insets left="10.0" right="10.0" />
-                                    </HBox.margin>
-                                    <graphic>
-                                       <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                          <image>
-                                             <Image url="@../../img/buttons/descargar.png" />
-                                          </image>
-                                       </ImageView>
-                                    </graphic>
-                                 </Button>
-                              </children>
-                           </HBox>
-      						</children>
-                        <HBox.margin>
-                           <Insets left="10.0" top="10.0" />
-                        </HBox.margin>
-      					</VBox>
-      					<VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-      						<children>
-      							<LineChart fx:id="ecgChart" animated="false" title="Electro cardiograma" VBox.vgrow="ALWAYS">
-      								<xAxis>
-      									<NumberAxis label="Tiempo (s)" side="BOTTOM" />
-      								</xAxis>
-      								<yAxis>
-      									<NumberAxis label="Amplitud" side="LEFT" />
-      								</yAxis>
-      							</LineChart>
-                           <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
-                              <children>
-            							<LineChart fx:id="bpmChart" animated="false" title="Pulsos por Minuto" VBox.vgrow="ALWAYS">
-            								<xAxis>
-            									<NumberAxis side="BOTTOM" />
-            								</xAxis>
-            								<yAxis>
-            									<NumberAxis side="LEFT" upperBound="200.0" />
-            								</yAxis>
-            							</LineChart>
-            							<LineChart fx:id="spo2Chart" animated="false" title="SpO2" VBox.vgrow="ALWAYS">
-            								<xAxis>
-            									<NumberAxis side="BOTTOM" />
-            								</xAxis>
-            								<yAxis>
-            									<NumberAxis side="LEFT" />
-            								</yAxis>
-            							</LineChart>
-                              </children>
-                           </VBox>
-      							<HBox alignment="CENTER" VBox.vgrow="ALWAYS">
-      								<children>
-      									<HBox alignment="CENTER" prefHeight="25.0" prefWidth="255.0">
-      										<children>
-      											<Label alignment="CENTER" prefHeight="17.0" prefWidth="201.0" text="Seccion de tiempo:" HBox.hgrow="ALWAYS" />
-      											<ComboBox fx:id="choiseTimeLenght" prefHeight="25.0" prefWidth="228.0">
-      												<HBox.margin>
-      													<Insets left="10.0" right="10.0" />
-      												</HBox.margin>
-      											</ComboBox>
-      										</children>
-      										<HBox.margin>
-      											<Insets left="10.0" right="10.0" />
-      										</HBox.margin>
-      									</HBox>
-      									<HBox alignment="CENTER" prefHeight="40.0" prefWidth="152.0">
-      										<children>
-      											<TextField fx:id="initialTimeField" />
-      											<Label text="a">
-      												<HBox.margin>
-      													<Insets left="5.0" right="5.0" />
-      												</HBox.margin>
-      											</Label>
-      											<TextField fx:id="finalTimeField" />
-      										</children>
-      										<HBox.margin>
-      											<Insets left="10.0" right="10.0" />
-      										</HBox.margin>
-      									</HBox>
-      									<HBox alignment="CENTER" prefHeight="40.0" prefWidth="152.0">
-      										<children>
-      											<Button fx:id="startBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#startHandle">
-      												<HBox.margin>
-      													<Insets left="5.0" right="5.0" />
-      												</HBox.margin>
-      												<graphic>
-      													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
-      														<image>
-      															<Image url="@../../img/buttons/rewind.png" />
-      														</image>
-      													</ImageView>
-      												</graphic>
-      											</Button>
-      											<Button fx:id="backwardBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#backwardHandle">
-      												<graphic>
-      													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
-      														<image>
-      															<Image url="@../../img/buttons/back.png" />
-      														</image>
-      													</ImageView>
-      												</graphic>
-      												<HBox.margin>
-      													<Insets left="5.0" right="5.0" />
-      												</HBox.margin>
-      											</Button>
-      											<Button fx:id="nextBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#nextHandle">
-      												<graphic>
-      													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
-      														<image>
-      															<Image url="@../../img/buttons/next.png" />
-      														</image>
-      													</ImageView>
-      												</graphic>
-      												<HBox.margin>
-      													<Insets left="5.0" right="5.0" />
-      												</HBox.margin>
-      											</Button>
-      											<Button fx:id="endBtn" graphicTextGap="0.0" mnemonicParsing="false" onAction="#endHandle">
-      												<graphic>
-      													<ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true">
-      														<image>
-      															<Image url="@../../img/buttons/fast-forward.png" />
-      														</image>
-      													</ImageView>
-      												</graphic>
-      												<HBox.margin>
-      													<Insets left="5.0" right="5.0" />
-      												</HBox.margin>
-      											</Button>
-      										</children>
-      										<HBox.margin>
-      											<Insets left="10.0" right="10.0" />
-      										</HBox.margin>
-      									</HBox>
-      								</children>
-      								<VBox.margin>
-      									<Insets bottom="10.0" top="10.0" />
-      								</VBox.margin>
-      							</HBox>
-      						</children>
-                        <HBox.margin>
-                           <Insets top="10.0" />
-                        </HBox.margin>
-      					</VBox>
-      					<VBox alignment="CENTER" prefHeight="649.0" prefWidth="251.0">
-      						<children>
-      							<LineChart fx:id="tempChart" animated="false" title="Temperaturas" VBox.vgrow="ALWAYS">
-      								<xAxis>
-      									<NumberAxis side="BOTTOM" />
-      								</xAxis>
-      								<yAxis>
-      									<NumberAxis side="LEFT" />
-      								</yAxis>
-                              <VBox.margin>
-                                 <Insets right="10.0" />
-                              </VBox.margin>
-      							</LineChart>
-      							<LineChart fx:id="motionChart" animated="false" title="Movimiento" VBox.vgrow="ALWAYS">
-      								<xAxis>
-      									<NumberAxis side="BOTTOM" />
-      								</xAxis>
-      								<yAxis>
-      									<NumberAxis side="LEFT" />
-      								</yAxis>
-      							</LineChart>
-      							<LineChart fx:id="ppgChart" animated="false" title="Fotopletismografía" VBox.vgrow="ALWAYS">
-      								<xAxis>
-      									<NumberAxis label="Tiempo (s)" side="BOTTOM" />
-      								</xAxis>
-      								<yAxis>
-      									<NumberAxis label="Amplitud" side="LEFT" />
-      								</yAxis>
-      							</LineChart>
-                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                              <children>
-            							<Button fx:id="backBtn" alignment="CENTER" mnemonicParsing="false" onAction="#backHandle" text="Regresar" textAlignment="CENTER">
-                                    <HBox.margin>
-                                       <Insets bottom="10.0" />
-                                    </HBox.margin>
-                                    <graphic>
-                                       <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                          <image>
-                                             <Image url="@../../img/buttons/Return.png" />
-                                          </image>
-                                       </ImageView>
-                                    </graphic>
-            							</Button>
-                              </children>
-                           </HBox>
-      						</children>
-                        <HBox.margin>
-                           <Insets top="10.0" />
-                        </HBox.margin>
-      					</VBox>
-      				</children>
-      			</HBox>
-      		</center>
+                              </HBox.margin>
+                              <graphic>
+                                 <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@../../img/buttons/Return.png" />
+                                    </image>
+                                 </ImageView>
+                              </graphic>
+      							</Button>
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+            </center>
       	</BorderPane>
       </children>
    </AnchorPane>
