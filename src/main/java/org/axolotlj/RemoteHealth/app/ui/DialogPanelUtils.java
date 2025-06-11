@@ -11,13 +11,13 @@ import javafx.scene.text.TextFlow;
 
 public class DialogPanelUtils {
 	public static void showTextDialog(String title, String header, String path, double width, double height,
-			boolean isAbout) {
+			boolean isAbout, String font, int size) {
 		String content = isAbout ? TxtUtils.loadAboutText(path) : TxtUtils.loadText(path);
 
 		Alert alert = AlertUtil.showInformationAlert(title, header, content, false);
 
 		Text text = new Text(content);
-		text.setFont(Font.font("Monospaced", 12));
+		text.setFont(Font.font(font, size));
 
 		TextFlow textFlow = new TextFlow(text);
 		textFlow.setPrefWidth(width);

@@ -6,11 +6,11 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.simulation.DataPayloadGenerator;
 import org.axolotlj.RemoteHealth.simulation.RealDataSimulator;
 import org.axolotlj.RemoteHealth.simulation.SyntheticDataGenerator;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;

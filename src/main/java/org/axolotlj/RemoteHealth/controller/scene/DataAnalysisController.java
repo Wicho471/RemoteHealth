@@ -9,13 +9,14 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
-import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
 import org.axolotlj.RemoteHealth.app.ui.FileChooserUtils;
 import org.axolotlj.RemoteHealth.app.ui.SceneUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
+import org.axolotlj.RemoteHealth.common.Images;
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
 import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
@@ -23,7 +24,6 @@ import org.axolotlj.RemoteHealth.model.AnalysisData;
 import org.axolotlj.RemoteHealth.model.AnomalyData;
 import org.axolotlj.RemoteHealth.sensor.io.CsvDataManager;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -188,6 +188,7 @@ public class DataAnalysisController implements ContextAware, DisposableControlle
 				}
 
 				analysisData = new AnalysisData(CsvDataManager.load(path));
+				analysisData.calculateSigns();
 				ArrayList<MutablePair<Long, Double>> egc = analysisData.getEgc();
 				if (egc != null && !egc.isEmpty()) {
 					long start = egc.get(0).getLeft();

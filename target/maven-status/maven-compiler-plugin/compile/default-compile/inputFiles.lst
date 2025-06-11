@@ -4,6 +4,7 @@ C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\scene\FilterSettingsController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\sensor\handle\DataParser.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\ui\FileChooserUtils.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\files\GeneralConfig.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\model\VitalSigns.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\analysis\utis\FrequencyDomainAnalyzer.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\PropertiesManager.java
@@ -24,9 +25,11 @@ C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\validations\GeneralValidation.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\util\GCInvoker.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\analysis\hr\HrMonitor.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\common\Images.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\filt\defaults\DefaultAnalysisEcg.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\filt\defaults\DefaultAnalysisPleth.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\analysis\bp\signal\ECGDetector.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\common\Paths.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\sensor\correction\SensorFieldAccessor.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\files\ConnectionsHandler.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\filters\IirRealTimeFilter.java
@@ -40,6 +43,7 @@ C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\service\serial\SerialOutputBuffer.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\filt\AnalysisFiltersConfig.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\model\AnomalyData.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\window\LogsController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\simulation\RealDataSimulator.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\scene\FlashEsp32Controller.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\ui\ChartUtils.java
@@ -74,12 +78,15 @@ C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\sensor\handle\DataExtractor.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\sensor\handle\SensorValueParser.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\service\datawriter\FileCsvDataWriter.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\FxThreadUtils.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\window\CsvSelectorController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\scene\DataAnalysisController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\filters\core\FIRFiltering.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\lang\I18n.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\ui\TextUtils.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\common\Fonts.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\validations\FilterValidation.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\model\LogEntry.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\filters\core\WaveletDenoiser.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\config\filt\defaults\DefaultRealTimeEcg.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\ui\Utilites.java
@@ -93,12 +100,10 @@ C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\scene\DeviceSetupController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\controller\StartupController.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\filters\Misc.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\validations\ValidationUtil.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\util\paths\Paths.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\service\DataProcessor.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\app\Images.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\model\AnalysisData.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\util\NetworkUtil.java
+C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\sensor\handle\DataHandler.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\filters\FilterType.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\simulation\GenerationMode.java
 C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\src\main\java\org\axolotlj\RemoteHealth\util\CsvUtils.java

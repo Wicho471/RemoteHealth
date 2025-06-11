@@ -44,20 +44,20 @@
                         <Insets bottom="10.0" top="10.0" />
                      </padding>
                   </HBox>
-                  <LineChart id="ECG" fx:id="ECG" axisSortingPolicy="NONE" cache="false" prefHeight="270.0" prefWidth="794.0" title="EGC" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
+                  <LineChart id="ECG" fx:id="ECG" animated="false" axisSortingPolicy="NONE" cache="false" prefHeight="270.0" prefWidth="794.0" title="Electrocardiograma" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
                      <xAxis>
-                        <NumberAxis id="ECG" side="BOTTOM" tickLabelsVisible="false" />
+                        <NumberAxis id="ECG" animated="false" side="BOTTOM" tickLabelsVisible="false" />
                      </xAxis>
                      <yAxis>
-                        <NumberAxis autoRanging="true" forceZeroInRange="false" label="Amplitud (mV)" side="LEFT" />
+                        <NumberAxis animated="false" autoRanging="false" forceZeroInRange="false" label="Amplitud (mV)" lowerBound="-1.0" side="LEFT" upperBound="1.0" />
                      </yAxis>
                   </LineChart>
-                  <LineChart id="PLETH" fx:id="PLETH" cache="false" prefHeight="276.0" prefWidth="791.0" title="Pleth" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
+                  <LineChart id="PLETH" fx:id="PLETH" animated="false" cache="false" prefHeight="276.0" prefWidth="791.0" title="Fotopletismografía" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
       			   <xAxis>
-      			      <NumberAxis autoRanging="true" forceZeroInRange="false" tickLabelsVisible="false" />
+      			      <NumberAxis animated="false" autoRanging="true" forceZeroInRange="false" tickLabelsVisible="false" />
       			   </xAxis>
       			   <yAxis>
-      			      <NumberAxis autoRanging="true" forceZeroInRange="false" label="Absorción medible (%)" />
+      			      <NumberAxis animated="false" autoRanging="true" forceZeroInRange="false" label="Absorción medible (%)" />
       			   </yAxis>
                   </LineChart>
                </children>
@@ -298,7 +298,7 @@
                   </ImageView>
                </children>
             </HBox>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <children>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>

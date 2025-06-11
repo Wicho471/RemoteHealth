@@ -1,7 +1,7 @@
 package org.axolotlj.RemoteHealth.config.filt.defaults;
 
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.config.PropertiesManager;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 public class DefaultAnalysisEcg {
     private static final PropertiesManager props = new PropertiesManager(Paths.DEFAULTS_ANALYSIS_FILTERS_PROPERTIES.substring(1));

@@ -6,6 +6,7 @@ package org.axolotlj.RemoteHealth.validations;
 public class FilterValidation extends BaseValidation {
 
 	public static ValidationResult validateFrequency(String value) {
+		if(value == null) return ValidationResult.error("Error interno", ValidationErrorType.NULL_OR_EMPTY);
 		if (!isPositiveDecimal(value)) {
 			return ValidationResult.error("La frecuencia debe ser un número decimal positivo", ValidationErrorType.INVALID_FORMAT);
 		}

@@ -106,5 +106,37 @@ public class IIRFilterring {
         return filteredSignal;
     }
     
-    
+    public static double[] zeroPhaseFilter(double[] signal, double samplingFreq, int order, double lowCutoff, double highCutoff) {
+        if (lowCutoff >= highCutoff) {
+            throw new IllegalArgumentException("Lower Cutoff Frequency cannot be more than the Higher Cutoff Frequency");
+        }
+
+        double centreFreq = (highCutoff + lowCutoff) / 2.0;
+        double width = Math.abs(highCutoff - lowCutoff);
+
+        // Filtro hacia adelante
+        uk.me.berndporr.iirj.Butterworth bpForward = new uk.me.berndporr.iirj.Butterworth();
+        bpForward.bandPass(order, samplingFreq, centreFreq, width);
+        double[] forwardFiltered = new double[signal.length];
+        for (int i = 0; i < signal.length; i++) {
+            forwardFiltered[i] = bpForward.filter(signal[i]);
+        }
+
+        // Filtro hacia atrás
+        uk.me.berndporr.iirj.Butterworth bpBackward = new uk.me.berndporr.iirj.Butterworth();
+        bpBackward.bandPass(order, samplingFreq, centreFreq, width);
+        double[] backwardFiltered = new double[signal.length];
+        for (int i = signal.length - 1; i >= 0; i--) {
+            backwardFiltered[i] = bpBackward.filter(forwardFiltered[i]);
+        }
+
+        // Invertir de nuevo para tener el orden correcto
+        double[] zeroPhaseOutput = new double[signal.length];
+        for (int i = 0; i < signal.length; i++) {
+            zeroPhaseOutput[i] = backwardFiltered[signal.length - 1 - i];
+        }
+
+        return zeroPhaseOutput;
+    }
+
 }

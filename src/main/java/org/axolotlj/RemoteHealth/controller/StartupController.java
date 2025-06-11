@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ButtonUtils;
@@ -13,6 +12,8 @@ import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
 import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
 import org.axolotlj.RemoteHealth.app.ui.ToolTipUtil;
+import org.axolotlj.RemoteHealth.common.Images;
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.config.files.ConnectionsHandler;
 import org.axolotlj.RemoteHealth.controller.include.MenuBarController;
 import org.axolotlj.RemoteHealth.controller.window.DeviceConfigController;
@@ -28,7 +29,6 @@ import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketManager;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.RemoteHealth.util.NetworkUtil;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -314,7 +314,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 							deviceTable.refresh();
 
 						} catch (IOException e) {
-							System.err.println(e.getMessage());
+							dataLogger.logError("Ocurrio un error al intentar abrir la ventana de configuracion ->"+e.getMessage());
 							AlertUtil.showErrorAlert("Error", "No se pudo abrir la ventana de configuración",
 									e.getMessage());
 						}
@@ -394,7 +394,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 	}
 
 	private void loadStatus() {
-		setStatusAsync(imgDriverStatus, NetworkUtil::hasActiveNetworkInterface);
+		setStatusAsync(imgDriverStatus, NetworkUtil::hasEnabledNetworkInterface);
 		setStatusAsync(imgLANStatus, NetworkUtil::isLocalNetworkAvailable);
 		setStatusAsync(imgInternetStatus, NetworkUtil::isInternetAvailable);
 		setStatusAsync(imgIpv6Status, NetworkUtil::isGlobalIPv6Available);
@@ -410,7 +410,6 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 			} catch (Exception e) {
 				String errMesagge = "StartupController::setStatusAsync - Error verificando estado: " + e.getMessage();
 				dataLogger.logError(errMesagge);
-				System.err.println(errMesagge);
 			}
 
 			boolean finalResult = result;

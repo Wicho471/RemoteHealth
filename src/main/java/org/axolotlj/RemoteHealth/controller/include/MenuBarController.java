@@ -16,6 +16,9 @@ import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.DialogPanelUtils;
 import org.axolotlj.RemoteHealth.app.ui.FileChooserUtils;
+import org.axolotlj.RemoteHealth.app.ui.SceneUtils;
+import org.axolotlj.RemoteHealth.common.Images;
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
 import org.axolotlj.RemoteHealth.config.files.LanguageConfig;
 import org.axolotlj.RemoteHealth.core.AppContext;
@@ -26,7 +29,6 @@ import org.axolotlj.RemoteHealth.lang.LocaleChangeNotifier;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
 import org.axolotlj.RemoteHealth.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.RemoteHealth.simulation.GenerationMode;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -45,7 +47,7 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	@FXML
 	private MenuItem itemFlashEsp32, itemAnalyze, itemFilterSettings, itemUserManual, itemAbout, simuMenuItem;
 	@FXML
-	private RadioMenuItem langSpanish, langEnglish, option1Sim, option2Sim;
+	private RadioMenuItem langSpanish, langEnglish, option1Sim, option2Sim, dev;
 	@FXML
 	private ToggleGroup languageGroup, simToggleGroup;
 
@@ -100,6 +102,11 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 		});
 		
 		simuMenuItem.setText(simu.isActive() ? "Detener simulador" : "Iniciar simulador");
+		
+		dev.setSelected(appContext.getGeneralConfig().isDeveloperMode());
+		dev.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+		    appContext.getGeneralConfig().setDeveloperMode(isSelected);
+		});
 	}
 
 	@FXML
@@ -125,8 +132,8 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 				throw new FileNotFoundException("Recurso no encontrado: " + resourcePath);
 			}
 
-			Optional<File> optionalFile = FileChooserUtils.chooseFile(appContext.getSceneManager().getStage(),
-					"Guardar manual de usuario", "Documento PDF", "*.pdf");
+			Optional<File> optionalFile = FileChooserUtils.chooseSaveLocation(appContext.getSceneManager().getStage(),
+					"Guardar manual de usuario", "Documento PDF", "*.pdf", "manual_usuario.pdf");
 
 			if (optionalFile.isPresent()) {
 				File targetFile = optionalFile.get();
@@ -151,19 +158,29 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 
 	@FXML
 	private void aboutHandler() {
-	    DialogPanelUtils.showTextDialog("Acerca de RemoteHealth", "Información de la aplicación", Paths.IMG_MISC_ABOUT_TXT, 600, 650, true);
+	    DialogPanelUtils.showTextDialog("Acerca de RemoteHealth", "Información de la aplicación", Paths.ABOUT_TXT, 600, 650, true, "Monospaced", 12);
 	}
 	
 	@FXML
 	private void licenseHandler() {
-		DialogPanelUtils.showTextDialog("Licencia", "Información de la licencia", Paths.IMG_MISC_LICENSE_TXT, 500, 500, false);
+		DialogPanelUtils.showTextDialog("Licencia", "Información de la licencia", Paths.LICENSE_TXT, 500, 500, false, "Monospaced", 12);
 	}
 	
 	@FXML
 	private void creditHandle() {
-		AlertUtil.showInformationAlert("Creditos", null, "A quien corresponda", true);
+		AlertUtil.showInformationAlert("Creditos", null, "---", true);
 	}
 
+	@FXML
+	private void thanksHandle() {
+		DialogPanelUtils.showTextDialog("Agradecimientos especiales", "Reconocimiento al Ing. Esaúl Trujillo Islas", Paths.THANKS_TXT, 500, 400, false, "Monospaced", 14);
+	}
+
+	@FXML
+	private void logHandle() {
+		SceneUtils.openModalWindow(Paths.VIEW_WINDOW_LOG_FXML, "Visualizador de registros", this, Images.IMG_FAVICONS_LOG, msg -> dataLogger.logError(msg));
+	}
+	
 	@FXML
 	public void simuHandle() {
 		if (!simu.isActive()) {

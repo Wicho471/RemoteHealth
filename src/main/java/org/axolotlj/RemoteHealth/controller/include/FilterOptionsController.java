@@ -1,6 +1,7 @@
 package org.axolotlj.RemoteHealth.controller.include;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.config.filt.AnalysisFiltersConfig;
@@ -24,6 +25,7 @@ public class FilterOptionsController {
 	private FilterTypeOption filterTypeOption;
 	private RealTimeFiltersConfig realTimeFiltersConfig;
 	private AnalysisFiltersConfig analysisFiltersConfig;
+	private Consumer<FilterTypeOption> applyChanges;
 	
 	// --- Campos de texto ---
 	@FXML private TextField filterBandPassHighField, filterBandPassLowField, filterBandPassOrderField, filterBandPassCoefField, filterBandPassTransitionField,
@@ -131,32 +133,25 @@ public class FilterOptionsController {
 			AlertUtil.showInformationAlert("Error", null, "No se pudieron aplicar los cambios", true);
 			return;
 		}
-    	AlertUtil.showInformationAlert("Exito", null, "Cambios aplicados exitosamente", true);
+    	applyChanges.accept(filterTypeOption);;
 	}
     
-    public void setType(FilterTypeOption filterTypeOption, AnalysisFiltersConfig analysisFiltersConfig, RealTimeFiltersConfig realTimeFiltersConfig) {
-    	this.analysisFiltersConfig = analysisFiltersConfig;
-    	this.realTimeFiltersConfig = realTimeFiltersConfig;
-    	this.filterTypeOption = filterTypeOption;
-    	switch (filterTypeOption) {
-		case ECG_ANALYSIS:
-			setFromAnalysisEcg();
-			break;
+	public void setType(FilterTypeOption filterTypeOption, AnalysisFiltersConfig analysisFiltersConfig,
+			RealTimeFiltersConfig realTimeFiltersConfig, Consumer<FilterTypeOption> applyChanges) {
+		this.applyChanges = applyChanges;
+		this.analysisFiltersConfig = analysisFiltersConfig;
+		this.realTimeFiltersConfig = realTimeFiltersConfig;
+		this.filterTypeOption = filterTypeOption;
 
-		case PLETH_ANALYSIS:
-			setFromAnalysisPleth();
-			break;
-		case ECG_REAL_TIME:
-			setFromRealTimeEcg();
-			break;
-		case PLETH_REAL_TIME:
-			setFromRealTimePleth();
-			break;
-		default:
-			System.err.println("Enumeracion no reconocida");
-			break;
+		switch (filterTypeOption) {
+		case ECG_ANALYSIS -> setFromAnalysisEcg();
+		case PLETH_ANALYSIS -> setFromAnalysisPleth();
+		case ECG_REAL_TIME -> setFromRealTimeEcg();
+		case PLETH_REAL_TIME -> setFromRealTimePleth();
+		default -> System.err.println("Enumeracion no reconocida");
 		}
 	}
+
 	
 	private void setFromAnalysisEcg() {
 		analysisFiltersConfig.loadProperties();
@@ -268,14 +263,17 @@ public class FilterOptionsController {
 	    String bsOrder = filterBandStopOrderField.getText();
 	    String bsLow = filterBandStopLowField.getText();
 	    String bsHigh = filterBandStopHighField.getText();
+	    boolean bsEnabled = filterBandStopEnabledField.isSelected();
 
 	    String waveletType = filterWaveletTypeField.getValue();
 	    String waveletLevel = filterWaveletLevelField.getText();
 	    String waveletThreshold = filterWaveletThresholdField.getText();
 	    boolean waveletSoft = filterWaveletSmothField.isSelected();
+	    boolean waveletEnabled = filterWaveletEnabledField.isSelected();
 
 	    String sgWindow = filterSavitzkyWindowField.getText();
 	    String sgPoly = filterSavitzkyPolyField.getText();
+	    boolean sgEnabled = filterSavitzkyEnabledField.isSelected();
 
 	    if (FilterValidation.handleValidation(FilterValidation.validateOrder(bpOrder))) return;
 	    if (FilterValidation.handleValidation(FilterValidation.validateFrequency(bpLow))) return;
@@ -300,14 +298,17 @@ public class FilterOptionsController {
 	    analysisFiltersConfig.setEcgBandstopOrder(Integer.parseInt(bsOrder));
 	    analysisFiltersConfig.setEcgBandstopLow(Double.parseDouble(bsLow));
 	    analysisFiltersConfig.setEcgBandstopHigh(Double.parseDouble(bsHigh));
+	    analysisFiltersConfig.setEcgBandstopEnabled(bsEnabled);
 
 	    analysisFiltersConfig.setEcgWaveletType(waveletType);
 	    analysisFiltersConfig.setEcgWaveletLevel(Integer.parseInt(waveletLevel));
 	    analysisFiltersConfig.setEcgWaveletThreshold(Double.parseDouble(waveletThreshold));
 	    analysisFiltersConfig.setEcgWaveletSoft(waveletSoft);
+	    analysisFiltersConfig.setEcgWaveletEnabled(waveletEnabled);
 
 	    analysisFiltersConfig.setEcgSGWindow(Integer.parseInt(sgWindow));
 	    analysisFiltersConfig.setEcgSGPoly(Integer.parseInt(sgPoly));
+	    analysisFiltersConfig.setEcgSGEnabled(sgEnabled);
 
 	    analysisFiltersConfig.saveProperties();
 	}

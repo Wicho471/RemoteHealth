@@ -12,10 +12,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.TableUtils;
+import org.axolotlj.RemoteHealth.common.Images;
 import org.axolotlj.RemoteHealth.config.ConfigFileHelper;
 import org.axolotlj.RemoteHealth.controller.scene.DataAnalysisController;
 import org.axolotlj.RemoteHealth.model.CsvFileInfo;

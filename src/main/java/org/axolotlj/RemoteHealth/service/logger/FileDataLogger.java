@@ -75,7 +75,8 @@ public class FileDataLogger extends DataLogger {
     @Override
     public void close() {
         try {
-            writer.close();
+        	logInfo("Cerrando aplicacion");
+        	writer.close();
             LogCompressor.overwriteLatest(logFile);
             LogCompressor.compress(logFile);
             LogCompressor.deleteOriginal(logFile);

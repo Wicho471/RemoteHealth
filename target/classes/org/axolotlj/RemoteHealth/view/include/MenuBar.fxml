@@ -109,8 +109,17 @@
                   </ImageView>
                </graphic>
             </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#logHandle" text="Registros">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/favicons/log.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
             <SeparatorMenuItem />
-            <RadioMenuItem mnemonicParsing="false" text="Modo desarrollador">
+            <RadioMenuItem fx:id="dev" mnemonicParsing="false" text="Modo desarrollador">
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -166,11 +175,21 @@
                   </ImageView>
                </graphic>
             </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#creditHandle" text="Creditos">
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../../img/favicons/credit.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#thanksHandle" text="Agradecimientos especiales">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/favicons/gracias.png" />
                      </image>
                   </ImageView>
                </graphic>

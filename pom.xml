@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.axolotlj</groupId>
     <artifactId>RemoteHealth</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.2.1</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
@@ -176,8 +176,52 @@
 	    <version>2.0.9</version> 
 	</dependency>
 	
+	    <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>4.12.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.17.1</version>
+    </dependency>
+	
+	<!-- Dependecias para purebas unitarias y de integracion -->
+	
+	<!-- JUnit 5 completo (API, engine y parametrización) -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Mockito para pruebas unitarias con mocks -->
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>5.12.0</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Assertions y utilidades adicionales de Mockito -->
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>5.12.0</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Assertions adicionales (AssertJ) para expresividad si lo necesitas más adelante -->
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.25.3</version>
+        <scope>test</scope>
+    </dependency>
+	
     </dependencies>
-    
     
     <build>
         <plugins>

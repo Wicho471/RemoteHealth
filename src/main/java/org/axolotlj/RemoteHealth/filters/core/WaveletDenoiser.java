@@ -1,5 +1,7 @@
 package org.axolotlj.RemoteHealth.filters.core;
 
+import java.awt.desktop.SystemSleepEvent;
+
 import jwave.exceptions.JWaveException;
 import jwave.transforms.FastWaveletTransform;
 import jwave.transforms.wavelets.Wavelet;
@@ -40,7 +42,7 @@ public class WaveletDenoiser {
 	 * @return Una nueva lista con la señal filtrada por wavelet denoising.
 	 */
 	public static double[]  waveletDenoise(double[] signal, String waveletName, int levels, double threshold, boolean soft) throws JWaveException{
-
+		System.out.println("Se mando llamar el metodo");
 		// 2) Ajustar la longitud a potencia de 2 (opcional si usas FWT).
 		// Si JWave no admite longitud arbitraria en forward(),
 		// haz zero-padding a la siguiente potencia de 2. Aquí un ejemplo:

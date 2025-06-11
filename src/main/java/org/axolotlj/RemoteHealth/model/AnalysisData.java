@@ -39,12 +39,14 @@ public class AnalysisData {
 		this.analysisFilters = new AnalysisFilters();
 		correct(dataPoints);
 		this.dataPoints = dataPoints;
-		this.egc = analysisFilters.getEcg(dataPoints);
-		this.pleth = analysisFilters.getPleth(dataPoints);
+		this.egc = analysisFilters.getFilteredEcgFromRaw(dataPoints);
+		this.pleth = analysisFilters.getFilteredPlethFromRaw(dataPoints);
 		
 		this.temp = DataExtractor.extractValidValues(dataPoints, SensorField.TEMP);
 		this.mov = DataExtractor.extractValidValues(dataPoints, SensorField.ACCEL);
-		
+	}
+	
+	public void calculateSigns() {
 		this.fs = Misc.calculateAverageSamplingRate(TuplaUtil.extractTimestamps(egc));
 		this.hr = calculateHeartRate();
 		this.spo2 = calculateSpo2();

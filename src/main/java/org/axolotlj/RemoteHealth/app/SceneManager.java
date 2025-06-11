@@ -49,6 +49,7 @@ public class SceneManager {
 					if (controller instanceof ContextAware) {
 						((ContextAware) controller).setAppContext(AppContext.getInstance());
 					}
+					dataLogger.logInfo("Abriendo la venta ->"+clazz.getName());
 					return controller;
 				} catch (Exception e) {
 					dataLogger.logError("SceneManager.switchTo -> Error creando el controlador: " + clazz.getName()
@@ -57,7 +58,6 @@ public class SceneManager {
 				}
 			});
 			Parent root = loader.load();
-
 			this.currentController = loader.getController();
 
 			Scene scene = new Scene(root);

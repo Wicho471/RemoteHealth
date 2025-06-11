@@ -104,7 +104,7 @@ public class Spo2Monitor {
 		if (spo2Buf.size() > 256)
 			spo2Buf.removeFirst();
 		double[] spo2Arr = spo2Buf.stream().mapToDouble(Double::doubleValue).toArray();
-		listener.accept(ImmutablePair.of(tMs, Math.min(100, ((int) mean(spo2Arr) + 6))));
+		listener.accept(ImmutablePair.of(tMs, Math.min(100, ((int) mean(spo2Arr)))));
 	}
 
 	private void purgeOld(long now) {

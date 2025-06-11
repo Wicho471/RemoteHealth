@@ -1,0 +1,11 @@
+Expresamos nuestro más profundo agradecimiento al Ingeniero Esaúl Trujillo Islas por su invaluable asesoría 
+en el área de Ingeniería Biomédica, la cual fue fundamental para el desarrollo del sistema Remote Health.
+
+Su experiencia permitió implementar con precisión técnicas avanzadas de procesamiento de señales biomédicas.
+
+Además, su orientación técnica fue clave para asegurar que los algoritmos y modelos empleados cumplieran 
+con los estándares requeridos por dispositivos médicos de calidad, así como para interpretar adecuadamente 
+las señales fisiológicas capturadas por los sensores.
+
+Su colaboración ha sido esencial para lograr un sistema robusto, preciso y conforme a las buenas prácticas 
+en ingeniería biomédica.

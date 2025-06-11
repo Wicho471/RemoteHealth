@@ -1,6 +1,7 @@
 package org.axolotlj.RemoteHealth.app.ui;
 
-import javafx.application.Platform;
+import static org.axolotlj.RemoteHealth.app.FxThreadUtils.runOnUIThread;
+
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
@@ -22,51 +23,51 @@ public class TextUtils {
 				+ "-fx-border-color: black;" + "-fx-border-width: 1;" + "-fx-opacity: 1;");
 	}
 	
-    public static void setText(TextField field, String value) {
-        Platform.runLater(() -> field.setText(value));
-    }
+	public static void setText(TextField field, String value) {
+	    runOnUIThread(() -> field.setText(value));
+	}
 
-    public static void setText(TextField field, int value) {
-        Platform.runLater(() -> field.setText(Integer.toString(value)));
-    }
+	public static void setText(TextField field, int value) {
+	    runOnUIThread(() -> field.setText(Integer.toString(value)));
+	}
 
-    public static void setText(TextField field, double value) {
-        Platform.runLater(() -> field.setText(String.format("%.2f", value)));
-    }
+	public static void setText(TextField field, double value) {
+	    runOnUIThread(() -> field.setText(String.format("%.2f", value)));
+	}
 
-    public static void setText(TextField field, float value) {
-        Platform.runLater(() -> field.setText(String.format("%.2f", value)));
-    }
+	public static void setText(TextField field, float value) {
+	    runOnUIThread(() -> field.setText(String.format("%.2f", value)));
+	}
+
+	public static void setText(TextField field, boolean value) {
+	    runOnUIThread(() -> field.setText(Boolean.toString(value)));
+	}
+
+	public static void setText(TextField field, Object value) {
+	    runOnUIThread(() -> field.setText(value != null ? value.toString() : ""));
+	}
     
-    public static void setText(TextField field, boolean value) {
-        Platform.runLater(() -> field.setText(Boolean.toString(value)));
-    }
+	public static void setText(TextArea area, String value) {
+	    runOnUIThread(() -> area.setText(value));
+	}
 
-    public static void setText(TextField field, Object value) {
-        Platform.runLater(() -> field.setText(value != null ? value.toString() : ""));
-    }
-    
-    public static void setText(TextArea area, String value) {
-        Platform.runLater(() -> area.setText(value));
-    }
+	public static void setText(TextArea area, int value) {
+	    runOnUIThread(() -> area.setText(Integer.toString(value)));
+	}
 
-    public static void setText(TextArea area, int value) {
-        Platform.runLater(() -> area.setText(Integer.toString(value)));
-    }
+	public static void setText(TextArea area, double value) {
+	    runOnUIThread(() -> area.setText(String.format("%.2f", value)));
+	}
 
-    public static void setText(TextArea area, double value) {
-        Platform.runLater(() -> area.setText(String.format("%.2f", value)));
-    }
+	public static void setText(TextArea area, float value) {
+	    runOnUIThread(() -> area.setText(String.format("%.2f", value)));
+	}
 
-    public static void setText(TextArea area, float value) {
-        Platform.runLater(() -> area.setText(String.format("%.2f", value)));
-    }
+	public static void setText(TextArea area, boolean value) {
+	    runOnUIThread(() -> area.setText(Boolean.toString(value)));
+	}
 
-    public static void setText(TextArea area, boolean value) {
-        Platform.runLater(() -> area.setText(Boolean.toString(value)));
-    }
-
-    public static void setText(TextArea area, Object value) {
-        Platform.runLater(() -> area.setText(value != null ? value.toString() : ""));
-    }
+	public static void setText(TextArea area, Object value) {
+	    runOnUIThread(() -> area.setText(value != null ? value.toString() : ""));
+	}
 }

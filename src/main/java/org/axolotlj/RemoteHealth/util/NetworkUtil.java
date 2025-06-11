@@ -33,6 +33,7 @@ public class NetworkUtil {
      *
      * @return true si hay una interfaz activa
      */
+    @Deprecated
     public static boolean hasActiveNetworkInterface() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -47,6 +48,27 @@ public class NetworkUtil {
         }
         return false;
     }
+    
+    /**
+     * Verifica si el host tiene al menos una interfaz de red habilitada (excluyendo loopback y virtuales).
+     *
+     * @return true si existe una interfaz de red habilitada y no loopback.
+     */
+    public static boolean hasEnabledNetworkInterface() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                if (!iface.isLoopback() && !iface.isVirtual() && iface.supportsMulticast()) {
+                    return true;
+                }
+            }
+        } catch (SocketException e) {
+            System.err.println("NetworkUtil::hasEnabledNetworkInterface - Error al verificar interfaces: " + e.getMessage());
+        }
+        return false;
+    }
+    
 
     /**
      * Verifica si el host tiene acceso a la red local (LAN), independientemente del tipo de conexión.

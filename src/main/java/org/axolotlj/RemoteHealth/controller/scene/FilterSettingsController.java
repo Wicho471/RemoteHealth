@@ -6,15 +6,17 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.axolotlj.RemoteHealth.sensor.TuplaUtil;
 import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 import org.axolotlj.RemoteHealth.sensor.handle.DataExtractor;
+import org.axolotlj.RemoteHealth.sensor.handle.DataHandler;
 import org.axolotlj.RemoteHealth.sensor.handle.SensorField;
 import org.axolotlj.RemoteHealth.sensor.io.CsvDataManager;
-import org.axolotlj.RemoteHealth.service.logger.DataLogger;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
 import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.config.filt.AnalysisFiltersConfig;
 import org.axolotlj.RemoteHealth.config.filt.RealTimeFiltersConfig;
 import org.axolotlj.RemoteHealth.controller.include.FilterOptionsController;
@@ -32,25 +34,26 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 
 public class FilterSettingsController implements ContextAware, DisposableController {
-
+	
 	private AppContext appContext;
-	private DataLogger dataLogger;
 	private AnalysisFiltersConfig analysisFiltersConfig;
 	private RealTimeFiltersConfig realTimeFiltersConfig;
 
-	private ArrayList<DataPoint> structureDatas;
-	private ArrayList<MutablePair<Long, Double>> egc;
-	private ArrayList<MutablePair<Long, Double>> ir;
-	private ArrayList<MutablePair<Long, Double>> red;
+	private ArrayList<MutablePair<Long, Double>> ecgData;
+	private ArrayList<MutableTriple<Long, Double, Double>> plethData;
+
+	private ArrayList<MutablePair<Long, Double>> ecgFilterPairs;
+	private ArrayList<MutableTriple<Long, Double, Double>> plethFilterPairs;
+	
+	private ArrayList<MutablePair<Long, Double>> zoomedEcgData;
+	private ArrayList<MutablePair<Long, Double>> zoomedEcgFiltered;
+	private ArrayList<MutablePair<Long, Double>> zoomedPlethData;
+	private ArrayList<MutablePair<Long, Double>> zoomedPlethFiltered;
 
 	@FXML
-	private LineChart<Number, Number> rawChart;
+	private LineChart<Number, Number> dataChart;
 	@FXML
-	private LineChart<Number, Number> frequencyRawChart;
-	@FXML
-	private LineChart<Number, Number> FilteredChart;
-	@FXML
-	private LineChart<Number, Number> frequencyFilteredChart;
+	private LineChart<Number, Number> frequencyChart;
 
 	@FXML
 	private RadioButton ecgAnalysisRadioBtn;
@@ -84,21 +87,77 @@ public class FilterSettingsController implements ContextAware, DisposableControl
 		analysisFiltersConfig = new AnalysisFiltersConfig();
 		realTimeFiltersConfig = new RealTimeFiltersConfig();
 
-		ChartUtils.setStyle(rawChart, Paths.CSS_DASHBOARDSTYLE_CSS);
-		ChartUtils.setStyle(FilteredChart, Paths.CSS_DASHBOARDSTYLE_CSS);
-		ChartUtils.setStyle(frequencyRawChart, Paths.CSS_DASHBOARDSTYLE_CSS);
-		ChartUtils.setStyle(frequencyFilteredChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(dataChart, Paths.CSS_DASHBOARDSTYLE_CSS);
+		ChartUtils.setStyle(frequencyChart, Paths.CSS_DASHBOARDSTYLE_CSS);
 
 		try {
 			loadFilterOptionsPanes();
 		} catch (IOException e) {
 			System.err.println("Ocurrio un error al cargar los inculdes ->" + e.getMessage());
 		}
+		loadRawData();
 
 		initializeRadioButtons();
 		showPane(ecgAnalysisPane);
-		loadAndPlotReferenceEcg();
 	}
+
+	private void loadRawData() {
+		try {
+			Path tmp = Files.createTempFile("ref_", ".csv");
+
+			Files.copy(getClass().getResourceAsStream(Paths.REF_CSV), tmp, StandardCopyOption.REPLACE_EXISTING);
+
+			ArrayList<DataPoint> dataPoints = CsvDataManager.load(tmp);
+			ecgData = DataExtractor.extractValidValues(dataPoints, SensorField.ECG);
+			fix(ecgData);
+			plethData = DataExtractor.extractValidValues(dataPoints, SensorField.IR, SensorField.RED);
+			fixTiple(plethData);
+			applyChanges(FilterTypeOption.ECG_ANALYSIS);
+		} catch (IOException e) {
+			System.err.println("Error al acceder o copiar el archivo CSV:");
+		} catch (Exception e) {
+			System.err.println("Error al cargar o procesar los datos del CSV:");
+		}
+	}
+
+	private void applyChanges(FilterTypeOption option) {
+	    AnalysisFilters analysisFilters = new AnalysisFilters();
+
+	    ecgFilterPairs = analysisFilters.getFilteredEcg(ecgData);
+	    plethFilterPairs = analysisFilters.getFilteredPleth(plethData);
+
+	    zoomedEcgData = DataHandler.zoomPairs(ecgData, 5000, 5000);
+	    zoomedEcgFiltered = DataHandler.zoomPairs(ecgFilterPairs, 5000, 5000);
+
+	    var rawPleth = TuplaUtil.createTupla(
+	        TuplaUtil.extractTimestamps(plethData),
+	        TuplaUtil.extractMiddleValues(plethData)
+	    );
+	    var filteredPleth = TuplaUtil.createTupla(
+	        TuplaUtil.extractTimestamps(plethFilterPairs),
+	        TuplaUtil.extractMiddleValues(plethFilterPairs)
+	    );
+	    zoomedPlethData = DataHandler.zoomPairs(rawPleth, 5000, 5000);
+	    zoomedPlethFiltered = DataHandler.zoomPairs(filteredPleth, 5000, 5000);
+
+	    plotChart(option);
+	}
+
+	
+	private void plotChart(FilterTypeOption option) {
+	    switch (option) {
+	        case ECG_ANALYSIS -> {
+	            ChartUtils.plotTwoTimeSeriesFromPairs(dataChart, zoomedEcgData, zoomedEcgFiltered, "Raw ECG", "Filtered ECG");
+	            ChartUtils.plotTwoFrequencySeriesFromPairs(frequencyChart, zoomedEcgData, zoomedEcgFiltered, "Raw ECG", "Filtered ECG");
+	        }
+	        case PLETH_ANALYSIS -> {
+	            ChartUtils.plotTwoTimeSeriesFromPairs(dataChart, zoomedPlethData, zoomedPlethFiltered, "Raw Pleth", "Filtered Pleth");
+	            ChartUtils.plotTwoFrequencySeriesFromPairs(frequencyChart, zoomedPlethData, zoomedPlethFiltered, "Raw Pleth", "Filtered Pleth");
+	        }
+	        default -> throw new IllegalArgumentException("Unexpected value: " + option);
+	    }
+	}
+
 
 	private void loadFilterOptionsPanes() throws IOException {
 		// ECG análisis
@@ -120,10 +179,10 @@ public class FilterSettingsController implements ContextAware, DisposableControl
 
 		oprionsStackPane.getChildren().addAll(ecgAnalysisPane, plethAnalysisPane, ecgRealTimePane, plethRealTimePane);
 
-		ecgAnalysisController.setType(FilterTypeOption.ECG_ANALYSIS, analysisFiltersConfig, realTimeFiltersConfig);
-		plethAnalysisController.setType(FilterTypeOption.PLETH_ANALYSIS, analysisFiltersConfig, realTimeFiltersConfig);
-		ecgRealTimeController.setType(FilterTypeOption.ECG_REAL_TIME, analysisFiltersConfig, realTimeFiltersConfig);
-		plethRealTimeController.setType(FilterTypeOption.PLETH_REAL_TIME, analysisFiltersConfig, realTimeFiltersConfig);
+		ecgAnalysisController.setType(FilterTypeOption.ECG_ANALYSIS, analysisFiltersConfig, realTimeFiltersConfig, tipo -> this.applyChanges(tipo));
+		plethAnalysisController.setType(FilterTypeOption.PLETH_ANALYSIS, analysisFiltersConfig, realTimeFiltersConfig, tipo -> this.applyChanges(tipo));
+		ecgRealTimeController.setType(FilterTypeOption.ECG_REAL_TIME, analysisFiltersConfig, realTimeFiltersConfig, tipo -> this.applyChanges(tipo));
+		plethRealTimeController.setType(FilterTypeOption.PLETH_REAL_TIME, analysisFiltersConfig, realTimeFiltersConfig, tipo -> this.applyChanges(tipo));
 
 	}
 
@@ -148,10 +207,12 @@ public class FilterSettingsController implements ContextAware, DisposableControl
 	private void handleToggleChange(RadioButton selectedRadio) {
 		if (selectedRadio == ecgAnalysisRadioBtn) {
 			showPane(ecgAnalysisPane);
+			plotChart(FilterTypeOption.ECG_ANALYSIS);
 		} else if (selectedRadio == ecgRealTimeRadioBtn) {
 			showPane(ecgRealTimePane);
 		} else if (selectedRadio == plethAnalysisRadioBtn) {
 			showPane(plethAnalysisPane);
+			plotChart(FilterTypeOption.PLETH_ANALYSIS);
 		} else if (selectedRadio == plethRealTimeRadioBtn) {
 			showPane(plethRealTimePane);
 		}
@@ -170,66 +231,23 @@ public class FilterSettingsController implements ContextAware, DisposableControl
 	@Override
 	public void setAppContext(AppContext context) {
 		this.appContext = context;
-		this.dataLogger = context.getDataLogger();
-	}
-
-	private void loadAndPlotReferenceEcg() {
-		try {
-			// 1️⃣ Copiar CSV de recursos a temporal
-			Path tmp = Files.createTempFile("ref_", ".csv");
-			Files.copy(getClass().getResourceAsStream(Paths.REF_CSV), tmp, StandardCopyOption.REPLACE_EXISTING);
-
-			// 2️⃣ Cargar datos y extraer ECG
-			ArrayList<DataPoint> list = CsvDataManager.load(tmp);
-			ArrayList<MutablePair<Long, Double>> ecgPairs = DataExtractor.extractValidValues(list, SensorField.ECG);
-
-			if (ecgPairs == null || ecgPairs.isEmpty()) {
-				System.err.println("No se encontraron datos ECG en el CSV.");
-				return;
-			}
-
-			// 3️⃣ Filtrar primeros 5 segundos
-			long t0 = ecgPairs.get(0).getLeft();
-			long tLimit = t0 + 5000; // 5 segundos en ms
-
-			ArrayList<MutablePair<Long, Double>> ecg5s = new ArrayList<>();
-			for (MutablePair<Long, Double> p : ecgPairs) {
-				if (p.getLeft() <= tLimit) {
-					ecg5s.add(p);
-				} else {
-					break;
-				}
-			}
-
-			// 4️⃣ Graficar sin filtro
-			ChartUtils.plotTimeSeries(rawChart, ecg5s, "ECG (ref)");
-			ChartUtils.plotFrequencySeries(frequencyRawChart, ecg5s, "ECG – FFT");
-
-			// 5️⃣ Aplicar filtros y graficar filtrado
-			AnalysisFilters analysisFilters = new AnalysisFilters();
-			ArrayList<MutablePair<Long, Double>> ecgFiltered = analysisFilters.getEcg(list);
-
-			// También filtrar los datos filtrados a 5s
-			ArrayList<MutablePair<Long, Double>> ecgFiltered5s = new ArrayList<>();
-			for (MutablePair<Long, Double> p : ecgFiltered) {
-				if (p.getLeft() <= tLimit) {
-					ecgFiltered5s.add(p);
-				} else {
-					break;
-				}
-			}
-
-			ChartUtils.plotTimeSeries(FilteredChart, ecgFiltered5s, "ECG (filtrado)");
-			ChartUtils.plotFrequencySeries(frequencyFilteredChart, ecgFiltered5s, "FFT (filtrado)");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 	}
-
+	
+	private void fix(ArrayList<MutablePair<Long, Double>> pairs) {
+	    for (MutablePair<Long, Double> mutablePair : pairs) {
+	        mutablePair.setRight(mutablePair.getRight() - 2000);
+	    }
+	}
+	
+	private void fixTiple(ArrayList<MutableTriple<Long, Double, Double>> triple) {
+	    for (MutableTriple<Long, Double, Double> mutableTriple : triple) {
+	        mutableTriple.setRight(mutableTriple.getRight() - 121250);
+	        mutableTriple.setMiddle(mutableTriple.getMiddle() - 121250);
+	    }
+	}
 }

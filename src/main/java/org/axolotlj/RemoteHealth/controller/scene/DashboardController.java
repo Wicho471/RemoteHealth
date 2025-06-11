@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.axolotlj.RemoteHealth.analysis.bp.core.BPMonitor;
 import org.axolotlj.RemoteHealth.analysis.hr.HrMonitor;
 import org.axolotlj.RemoteHealth.analysis.spo2.Spo2Monitor;
-import org.axolotlj.RemoteHealth.app.Images;
 import org.axolotlj.RemoteHealth.app.SceneType;
 import org.axolotlj.RemoteHealth.app.ui.AlertUtil;
 import org.axolotlj.RemoteHealth.app.ui.ChartUtils;
@@ -18,6 +17,8 @@ import org.axolotlj.RemoteHealth.app.ui.FxmlUtils;
 import org.axolotlj.RemoteHealth.app.ui.ImageViewUtils;
 import org.axolotlj.RemoteHealth.app.ui.SeriesUtils;
 import org.axolotlj.RemoteHealth.app.ui.TextUtils;
+import org.axolotlj.RemoteHealth.common.Images;
+import org.axolotlj.RemoteHealth.common.Paths;
 import org.axolotlj.RemoteHealth.core.AppContext;
 import org.axolotlj.RemoteHealth.core.AppContext.ContextAware;
 import org.axolotlj.RemoteHealth.core.AppContext.DisposableController;
@@ -26,7 +27,6 @@ import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 import org.axolotlj.RemoteHealth.sensor.data.Status;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.SystemMonitor;
-import org.axolotlj.RemoteHealth.util.paths.Paths;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -311,7 +311,7 @@ public class DashboardController implements ContextAware, DisposableController {
 		if (data.getTemp().isValid()) {
 			float currentTemp = data.getTemp().getValue();
 			TextUtils.setText(TEMP1, currentTemp + "°C");
-			if (currentTemp < 36.1f || currentTemp > 37.8) {
+			if (currentTemp < 36.5f || currentTemp > 37.2) {
 				ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_TEMP_ALERT);
 			} else {
 				ImageViewUtils.setImage(statusTemp, Images.IMG_VITALS_OK);
@@ -362,7 +362,7 @@ public class DashboardController implements ContextAware, DisposableController {
 			ImageViewUtils.setImage(statusBpm, image);
 		});
 
-		this.spo2Monitor = new Spo2Monitor(104.0, 14.29, 100.0, 10.0, spo2 -> {
+		this.spo2Monitor = new Spo2Monitor(125.0, 20.0, 110.0, 8.0, spo2 -> {
 			TextUtils.setText(SPO2, spo2.getRight() + "%");
 			Image image = (spo2.getRight() < 90) ? Images.IMG_VITALS_DYSPNOEA_ALERT : Images.IMG_VITALS_OK;
 			ImageViewUtils.setImage(statusSpo2, image);

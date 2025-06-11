@@ -1,6 +1,7 @@
 package org.axolotlj.RemoteHealth.core;
 
 import org.axolotlj.RemoteHealth.app.SceneManager;
+import org.axolotlj.RemoteHealth.config.files.GeneralConfig;
 import org.axolotlj.RemoteHealth.sensor.data.DataPoint;
 import org.axolotlj.RemoteHealth.service.DataProcessor;
 import org.axolotlj.RemoteHealth.service.logger.DataLogger;
@@ -13,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Contenedor singleton del contexto de la aplicación.
  */
 public class AppContext {
+	
 
     private static AppContext instance;
     
@@ -24,6 +26,8 @@ public class AppContext {
     private final WebSocketManager wsManager;
     private DataLogger dataLogger;
     private DataProcessor dataProcessor;
+    private GeneralConfig generalConfig;
+    
     
     private AppContext(SceneManager sceneManager, DataLogger dataLogger) {
         this.messageQueue = new LinkedBlockingQueue<>();
@@ -32,6 +36,7 @@ public class AppContext {
         this.sceneManager = sceneManager;
         this.dataLogger = dataLogger;
         this.wsManager = new WebSocketManager(messageQueue, dataLogger);
+        this.generalConfig = new GeneralConfig();
     }
 
     public static void initialize(SceneManager sceneManager, DataLogger dataLogger) {
@@ -77,6 +82,10 @@ public class AppContext {
     
     public void setDataProcessor(DataProcessor dataProcessor) {
 		this.dataProcessor = dataProcessor;
+	}
+    
+    public GeneralConfig getGeneralConfig() {
+		return generalConfig;
 	}
     /**
      * Interfaz que define el acceso al contexto de la aplicación.

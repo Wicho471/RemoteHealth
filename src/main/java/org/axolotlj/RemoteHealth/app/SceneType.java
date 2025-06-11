@@ -1,6 +1,7 @@
 package org.axolotlj.RemoteHealth.app;
 
-import org.axolotlj.RemoteHealth.util.paths.Paths;
+import org.axolotlj.RemoteHealth.common.Images;
+import org.axolotlj.RemoteHealth.common.Paths;
 
 import javafx.scene.image.Image;
 

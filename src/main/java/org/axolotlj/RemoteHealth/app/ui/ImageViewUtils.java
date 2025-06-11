@@ -1,5 +1,8 @@
 package org.axolotlj.RemoteHealth.app.ui;
 
+import org.axolotlj.RemoteHealth.service.logger.DataLogger;
+import org.axolotlj.RemoteHealth.service.logger.Log;
+
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -8,6 +11,7 @@ import javafx.scene.image.ImageView;
  * Utilidades para establecer imágenes en componentes ImageView en JavaFX.
  */
 public class ImageViewUtils {
+	private static DataLogger logger = Log.get();
 
     /**
      * Establece una imagen ya cargada a un ImageView con dimensiones específicas.
@@ -24,7 +28,7 @@ public class ImageViewUtils {
                 imageView.setFitHeight(height);
                 imageView.setImage(image);
             } catch (Exception e) {
-                System.err.println("ImageViewUtils.setImage (Image, width, height): " + e.getMessage());
+                logger.logError("Error al asignar imagen con tamaño (" + width + "x" + height + "): " + e.getMessage());
             }
         } else {
             Platform.runLater(() -> setImage(imageView, image, width, height));
@@ -43,7 +47,7 @@ public class ImageViewUtils {
             try {
                 imageView.setImage(image);
             } catch (Exception e) {
-                System.err.println("ImageViewUtils.setImage (image): " + e.getMessage());
+                logger.logError("Error al asignar imagen al ImageView: " + e.getMessage());
             }
         } else {
             Platform.runLater(() -> setImage(imageView, image));
