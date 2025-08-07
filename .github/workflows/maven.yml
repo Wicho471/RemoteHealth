@@ -60,11 +60,18 @@ jobs:
 
       - name: Detect fat JAR
         id: find_jar
-        working-directory: desktop
+        shell: pwsh
         run: |
-          jar_file=$(find target -name '*-jar-with-dependencies.jar' | head -n 1)
-          echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
-          echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
+          $jar = Get-ChildItem -Path target -Filter '*-jar-with-dependencies.jar' -Recurse | Select-Object -First 1
+          echo "jar_path=$($jar.FullName)" >> $env:GITHUB_OUTPUT
+          echo "jar_name=$($jar.Name)" >> $env:GITHUB_OUTPUT
+
+      - name: Check JAR exists
+        run: |
+          if [ ! -f "${{ steps.find_jar.outputs.jar_path }}" ]; then
+            echo "::error::Fat JAR not found"
+            exit 1
+          fi
 
       - name: Descargar JavaFX JMODS
         working-directory: desktop
@@ -168,6 +175,13 @@ jobs:
           echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
           echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
 
+      - name: Check JAR exists
+        run: |
+          if [ ! -f "${{ steps.find_jar.outputs.jar_path }}" ]; then
+            echo "::error::Fat JAR not found"
+            exit 1
+          fi
+
       - name: Descargar JavaFX JMODS
         working-directory: desktop
         run: |
@@ -257,6 +271,13 @@ jobs:
           echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
           echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
 
+      - name: Check JAR exists
+        run: |
+          if [ ! -f "${{ steps.find_jar.outputs.jar_path }}" ]; then
+            echo "::error::Fat JAR not found"
+            exit 1
+          fi
+
       - name: Instalar dependencias de jpackage
         run: sudo apt-get update -y && sudo apt-get install -y fakeroot dpkg rpm
 
@@ -326,46 +347,36 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up GraalVM 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
+          distribution: graalvm
           java-version: 17
 
       - name: Apply Gluon License
-        run: |
-          mkdir -p mobile/src/main/resources
-          printf "%s" "${{ secrets.GLUON_LICENSE }}" > mobile/src/main/resources/gluonmobile.license
-
-      - name: Set up Android SDK
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: gluonhq/gluon-build-license@v1
         with:
-          api-level: 31
-          target: google_apis
+          gluon-license: ${{ secrets.GLUON_LICENSE }}
 
-      - name: Build all modules
-        run: mvn -B clean install -DskipTests
+      - name: Build Android APK
+        run: mvn -Pandroid gluonfx:build gluonfx:package
 
-      - name: Build Android native image
-        run: mvn -B -Pandroid -pl mobile gluonfx:build gluonfx:package
-
-      - name: Find APK
+      - name: Find Android APK
         id: find_apk
         run: |
-          apk=$(find mobile/target/gluonfx -name '*.apk' | head -n 1)
-          if [[ -z "$apk" ]]; then
-            echo "No APK found" >&2
-            exit 1
-          fi
-          echo "apk_path=$apk" >> $GITHUB_OUTPUT
+          apk_file=$(find mobile/target/gluonfx -name '*.apk' | head -n 1)
+          echo "apk_path=$apk_file" >> $GITHUB_OUTPUT
 
-      - name: Upload APK to release
+      - name: Upload Android asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.find_apk.outputs.apk_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}.apk
+          asset_name: RemoteHealth-${{ github.ref_name }}-android.apk
           asset_content_type: application/vnd.android.package-archive
+
 
 # ─────────────────────────────────────────────
 # 4️⃣ Android (IAP/APP)
@@ -376,41 +387,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up GraalVM 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
+          distribution: graalvm
           java-version: 17
 
       - name: Apply Gluon License
-        run: |
-          mkdir -p mobile/src/main/resources
-          printf "%s" "${{ secrets.GLUON_LICENSE }}" > mobile/src/main/resources/gluonmobile.license
-
-      - name: Build all modules
-        run: mvn -B clean install -DskipTests
+        uses: gluonhq/gluon-build-license@v1
+        with:
+          gluon-license: ${{ secrets.GLUON_LICENSE }}
 
       - name: Build iOS native image
-        run: mvn -B -Pios -pl mobile gluonfx:build gluonfx:package
+        run: mvn -Pios -DgraalvmHome=$GRAALVM_HOME gluonfx:build gluonfx:package
 
       - name: Install on connected iOS device (if any)
-        run: mvn -Pios -pl mobile gluonfx:install || echo "No device connected"
+        run: mvn -Pios gluonfx:install || echo "No device connected"
 
       - name: Find iOS bundle
         id: find_ios
         run: |
-          bundle=$(find mobile/target/gluonfx -type f \( -name '*.ipa' -o -name '*.app' \) | head -n 1)
-          if [[ -z "$bundle" ]]; then
-            echo "No .ipa or .app file found" >&2
-            exit 1
-          fi
+          bundle=$(find mobile/target/gluonfx -name '*.ipa' -o -name '*.app' | head -n 1)
           echo "ios_path=$bundle" >> $GITHUB_OUTPUT
-          echo "ios_name=$(basename $bundle)" >> $GITHUB_OUTPUT
 
       - name: Upload iOS asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.find_ios.outputs.ios_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}-${{ steps.find_ios.outputs.ios_name }}
+          asset_name: RemoteHealth-${{ github.ref_name }}-ios.${{ steps.find_ios.outputs.ios_path }}
           asset_content_type: application/octet-stream
