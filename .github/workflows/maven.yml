@@ -50,6 +50,7 @@ jobs:
           java-version: 17
 
       - name: Build fat JAR
+        working-directory: desktop
         run: mvn -B clean package
 
       - name: Descargar JavaFX JMODS
@@ -66,13 +67,13 @@ jobs:
       - name: Crear MSI (jpackage)
         run: |
           New-Item -ItemType Directory -Force -Path target/installers | Out-Null
-          Copy-Item -Path "src/main/resources/org/axolotlj/RemoteHealth/img/favicon.ico" -Destination "target/app-icon.ico"
+          Copy-Item -Path "core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.ico" -Destination "target/app-icon.ico"
           jpackage `
             --input target `
             --dest target/installers `
             --name "Remote Health" `
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar `
-            --main-class org.axolotlj.RemoteHealth.MainApp `
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp `
             --type msi `
             --runtime-image target/RemoteHealth-runtime `
             --win-shortcut `
@@ -148,13 +149,13 @@ jobs:
       - name: Crear DMG (jpackage)
         run: |
           mkdir -p target/installers
-          cp src/main/resources/org/axolotlj/RemoteHealth/img/favicon.icns target/app-icon.icns
+          cp core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.icns target/app-icon.icns
           jpackage \
             --input target \
             --dest target/installers \
             --name "Remote Health" \
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
-            --main-class org.axolotlj.RemoteHealth.MainApp \
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
             --type dmg \
             --runtime-image target/RemoteHealth-runtime \
             --icon target/app-icon.icns
@@ -220,13 +221,13 @@ jobs:
       - name: Crear DEB (jpackage)
         run: |
           mkdir -p target/installers
-          cp src/main/resources/org/axolotlj/RemoteHealth/img/favicon.png target/app-icon.png
+          cp core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.png target/app-icon.png
           jpackage \
             --input target \
             --dest target/installers \
             --name "Remote Health" \
             --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
-            --main-class org.axolotlj.RemoteHealth.MainApp \
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
             --type deb \
             --runtime-image target/RemoteHealth-runtime \
             --icon target/app-icon.png \
@@ -257,3 +258,89 @@ jobs:
           asset_path:  ${{ steps.find_deb.outputs.deb_path }}
           asset_name:  RemoteHealth-${{ github.ref_name }}.deb
           asset_content_type: application/octet-stream
+# ─────────────────────────────────────────────
+# 4️⃣ Android (APK)
+# ─────────────────────────────────────────────
+  build-android:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Apply Gluon License
+        uses: gluonhq/gluon-build-license@v1
+        with:
+          gluon-license: ${{ secrets.GLUON_LICENSE }}
+
+      - name: Set up Android SDK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+
+      - name: Build Android native image
+        run: mvn -Pandroid gluonfx:build gluonfx:package
+
+      - name: Install app on Android (if device connected)
+        run: mvn -Pandroid gluonfx:install || echo "No device connected, skipping install"
+
+      - name: Find APK
+        id: find_apk
+        run: |
+          apk=$(find mobile/target/gluonfx -name '*.apk' | head -n 1)
+          echo "apk_path=$apk" >> $GITHUB_OUTPUT
+
+      - name: Upload APK
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.find_apk.outputs.apk_path }}
+          asset_name: RemoteHealth-${{ github.ref_name }}.apk
+          asset_content_type: application/vnd.android.package-archive
+
+# ─────────────────────────────────────────────
+# 4️⃣ Android (IAP/APP)
+# ─────────────────────────────────────────────
+  build-ios:
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Apply Gluon License
+        uses: gluonhq/gluon-build-license@v1
+        with:
+          gluon-license: ${{ secrets.GLUON_LICENSE }}
+
+      - name: Build iOS native image
+        run: mvn -Pios gluonfx:build gluonfx:package
+
+      - name: Install on connected iOS device (if any)
+        run: mvn -Pios gluonfx:install || echo "No device connected"
+
+      - name: Find iOS bundle
+        id: find_ios
+        run: |
+          bundle=$(find mobile/target/gluonfx -name '*.ipa' -o -name '*.app' | head -n 1)
+          echo "ios_path=$bundle" >> $GITHUB_OUTPUT
+
+      - name: Upload iOS asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.find_ios.outputs.ios_path }}
+          asset_name: RemoteHealth-${{ github.ref_name }}-ios.${{ steps.find_ios.outputs.ios_path }}
+          asset_content_type: application/octet-stream
+

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ─────────────────────────────
+         DATOS BÁSICOS DEL MÓDULO
+         ───────────────────────────── -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- *Hereda* de RemoteHealth                     -->
+    <parent>
+        <groupId>org.axolotlj</groupId>
+        <artifactId>RemoteHealth</artifactId>
+        <version>0.2.1</version>
+    </parent>
+
+    <!-- Mantengo tu artefactId “celular” para respetar la plantilla -->
+    <artifactId>mobile</artifactId>
+    <packaging>jar</packaging>
+    <name>remotehealth-mobile</name>
+
+    <!-- ─────────────────────────────
+         PROPIEDADES
+         ───────────────────────────── -->
+    <properties>
+        <!-- Las heredadas del padre ya incluyen maven.compiler.release=17 -->
+        <javafx.version>21.0.6</javafx.version>
+        <glisten.version>6.0.5</glisten.version>
+        <attach.version>4.0.8</attach.version>
+        <mainClassName>org.axolotlj.remotehealth.mobile.MobileApp</mainClassName>
+    </properties>
+
+    <!-- ─────────────────────────────
+         DEPENDENCIAS
+         ───────────────────────────── -->
+    <dependencies>
+        <!-- núcleo compartido -->
+        <dependency>
+            <groupId>org.axolotlj</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- JavaFX y Gluon Charm -->
+        <dependency>
+            <groupId>com.gluonhq</groupId>
+            <artifactId>charm-glisten</artifactId>
+            <version>${glisten.version}</version>
+        </dependency>
+
+        <!-- Gluon Attach (servicios de dispositivo) -->
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>display</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>lifecycle</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>statusbar</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>storage</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>util</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>barcode-scan</artifactId>
+		    <version>${attach.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>pictures</artifactId>
+		    <version>${attach.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>orientation</artifactId>
+		    <version>${attach.version}</version>
+		</dependency>
+		
+		  <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>device</artifactId>
+		    <version>${attach.version}</version>
+		  </dependency>
+		  <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>push-notifications</artifactId>
+		    <version>${attach.version}</version>
+		  </dependency>
+		  <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>runtime-args</artifactId>
+		    <version>${attach.version}</version>
+		  </dependency>
+
+    </dependencies>
+
+    <!-- ─────────────────────────────
+         REPOSITORIOS  (ya heredados del padre)
+         ───────────────────────────── -->
+
+    <!-- ─────────────────────────────
+         PLUGINS DE BUILD
+         ───────────────────────────── -->
+    <build>
+        <plugins>
+            <!-- JavaFX RUN (útil para simular) -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>${mainClassName}</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- GluonFX: build y native-image -->
+            <plugin>
+                <groupId>com.gluonhq</groupId>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>${gluonfx.version}</version>
+                <configuration>
+                    <mainClass>${mainClassName}</mainClass>
+                    <attachList>
+                        <list>display</list>
+                        <list>lifecycle</list>
+                        <list>statusbar</list>
+                        <list>storage</list>
+                        <list>barcode-scan</list>
+                        <list>camera</list>
+                        <list>pictures</list>
+                        <list>orientation</list>
+                        <list>device</list>
+						<list>push-notifications</list>
+						<list>runtime-args</list>
+                    </attachList>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <repositories>
+	    <repository>
+	        <id>gluon-releases</id>
+	        <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
+	    </repository>
+	</repositories>
+
+
+    <!-- Perfil rápido para Android: mvn -Pandroid gluonfx:build -->
+    <profiles>
+        <profile>
+            <id>android</id>
+            <properties>
+                <gluonfx.target>android</gluonfx.target>
+            </properties>
+        </profile>
+    </profiles>
+</project>

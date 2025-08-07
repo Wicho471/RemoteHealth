@@ -1,0 +1,35 @@
+package org.axolotlj.remotehealth.core.service.datawriter;
+
+import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
+
+/**
+ * Interfaz para escribir datos en formato CSV.
+ */
+public abstract class CsvDataWriter {
+
+    /**
+     * Escribe una línea CSV.
+     *
+     * @param csvLine Línea en formato CSV
+     */
+    public abstract void writeData(String csvLine);
+    
+    /**
+     * Escribe una línea CSV.
+     *
+     * @param csvLine Línea en formato CSV
+     */
+    public abstract void writeData(DataPoint csvLine);
+
+    /**
+     * Cierra los recursos usados por el escritor.
+     */
+    public abstract void close();
+
+    /**
+     * Devuelve la ruta absoluta al archivo de datos, si aplica.
+     *
+     * @return Ruta al archivo o cadena vacía si no aplica
+     */
+    public abstract String getDataFilePath();
+}

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<MenuBar xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.remotehealth.desktop.controller.includes.MenuBarController">
+	<menus>
+		<Menu fx:id="menuEsp32" mnemonicParsing="false" text="ESP32">
+			<items>
+				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false" onAction="#flashEsp32Handle" text="Cargar programa">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Microcontroler.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+			</items>
+		</Menu>
+		<Menu fx:id="menuAnalysis" mnemonicParsing="false" text="Analisis">
+			<items>
+				<MenuItem fx:id="itemAnalyze" mnemonicParsing="false" onAction="#openAnalysisHandler" text="Analizar anomalias">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Analysis.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+			</items>
+		</Menu>
+		<Menu fx:id="menuFilters" mnemonicParsing="false" text="Filtros">
+			<items>
+				<MenuItem fx:id="itemFilterSettings" mnemonicParsing="false" onAction="#filterSettingsHandler" text="Configurar filtros">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Settings.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+			</items>
+		</Menu>
+		<Menu mnemonicParsing="false" text="Simulador">
+			<items>
+				<MenuItem fx:id="simuMenuItem" mnemonicParsing="false" onAction="#simuHandle" text="Iniciar simulador">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/interactivo.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+
+				<SeparatorMenuItem />
+
+				<RadioMenuItem fx:id="option1Sim" text="Datos reales">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/electrocardiograma.png" />
+							</image>
+						</ImageView>
+					</graphic>
+               <toggleGroup>
+                  <ToggleGroup fx:id="simToggleGroup" />
+               </toggleGroup>
+				</RadioMenuItem>
+				
+				<RadioMenuItem fx:id="option2Sim" text="Datos sinteticos" toggleGroup="$simToggleGroup">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/seno.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</RadioMenuItem>
+
+			</items>
+		</Menu>
+      <Menu mnemonicParsing="false" text="Herramientas">
+         <items>
+				<MenuItem mnemonicParsing="false" onAction="#benchmarkHandle" text="Rendimiento">
+					<graphic>
+						<ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/rendimiento.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#dirHandler" text="Directorio">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/carpetas.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#logHandle" text="Registros">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/log.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <SeparatorMenuItem />
+            <RadioMenuItem fx:id="dev" mnemonicParsing="false" text="Modo desarrollador">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/dev.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </RadioMenuItem>
+         </items>
+      </Menu>
+		<Menu fx:id="menuLanguage" mnemonicParsing="false" text="Idioma-">
+			<items>
+				<RadioMenuItem fx:id="langSpanish" mnemonicParsing="false">
+					<toggleGroup>
+						<ToggleGroup fx:id="languageGroup" />
+					</toggleGroup>
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/langs/es.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</RadioMenuItem>
+				<RadioMenuItem fx:id="langEnglish" mnemonicParsing="false" toggleGroup="$languageGroup">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/langs/us.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</RadioMenuItem>
+			</items>
+		</Menu>
+		<Menu fx:id="menuHelp" mnemonicParsing="false" text="Ayuda">
+			<items>
+				<MenuItem fx:id="itemUserManual" mnemonicParsing="false" onAction="#userManualHandler" text="Manual de usuario">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/manual.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#licenseHandler" text="Licencia">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/licencia.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#creditHandle" text="Creditos">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/credit.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#thanksHandle" text="Agradecimientos especiales">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/gracias.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+				<MenuItem fx:id="itemAbout" mnemonicParsing="false" onAction="#aboutHandler" text="Acerca de">
+					<graphic>
+						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/acerca-de.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</MenuItem>
+			</items>
+		</Menu>
+	</menus>
+</MenuBar>
