@@ -40,6 +40,8 @@ jobs:
   build-windows:
     needs: create-release
     runs-on: windows-latest
+    env:
+      JAVAFX_VERSION: 21.0.6
     steps:
       - uses: actions/checkout@v3
 
@@ -49,30 +51,44 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Build all modules
+        run: mvn -B clean install -DskipTests
+
       - name: Build fat JAR
         working-directory: desktop
         run: mvn -B clean package
 
+      - name: Detect fat JAR
+        id: find_jar
+        working-directory: desktop
+        run: |
+          jar_file=$(find target -name '*-jar-with-dependencies.jar' | head -n 1)
+          echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
+          echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
+
       - name: Descargar JavaFX JMODS
+        working-directory: desktop
         run: |
           Invoke-WebRequest https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_windows-x64_bin-jmods.zip -OutFile javafx-jmods.zip
           Expand-Archive javafx-jmods.zip -DestinationPath javafx-jmods
 
       - name: Crear runtime image (jlink)
+        working-directory: desktop
         run: |
           jlink --module-path "$env:JAVA_HOME/jmods;javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" `
                 --add-modules ALL-MODULE-PATH `
                 --output target/RemoteHealth-runtime
 
       - name: Crear MSI (jpackage)
+        working-directory: desktop
         run: |
           New-Item -ItemType Directory -Force -Path target/installers | Out-Null
-          Copy-Item -Path "core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.ico" -Destination "target/app-icon.ico"
+          Copy-Item -Path "../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.ico" -Destination "target/app-icon.ico"
           jpackage `
             --input target `
             --dest target/installers `
             --name "Remote Health" `
-            --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar `
+            --main-jar ${{ steps.find_jar.outputs.jar_name }} `
             --main-class org.axolotlj.remotehealth.desktop.DesktopApp `
             --type msi `
             --runtime-image target/RemoteHealth-runtime `
@@ -82,12 +98,14 @@ jobs:
             --icon target/app-icon.ico
 
       - name: Listar archivos generados (debug)
+        working-directory: desktop
         run: |
           echo "Contenido de target/installers:"
           Get-ChildItem -Path target/installers
 
       - name: Buscar MSI generado
         id: find_msi
+        working-directory: desktop
         run: |
           $file = Get-ChildItem -Path target/installers -Filter 'RemoteHealth*.msi' | Select-Object -First 1
           if ($null -eq $file) {
@@ -113,9 +131,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
         with:
           upload_url:  ${{ needs.create-release.outputs.upload_url }}
-          asset_path:  ./target/RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          asset_path:  desktop/${{ steps.find_jar.outputs.jar_path }}
           asset_name:  RemoteHealth-${{ github.ref_name }}-jar-with-dependencies.jar
           asset_content_type: application/java-archive
+
 
 # ─────────────────────────────────────────────
 # 3️⃣ macOS (DMG)
@@ -123,6 +142,8 @@ jobs:
   build-macos:
     needs: create-release
     runs-on: macos-latest
+    env:
+      JAVAFX_VERSION: 21.0.6
     steps:
       - uses: actions/checkout@v3
 
@@ -132,41 +153,58 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Build all modules
+        run: mvn -B clean install -DskipTests
+
       - name: Build fat JAR
+        working-directory: desktop
         run: mvn -B clean package
 
+      - name: Detect fat JAR
+        id: find_jar
+        working-directory: desktop
+        run: |
+          jar_file=$(find target -name '*-jar-with-dependencies.jar' | head -n 1)
+          echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
+          echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
+
       - name: Descargar JavaFX JMODS
+        working-directory: desktop
         run: |
           curl -L -o javafx-jmods.zip https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_osx-x64_bin-jmods.zip
           unzip javafx-jmods.zip -d javafx-jmods
 
       - name: Crear runtime image (jlink)
+        working-directory: desktop
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
                 --add-modules ALL-MODULE-PATH \
                 --output target/RemoteHealth-runtime
 
       - name: Crear DMG (jpackage)
+        working-directory: desktop
         run: |
           mkdir -p target/installers
-          cp core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.icns target/app-icon.icns
+          cp ../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.icns target/app-icon.icns
           jpackage \
             --input target \
             --dest target/installers \
             --name "Remote Health" \
-            --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
+            --main-jar ${{ steps.find_jar.outputs.jar_name }} \
             --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
             --type dmg \
             --runtime-image target/RemoteHealth-runtime \
             --icon target/app-icon.icns
 
       - name: Listar archivos generados (debug)
+        working-directory: desktop
         run: |
           echo "Contenido de target/installers:"
           ls -lh target/installers || echo "Carpeta no encontrada"
 
       - name: Buscar DMG generado
         id: find_dmg
+        working-directory: desktop
         run: |
           dmg_file=$(find target/installers -name 'RemoteHealth*.dmg' | head -n 1)
           echo "DMG encontrado: $dmg_file"
@@ -186,12 +224,15 @@ jobs:
           asset_name:  RemoteHealth-${{ github.ref_name }}.dmg
           asset_content_type: application/octet-stream
 
+
 # ─────────────────────────────────────────────
 # 4️⃣ Linux (DEB)
 # ─────────────────────────────────────────────
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
+    env:
+      JAVAFX_VERSION: 21.0.6
     steps:
       - uses: actions/checkout@v3
 
@@ -201,32 +242,47 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Build all modules
+        run: mvn -B clean install -DskipTests
+
       - name: Build fat JAR
+        working-directory: desktop
         run: mvn -B clean package
+
+      - name: Detect fat JAR
+        id: find_jar
+        working-directory: desktop
+        run: |
+          jar_file=$(find target -name '*-jar-with-dependencies.jar' | head -n 1)
+          echo "jar_path=$jar_file" >> $GITHUB_OUTPUT
+          echo "jar_name=$(basename $jar_file)" >> $GITHUB_OUTPUT
 
       - name: Instalar dependencias de jpackage
         run: sudo apt-get update -y && sudo apt-get install -y fakeroot dpkg rpm
 
       - name: Descargar JavaFX JMODS
+        working-directory: desktop
         run: |
           wget https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_linux-x64_bin-jmods.zip -O javafx-jmods.zip
           unzip javafx-jmods.zip -d javafx-jmods
 
       - name: Crear runtime image (jlink)
+        working-directory: desktop
         run: |
           jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
                 --add-modules ALL-MODULE-PATH \
                 --output target/RemoteHealth-runtime
 
       - name: Crear DEB (jpackage)
+        working-directory: desktop
         run: |
           mkdir -p target/installers
-          cp core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.png target/app-icon.png
+          cp ../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicon.png target/app-icon.png
           jpackage \
             --input target \
             --dest target/installers \
             --name "Remote Health" \
-            --main-jar RemoteHealth-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
+            --main-jar ${{ steps.find_jar.outputs.jar_name }} \
             --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
             --type deb \
             --runtime-image target/RemoteHealth-runtime \
@@ -234,12 +290,14 @@ jobs:
             --linux-shortcut
 
       - name: Listar archivos generados (debug)
+        working-directory: desktop
         run: |
           echo "Contenido de target/installers:"
           ls -lh target/installers || echo "Carpeta no encontrada"
 
       - name: Buscar DEB generado
         id: find_deb
+        working-directory: desktop
         run: |
           deb_file=$(find target/installers -name 'remotehealth*.deb' | head -n 1)
           echo "DEB encontrado: $deb_file"
@@ -258,6 +316,7 @@ jobs:
           asset_path:  ${{ steps.find_deb.outputs.deb_path }}
           asset_name:  RemoteHealth-${{ github.ref_name }}.deb
           asset_content_type: application/octet-stream
+
 # ─────────────────────────────────────────────
 # 4️⃣ Android (APK)
 # ─────────────────────────────────────────────
@@ -274,9 +333,9 @@ jobs:
           java-version: 17
 
       - name: Apply Gluon License
-        uses: gluonhq/gluon-build-license@v1
-        with:
-          gluon-license: ${{ secrets.GLUON_LICENSE }}
+        run: |
+          mkdir -p mobile/src/main/resources
+          printf "%s" "${{ secrets.GLUON_LICENSE }}" > mobile/src/main/resources/gluonmobile.license
 
       - name: Set up Android SDK
         uses: reactivecircus/android-emulator-runner@v2
@@ -284,19 +343,23 @@ jobs:
           api-level: 31
           target: google_apis
 
-      - name: Build Android native image
-        run: mvn -Pandroid gluonfx:build gluonfx:package
+      - name: Build all modules
+        run: mvn -B clean install -DskipTests
 
-      - name: Install app on Android (if device connected)
-        run: mvn -Pandroid gluonfx:install || echo "No device connected, skipping install"
+      - name: Build Android native image
+        run: mvn -B -Pandroid -pl mobile gluonfx:build gluonfx:package
 
       - name: Find APK
         id: find_apk
         run: |
           apk=$(find mobile/target/gluonfx -name '*.apk' | head -n 1)
+          if [[ -z "$apk" ]]; then
+            echo "No APK found" >&2
+            exit 1
+          fi
           echo "apk_path=$apk" >> $GITHUB_OUTPUT
 
-      - name: Upload APK
+      - name: Upload APK to release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
@@ -320,27 +383,34 @@ jobs:
           java-version: 17
 
       - name: Apply Gluon License
-        uses: gluonhq/gluon-build-license@v1
-        with:
-          gluon-license: ${{ secrets.GLUON_LICENSE }}
+        run: |
+          mkdir -p mobile/src/main/resources
+          printf "%s" "${{ secrets.GLUON_LICENSE }}" > mobile/src/main/resources/gluonmobile.license
+
+      - name: Build all modules
+        run: mvn -B clean install -DskipTests
 
       - name: Build iOS native image
-        run: mvn -Pios gluonfx:build gluonfx:package
+        run: mvn -B -Pios -pl mobile gluonfx:build gluonfx:package
 
       - name: Install on connected iOS device (if any)
-        run: mvn -Pios gluonfx:install || echo "No device connected"
+        run: mvn -Pios -pl mobile gluonfx:install || echo "No device connected"
 
       - name: Find iOS bundle
         id: find_ios
         run: |
-          bundle=$(find mobile/target/gluonfx -name '*.ipa' -o -name '*.app' | head -n 1)
+          bundle=$(find mobile/target/gluonfx -type f \( -name '*.ipa' -o -name '*.app' \) | head -n 1)
+          if [[ -z "$bundle" ]]; then
+            echo "No .ipa or .app file found" >&2
+            exit 1
+          fi
           echo "ios_path=$bundle" >> $GITHUB_OUTPUT
+          echo "ios_name=$(basename $bundle)" >> $GITHUB_OUTPUT
 
       - name: Upload iOS asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ steps.find_ios.outputs.ios_path }}
-          asset_name: RemoteHealth-${{ github.ref_name }}-ios.${{ steps.find_ios.outputs.ios_path }}
+          asset_name: RemoteHealth-${{ github.ref_name }}-${{ steps.find_ios.outputs.ios_name }}
           asset_content_type: application/octet-stream
-
