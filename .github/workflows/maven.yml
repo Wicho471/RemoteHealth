@@ -62,7 +62,13 @@ jobs:
         run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Build Desktop Fat JAR with Maven
-        run: mvn -B install -DskipTests -pl desktop -am
+        # CORRECCIÓN: Se ejecuta 'install' en todo el proyecto para resolver dependencias,
+        # y LUEGO se llama explícitamente a 'assembly:single' en el módulo 'desktop'.
+        run: mvn -B install -DskipTests && mvn -B -pl desktop assembly:single
+
+      - name: List files in target directory (for debugging)
+        if: always()
+        run: ls -R desktop/target
 
       - name: Upload Desktop JAR to Release
         uses: actions/upload-release-asset@v1
@@ -81,7 +87,7 @@ jobs:
     needs: create-release
     name: Build Mobile App for ${{ matrix.target }}
     strategy:
-      fail-fast: false # Evita que si falla un job (ej. ios), cancele el otro (ej. android)
+      fail-fast: false
       matrix:
         include:
           - target: android
@@ -120,10 +126,12 @@ jobs:
         uses: gluonhq/gluon-build-license@v2
         with:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
-          project-path: mobile
+          # CORRECCIÓN: El parámetro correcto es 'dir', no 'project-path'.
+          dir: mobile
 
       - name: Build Native Mobile App with Maven
-        run: mvn -P${{ matrix.maven_profile }} gluonfx:build gluonfx:package -f mobile/pom.xml
+        # Se ejecuta 'install' para resolver dependencias y luego 'gluonfx:package'
+        run: mvn -B -P${{ matrix.maven_profile }} install gluonfx:package -pl mobile -am -DskipTests
 
       - name: Find Mobile Artifact Path
         id: find_artifact
