@@ -33,9 +33,12 @@ public class AppContext {
 	}
 
 	public static void initialize() {
+		
 		Log.get().logDebug("Inicializando AppContext");
 	    if (instance == null) {
 	        instance = new AppContext();
+	    } else {
+	    	Log.get().logWarn("Ya existe una instancia de AppContext");
 	    }
 	}
 	

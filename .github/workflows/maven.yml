@@ -9,9 +9,6 @@ permissions:
   contents: write
 
 jobs:
-  # ──────────────────────────────────────────────────────────
-  # JOB 1: Crear el Release en GitHub
-  # ──────────────────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
     outputs:
@@ -19,36 +16,36 @@ jobs:
     steps:
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: RemoteHealth ${{ github.ref_name }}
+          name: RemoteHealth ${{ github.ref_name }}
           body: Release generated automatically for ${{ github.ref_name }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ──────────────────────────────────────────────────────────
-  # JOB 2: Compilar JAR para Desktop
-  # ──────────────────────────────────────────────────────────
   build-desktop:
     needs: create-release
-    name: Build Desktop JAR on ${{ matrix.os }}
+    name: Build Desktop JAR (${{ matrix.os }})
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         include:
           - os: windows-latest
-            asset_name_suffix: windows.jar
+            asset_suffix: windows.jar
           - os: ubuntu-latest
-            asset_name_suffix: linux.jar
+            asset_suffix: linux.jar
           - os: macos-latest
-            asset_name_suffix: macos.jar
+            asset_suffix: macos.jar
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -59,28 +56,35 @@ jobs:
 
       - name: Get App Version from Tag
         id: get_version
-        run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+        shell: bash
 
       - name: Build All Modules & Desktop Fat JAR
-        run: mvn -B install -DskipTests
+        run: mvn -B clean install -DskipTests
+
+      - name: Locate Desktop Fat JAR
+        id: find_jar
+        run: |
+          jar_path=$(find desktop/target -type f -name "*.jar" | grep -v original | head -n 1)
+          if [ -z "$jar_path" ]; then
+            echo "ERROR: No JAR found"
+            exit 1
+          fi
+          echo "JAR found at $jar_path"
+          echo "jar_path=$jar_path" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Upload Desktop JAR to Release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find_jar.outputs.jar_path }}
+          name: remotehealth-desktop-${{ env.APP_VERSION }}-${{ matrix.asset_suffix }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          # CORRECCIÓN: Apuntamos al JAR que realmente se crea (el fat-jar que reemplaza al normal)
-          asset_path: desktop/target/desktop-*.jar
-          asset_name: remotehealth-desktop-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
-          asset_content_type: application/java-archive
 
-  # ──────────────────────────────────────────────────────────
-  # JOB 3: Compilar apps para Móviles (Android e iOS)
-  # ──────────────────────────────────────────────────────────
   build-mobile:
     needs: create-release
-    name: Build Mobile App for ${{ matrix.target }}
+    name: Build Mobile App (${{ matrix.target }})
     strategy:
       fail-fast: false
       matrix:
@@ -88,19 +92,19 @@ jobs:
           - target: android
             os: ubuntu-latest
             maven_profile: android
-            artifact_name: remotehealth-mobile-${{ github.ref_name }}.apk
-            artifact_type: application/vnd.android.package-archive
-            find_command: "find target/gluonfx -name '*.apk' | head -n 1"
+            asset_suffix: apk
+            asset_type: application/vnd.android.package-archive
           - target: ios
             os: macos-latest
             maven_profile: ios
-            artifact_name: remotehealth-mobile-${{ github.ref_name }}.ipa
-            artifact_type: application/octet-stream
-            find_command: "find target/gluonfx -name '*.ipa' | head -n 1"
+            asset_suffix: ipa
+            asset_type: application/octet-stream
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -123,25 +127,24 @@ jobs:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
           dir: mobile
 
-      - name: Build Native Mobile App with Maven
-        # CORRECCIÓN: Ejecutamos 'gluonfx:package' desde el directorio del módulo 'mobile'
+      - name: Build Native Mobile App
         working-directory: mobile
-        run: mvn -B -P${{ matrix.maven_profile }} -pl mobile -am install gluonfx:package -DskipTests
+        run: mvn -B -P${{ matrix.maven_profile }} gluonfx:package -DskipTests
 
       - name: Find Mobile Artifact Path
         id: find_artifact
-        # CORRECCIÓN: Buscamos el artefacto desde la raíz del proyecto
         run: |
-          artifact_path=$(find mobile -path "*${{ matrix.target }}*" -name '*.apk' -o -name '*.ipa' | head -n 1)
-          echo "Found artifact at: $artifact_path"
+          artifact_path=$(find mobile/target -type f -name "*.${{ matrix.asset_suffix }}" | head -n 1)
+          if [ -z "$artifact_path" ]; then
+            echo "ERROR: No mobile artifact found"
+            exit 1
+          fi
           echo "artifact_path=$artifact_path" >> $GITHUB_OUTPUT
+        shell: bash
       
       - name: Upload Mobile Artifact to Release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find_artifact.outputs.artifact_path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifact.outputs.artifact_path }}
-          asset_name: ${{ matrix.artifact_name }}
-          asset_content_type: ${{ matrix.artifact_type }}

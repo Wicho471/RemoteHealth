@@ -3,7 +3,6 @@ package org.axolotlj.remotehealth.desktop;
 import java.util.Optional;
 
 import org.axolotlj.remotehealth.core.AppContext;
-import org.axolotlj.remotehealth.core.CommonApp;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.util.Debug;
@@ -58,8 +57,6 @@ public class DesktopApp extends Application {
 		configurator.getDeviceInfo();
 		configurator.devConfigs();
 
-		CommonApp.initialize();
-		
 		launch(args);
 	}
 	
