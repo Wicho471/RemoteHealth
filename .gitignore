@@ -1,2 +1,41 @@
 **/gluonmobile.license
+
+# # Archivos generados por Maven
+# El directorio de salida de la compilación
 target/
+
+# # Archivos de Log
+*.log
+logs/
+
+# # Archivos del IDE
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse (Estos los tienes actualmente en tu repositorio y es recomendable ignorarlos)
+.classpath
+.project
+.settings/
+
+# NetBeans
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+.nb-gradle/
+
+# VS Code
+.vscode/
+
+# # Archivos de Sistema Operativo
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# # Otros
+# Archivos de dependencia del Maven Wrapper
+.mvn/

@@ -62,7 +62,7 @@ jobs:
         run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Build Desktop Fat JAR with Maven
-        run: mvn -B package -DskipTests assembly:single -f desktop/pom.xml
+        run: mvn -B install -DskipTests -pl desktop -am
 
       - name: Upload Desktop JAR to Release
         uses: actions/upload-release-asset@v1
@@ -120,6 +120,7 @@ jobs:
         uses: gluonhq/gluon-build-license@v2
         with:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
+          project-path: mobile
 
       - name: Build Native Mobile App with Maven
         run: mvn -P${{ matrix.maven_profile }} gluonfx:build gluonfx:package -f mobile/pom.xml
