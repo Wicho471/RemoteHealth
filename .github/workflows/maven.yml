@@ -62,8 +62,6 @@ jobs:
         run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Build All Modules & Desktop Fat JAR
-        # CORRECCIÓN: Un único 'install' desde la raíz compila todo en orden y
-        # activa el 'assembly:single' gracias a la fase 'package'.
         run: mvn -B install -DskipTests
 
       - name: Upload Desktop JAR to Release
@@ -72,8 +70,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          # Con el POM corregido, este nombre de archivo ahora sí se encontrará
-          asset_path: desktop/target/desktop-${{ env.APP_VERSION }}-jar-with-dependencies.jar
+          # CORRECCIÓN: Apuntamos al JAR que realmente se crea (el fat-jar que reemplaza al normal)
+          asset_path: desktop/target/desktop-${{ env.APP_VERSION }}.jar
           asset_name: remotehealth-desktop-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
           asset_content_type: application/java-archive
 
@@ -92,13 +90,13 @@ jobs:
             maven_profile: android
             artifact_name: remotehealth-mobile-${{ github.ref_name }}.apk
             artifact_type: application/vnd.android.package-archive
-            find_command: "find mobile/target/gluonfx -name '*.apk' | head -n 1"
+            find_command: "find target/gluonfx -name '*.apk' | head -n 1"
           - target: ios
             os: macos-latest
             maven_profile: ios
             artifact_name: remotehealth-mobile-${{ github.ref_name }}.ipa
             artifact_type: application/octet-stream
-            find_command: "find mobile/target/gluonfx -name '*.ipa' | head -n 1"
+            find_command: "find target/gluonfx -name '*.ipa' | head -n 1"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -126,14 +124,16 @@ jobs:
           dir: mobile
 
       - name: Build Native Mobile App with Maven
-        # CORRECCIÓN: Se ejecuta 'install' en el módulo 'mobile' y sus dependencias.
-        # Esto ejecuta el ciclo de vida completo, usando la configuración correcta del pom.
-        run: mvn -B -P${{ matrix.maven_profile }} -pl mobile -am install -DskipTests
+        # CORRECCIÓN: Ejecutamos 'gluonfx:package' desde el directorio del módulo 'mobile'
+        working-directory: mobile
+        run: mvn -B -P${{ matrix.maven_profile }} gluonfx:package -DskipTests
 
       - name: Find Mobile Artifact Path
         id: find_artifact
+        # CORRECCIÓN: Buscamos el artefacto desde la raíz del proyecto
         run: |
-          artifact_path=$(${{ matrix.find_command }})
+          artifact_path=$(find mobile -path "*${{ matrix.target }}*" -name '*.apk' -o -name '*.ipa' | head -n 1)
+          echo "Found artifact at: $artifact_path"
           echo "artifact_path=$artifact_path" >> $GITHUB_OUTPUT
       
       - name: Upload Mobile Artifact to Release
