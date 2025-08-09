@@ -71,7 +71,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           # CORRECCIÓN: Apuntamos al JAR que realmente se crea (el fat-jar que reemplaza al normal)
-          asset_path: desktop/target/desktop-${{ env.APP_VERSION }}.jar
+          asset_path: desktop/target/desktop-*.jar
           asset_name: remotehealth-desktop-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
           asset_content_type: application/java-archive
 
@@ -126,7 +126,7 @@ jobs:
       - name: Build Native Mobile App with Maven
         # CORRECCIÓN: Ejecutamos 'gluonfx:package' desde el directorio del módulo 'mobile'
         working-directory: mobile
-        run: mvn -B -P${{ matrix.maven_profile }} gluonfx:package -DskipTests
+        run: mvn -B -P${{ matrix.maven_profile }} -pl mobile -am install gluonfx:package -DskipTests
 
       - name: Find Mobile Artifact Path
         id: find_artifact
