@@ -127,6 +127,9 @@ jobs:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
           dir: mobile
 
+      - name: Build All Modules & Mobile Fat JAR
+        run: mvn -B clean install -DskipTests
+
       - name: Build Native Mobile App
         working-directory: mobile
         run: mvn -B -P${{ matrix.maven_profile }} gluonfx:package -DskipTests
