@@ -253,7 +253,13 @@ jobs:
 
       - name: Build native image - compile (con debug)
         working-directory: mobile
-        run: mvn -B -Pandroid -X -e -DskipTests gluonfx:compile
+        run: |
+          set -e
+          mvn -Pandroid gluonfx:compile gluonfx:link gluonfx:package || (
+            echo "=== GluonFX compile log ==="
+            find mobile/target/gluonfx/aarch64-android/gvm/log -type f -name "process-compile*.log" -exec cat {} \;
+            exit 1
+          )
         continue-on-error: false
 
       - name: list mobile/target/gluonfx
@@ -334,7 +340,13 @@ jobs:
 
       - name: Build native image - compile (iOS) (con debug)
         working-directory: mobile
-        run: mvn -B -Pios -X -e -DskipTests gluonfx:compile
+        run: |
+          set -e
+          mvn -Pios gluonfx:compile gluonfx:link gluonfx:package || (
+            echo "=== GluonFX compile log ==="
+            find mobile/target/gluonfx/aarch64-ios/gvm/log -type f -name "process-compile*.log" -exec cat {} \;
+            exit 1
+          )
 
       - name: list mobile/target/gluonfx
         run: ls -la mobile/target/gluonfx || true
