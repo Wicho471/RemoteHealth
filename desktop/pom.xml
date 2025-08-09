@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.axolotlj</groupId>
         <artifactId>RemoteHealth</artifactId>
-        <version>0.2.1</version>
+        <version>0.3.5</version>
     </parent>
 
     <artifactId>desktop</artifactId>
@@ -76,6 +76,8 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
+                    <finalName>${project.build.finalName}-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>

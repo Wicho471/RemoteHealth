@@ -5,7 +5,6 @@ org\axolotlj\remotehealth\desktop\controller\StartupController.class
 org\axolotlj\remotehealth\desktop\service\serial\Struct.class
 org\axolotlj\remotehealth\desktop\service\serial\SerialDeviceInfo.class
 org\axolotlj\remotehealth\desktop\controller\includes\MenuBarController$1.class
-org\axolotlj\remotehealth\desktop\ui\ImageViewUtils.class
 org\axolotlj\remotehealth\desktop\ui\SeriesUtils.class
 org\axolotlj\remotehealth\desktop\scene\SceneManager.class
 org\axolotlj\remotehealth\desktop\controller\window\ESP32ToolsController.class

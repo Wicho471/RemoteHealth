@@ -51,6 +51,7 @@ org\axolotlj\remotehealth\core\logger\FileDataLogger.class
 org\axolotlj\remotehealth\core\filters\base\SavitzkyGolayFilter.class
 org\axolotlj\remotehealth\core\config\PropertiesManager.class
 org\axolotlj\remotehealth\core\sensor\correction\DataCorrectionService.class
+org\axolotlj\remotehealth\core\javafx\ImageViewUtils.class
 org\axolotlj\remotehealth\core\model\VitalSigns.class
 org\axolotlj\remotehealth\core\model\DeviceInfo.class
 org\axolotlj\remotehealth\core\sensor\data\Status.class

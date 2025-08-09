@@ -7,7 +7,7 @@
 
     <groupId>org.axolotlj</groupId>
     <artifactId>RemoteHealth</artifactId>
-    <version>0.2.1</version>
+    <version>0.3.5</version>
     <packaging>pom</packaging>
 
     <!-- Los tres sub-proyectos -->
