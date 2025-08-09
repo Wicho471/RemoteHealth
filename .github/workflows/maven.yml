@@ -195,13 +195,12 @@ jobs:
           asset_content_type: application/octet-stream
 
   # ---------------------------
-  # Build Android (mobile module) - corregido
+  # Build Android (mobile module) 
   # ---------------------------
   build-android:
     needs: create-release
     runs-on: ubuntu-latest
     name: Build Mobile App (Android)
-    timeout-minutes: 120
     env:
       MAVEN_OPTS: -Xmx6g -XX:MaxMetaspaceSize=1G
     steps:
@@ -236,6 +235,9 @@ jobs:
 
       - name: Export ANDROID_NDK_HOME
         run: echo "ANDROID_NDK_HOME=${{ steps.setup_ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+
+      - name: Build all project modules
+        run: mvn -B clean install -DskipTests
 
       - name: Apply Gluon License
         uses: gluonhq/gluon-build-license@v2
@@ -293,7 +295,6 @@ jobs:
     needs: create-release
     runs-on: macos-latest
     name: Build Mobile App (iOS)
-    timeout-minutes: 120
     env:
       MAVEN_OPTS: -Xmx6g -XX:MaxMetaspaceSize=1G
     steps:
@@ -316,6 +317,9 @@ jobs:
           echo "GRAALVM_HOME=$GRAALVM_HOME"
           native-image --version || true
 
+      - name: Build all project modules
+        run: mvn -B clean install -DskipTests
+        
       - name: Apply Gluon License
         uses: gluonhq/gluon-build-license@v2
         with:
