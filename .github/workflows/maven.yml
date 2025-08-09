@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   # ──────────────────────────────────────────────────────────
-  # JOB 1: Crear el Release en GitHub (se ejecuta primero)
+  # JOB 1: Crear el Release en GitHub
   # ──────────────────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
@@ -30,13 +30,12 @@ jobs:
           prerelease: false
 
   # ──────────────────────────────────────────────────────────
-  # JOB 2: Compilar JAR para Desktop (Windows, macOS, Linux)
+  # JOB 2: Compilar JAR para Desktop
   # ──────────────────────────────────────────────────────────
   build-desktop:
     needs: create-release
     name: Build Desktop JAR on ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         include:
@@ -58,18 +57,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Get version from tag
+      - name: Get App Version from Tag
         id: get_version
         run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Build Desktop Fat JAR with Maven
-        # CORRECCIÓN: Se ejecuta 'install' en todo el proyecto para resolver dependencias,
-        # y LUEGO se llama explícitamente a 'assembly:single' en el módulo 'desktop'.
-        run: mvn -B install -DskipTests && mvn -B -pl desktop assembly:single
-
-      - name: List files in target directory (for debugging)
-        if: always()
-        run: ls -R desktop/target
+      - name: Build All Modules & Desktop Fat JAR
+        # CORRECCIÓN: Un único 'install' desde la raíz compila todo en orden y
+        # activa el 'assembly:single' gracias a la fase 'package'.
+        run: mvn -B install -DskipTests
 
       - name: Upload Desktop JAR to Release
         uses: actions/upload-release-asset@v1
@@ -77,12 +72,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
+          # Con el POM corregido, este nombre de archivo ahora sí se encontrará
           asset_path: desktop/target/desktop-${{ env.APP_VERSION }}-jar-with-dependencies.jar
           asset_name: remotehealth-desktop-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
           asset_content_type: application/java-archive
 
   # ──────────────────────────────────────────────────────────
-  # JOB 3: Compilar apps para Móviles (Android e iOS) usando una Matriz
+  # JOB 3: Compilar apps para Móviles (Android e iOS)
   # ──────────────────────────────────────────────────────────
   build-mobile:
     needs: create-release
@@ -127,12 +123,12 @@ jobs:
         uses: gluonhq/gluon-build-license@v2
         with:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
-          # CORRECCIÓN: El parámetro correcto es 'dir', no 'project-path'.
           dir: mobile
 
       - name: Build Native Mobile App with Maven
-        # Se ejecuta 'install' para resolver dependencias y luego 'gluonfx:package'
-        run: mvn -B -P${{ matrix.maven_profile }} install gluonfx:package -pl mobile -am -DskipTests
+        # CORRECCIÓN: Se ejecuta 'install' en el módulo 'mobile' y sus dependencias.
+        # Esto ejecuta el ciclo de vida completo, usando la configuración correcta del pom.
+        run: mvn -B -P${{ matrix.maven_profile }} -pl mobile -am install -DskipTests
 
       - name: Find Mobile Artifact Path
         id: find_artifact
