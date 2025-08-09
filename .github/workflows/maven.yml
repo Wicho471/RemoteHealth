@@ -8,146 +8,235 @@ on:
 permissions:
   contents: write
 
+env:
+  JAVAFX_VERSION: 21.0.6
+
 jobs:
+# ─────────────────────────────────────────────
+# 1️⃣ Crear el release (solo una vez)
+# ─────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - name: Create GitHub Release
+      - uses: actions/checkout@v3
+
+      - name: Crear Release
         id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: RemoteHealth ${{ github.ref_name }}
-          body: Release generated automatically for ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          tag_name:      ${{ github.ref_name }}
+          release_name:  RemoteHealth ${{ github.ref_name }}
+          body:          Release generado automáticamente para ${{ github.ref_name }}
+          draft:         false
+          prerelease:    false
 
-  build-desktop:
-    needs: create-release
-    name: Build Desktop JAR (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        include:
-          - os: windows-latest
-            asset_suffix: windows.jar
-          - os: ubuntu-latest
-            asset_suffix: linux.jar
-          - os: macos-latest
-            asset_suffix: macos.jar
-    runs-on: ${{ matrix.os }}
+# ─────────────────────────────────────────────
+# Función común para obtener nombre de JAR y versión
+# ─────────────────────────────────────────────
+  get-fatjar:
+    runs-on: ubuntu-latest
+    outputs:
+      jar_name: ${{ steps.jar.outputs.jar_name }}
+      jar_path: ${{ steps.jar.outputs.jar_path }}
+      project_version: ${{ steps.version.outputs.project_version }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Get App Version from Tag
-        id: get_version
-        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Build All Modules & Desktop Fat JAR
-        run: mvn -B clean install -DskipTests
-
-      - name: Locate Desktop Fat JAR
-        id: find_jar
+      - name: Obtener versión del proyecto
+        id: version
         run: |
-          jar_path=$(find desktop/target -type f -name "*.jar" | grep -v original | head -n 1)
-          if [ -z "$jar_path" ]; then
-            echo "ERROR: No JAR found"
-            exit 1
-          fi
-          echo "JAR found at $jar_path"
-          echo "jar_path=$jar_path" >> $GITHUB_OUTPUT
-        shell: bash
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Versión detectada: $VERSION"
+          echo "project_version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Upload Desktop JAR to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ steps.find_jar.outputs.jar_path }}
-          name: remotehealth-desktop-${{ env.APP_VERSION }}-${{ matrix.asset_suffix }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Construir para obtener Fat JAR
+        run: mvn -B clean package -pl desktop -am
 
-  build-mobile:
-    needs: create-release
-    name: Build Mobile App (${{ matrix.target }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: android
-            os: ubuntu-latest
-            maven_profile: android
-            asset_suffix: apk
-            asset_type: application/vnd.android.package-archive
-          - target: ios
-            os: macos-latest
-            maven_profile: ios
-            asset_suffix: ipa
-            asset_type: application/octet-stream
-    runs-on: ${{ matrix.os }}
+      - name: Detectar Fat JAR
+        id: jar
+        run: |
+          JAR_PATH=$(ls desktop/target/*-jar-with-dependencies.jar | head -n 1)
+          JAR_NAME=$(basename "$JAR_PATH")
+          echo "Fat JAR detectado: $JAR_NAME"
+          echo "jar_name=$JAR_NAME" >> $GITHUB_OUTPUT
+          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+
+# ─────────────────────────────────────────────
+# 2️⃣ Windows (MSI)
+# ─────────────────────────────────────────────
+  build-windows:
+    needs: [create-release, get-fatjar]
+    runs-on: windows-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          fetch-depth: 0
+          distribution: temurin
+          java-version: 17
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-      
-      - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '17'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          cache: 'maven'
+      - name: Build fat JAR (Windows)
+        run: mvn -B clean package -pl desktop -am
 
-      - name: Apply Gluon License
-        uses: gluonhq/gluon-build-license@v2
-        with:
-          gluon-license: ${{ secrets.GLUON_LICENSE }}
-          dir: mobile
-
-      - name: Build All Modules & Mobile Fat JAR
-        run: mvn -B clean install -DskipTests
-
-      - name: Build Native Mobile App
-        working-directory: mobile
-        run: mvn -B -P${{ matrix.maven_profile }} gluonfx:package -DskipTests
-
-      - name: Find Mobile Artifact Path
-        id: find_artifact
+      - name: Descargar JavaFX JMODS
         run: |
-          artifact_path=$(find mobile/target -type f -name "*.${{ matrix.asset_suffix }}" | head -n 1)
-          if [ -z "$artifact_path" ]; then
-            echo "ERROR: No mobile artifact found"
-            exit 1
-          fi
-          echo "artifact_path=$artifact_path" >> $GITHUB_OUTPUT
-        shell: bash
-      
-      - name: Upload Mobile Artifact to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ steps.find_artifact.outputs.artifact_path }}
+          Invoke-WebRequest https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_windows-x64_bin-jmods.zip -OutFile javafx-jmods.zip
+          Expand-Archive javafx-jmods.zip -DestinationPath javafx-jmods
+
+      - name: Crear runtime image (jlink)
+        run: |
+          jlink --module-path "$env:JAVA_HOME/jmods;javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" `
+                --add-modules ALL-MODULE-PATH `
+                --output desktop/target/RemoteHealth-runtime
+
+      - name: Crear MSI (jpackage)
+        run: |
+          New-Item -ItemType Directory -Force -Path desktop/target/installers | Out-Null
+          Copy-Item -Path "desktop/src/main/resources/org/axolotlj/remotehealth/desktop/img/favicon.ico" -Destination "desktop/target/app-icon.ico"
+          jpackage `
+            --input desktop/target `
+            --dest desktop/target/installers `
+            --name "Remote Health" `
+            --main-jar "${{ needs.get-fatjar.outputs.jar_name }}" `
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp `
+            --type msi `
+            --runtime-image desktop/target/RemoteHealth-runtime `
+            --win-shortcut `
+            --win-menu `
+            --win-menu-group "Remote Health" `
+            --icon desktop/target/app-icon.ico
+
+      - name: Subir MSI
+        uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ./desktop/target/installers/RemoteHealth*.msi
+          asset_name:  RemoteHealth-${{ needs.get-fatjar.outputs.project_version }}.msi
+          asset_content_type: application/octet-stream
+
+      - name: Subir Fat JAR
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ${{ needs.get-fatjar.outputs.jar_path }}
+          asset_name:  RemoteHealth-${{ needs.get-fatjar.outputs.project_version }}-jar-with-dependencies.jar
+          asset_content_type: application/java-archive
+
+# ─────────────────────────────────────────────
+# 3️⃣ macOS (DMG)
+# ─────────────────────────────────────────────
+  build-macos:
+    needs: [create-release, get-fatjar]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build fat JAR
+        run: mvn -B clean package -pl desktop -am
+
+      - name: Descargar JavaFX JMODS
+        run: |
+          curl -L -o javafx-jmods.zip https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_osx-x64_bin-jmods.zip
+          unzip javafx-jmods.zip -d javafx-jmods
+
+      - name: Crear runtime image (jlink)
+        run: |
+          jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
+                --add-modules ALL-MODULE-PATH \
+                --output desktop/target/RemoteHealth-runtime
+
+      - name: Crear DMG (jpackage)
+        run: |
+          mkdir -p desktop/target/installers
+          cp desktop/src/main/resources/org/axolotlj/remotehealth/desktop/img/favicon.icns desktop/target/app-icon.icns
+          jpackage \
+            --input desktop/target \
+            --dest desktop/target/installers \
+            --name "Remote Health" \
+            --main-jar "${{ needs.get-fatjar.outputs.jar_name }}" \
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
+            --type dmg \
+            --runtime-image desktop/target/RemoteHealth-runtime \
+            --icon desktop/target/app-icon.icns
+
+      - name: Subir DMG
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ./desktop/target/installers/RemoteHealth*.dmg
+          asset_name:  RemoteHealth-${{ needs.get-fatjar.outputs.project_version }}.dmg
+          asset_content_type: application/octet-stream
+
+# ─────────────────────────────────────────────
+# 4️⃣ Linux (DEB)
+# ─────────────────────────────────────────────
+  build-linux:
+    needs: [create-release, get-fatjar]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build fat JAR
+        run: mvn -B clean package -pl desktop -am
+
+      - name: Instalar dependencias de jpackage
+        run: sudo apt-get update -y && sudo apt-get install -y fakeroot dpkg rpm
+
+      - name: Descargar JavaFX JMODS
+        run: |
+          wget https://download2.gluonhq.com/openjfx/${{ env.JAVAFX_VERSION }}/openjfx-${{ env.JAVAFX_VERSION }}_linux-x64_bin-jmods.zip -O javafx-jmods.zip
+          unzip javafx-jmods.zip -d javafx-jmods
+
+      - name: Crear runtime image (jlink)
+        run: |
+          jlink --module-path "$JAVA_HOME/jmods:javafx-jmods/javafx-jmods-${{ env.JAVAFX_VERSION }}" \
+                --add-modules ALL-MODULE-PATH \
+                --output desktop/target/RemoteHealth-runtime
+
+      - name: Crear DEB (jpackage)
+        run: |
+          mkdir -p desktop/target/installers
+          cp desktop/src/main/resources/org/axolotlj/remotehealth/desktop/img/favicon.png desktop/target/app-icon.png
+          jpackage \
+            --input desktop/target \
+            --dest desktop/target/installers \
+            --name "Remote Health" \
+            --main-jar "${{ needs.get-fatjar.outputs.jar_name }}" \
+            --main-class org.axolotlj.remotehealth.desktop.DesktopApp \
+            --type deb \
+            --runtime-image desktop/target/RemoteHealth-runtime \
+            --icon desktop/target/app-icon.png \
+            --linux-shortcut
+
+      - name: Subir DEB
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url:  ${{ needs.create-release.outputs.upload_url }}
+          asset_path:  ./desktop/target/installers/remotehealth*.deb
+          asset_name:  RemoteHealth-${{ needs.get-fatjar.outputs.project_version }}.deb
+          asset_content_type: application/octet-stream
