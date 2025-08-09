@@ -52,6 +52,12 @@
                         <release>${maven.compiler.release}</release>
                     </configuration>
                 </plugin>
+                
+               <plugin>
+                    <groupId>com.gluonhq</groupId>
+                    <artifactId>gluonfx-maven-plugin</artifactId>
+                    <version>${gluonfx.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
