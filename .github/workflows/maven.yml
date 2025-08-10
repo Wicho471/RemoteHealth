@@ -214,7 +214,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'graalvm'
-          components: 'native-image'
+          graalvm-version: '22.3.6' 
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify java & native-image
@@ -329,7 +329,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'graalvm'
-          components: 'native-image'
+          graalvm-version: '22.3.6' 
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify java & native-image
