@@ -16,7 +16,6 @@ import com.gluonhq.attach.lifecycle.LifecycleService;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.mvc.View;
 
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 
@@ -66,8 +65,7 @@ public class MobileApp extends MobileApplication {
 
 	private View loadView(String fxml) {
 		try {
-			FXMLLoader loader = FxmlUtils.loadFXML(fxml);
-			return loader.load();
+			return FxmlUtils.loadFXML(fxml).load();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return new View(new Label("Error cargando " + fxml));

@@ -110,6 +110,11 @@
 		    <version>${attach.version}</version>
 		  </dependency>
 
+			<dependency>
+			  <groupId>com.gluonhq</groupId>
+			  <artifactId>substrate</artifactId>
+			  <version>${substrate.version}</version>
+			</dependency>
     </dependencies>
 
     <!-- ─────────────────────────────
@@ -135,7 +140,7 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
-                <version>${gluonfx.version}</version>
+                <version>${gluonfx.version}</version><!--$NO-MVN-MAN-VER$-->
                 <configuration>
                     <mainClass>${mainClassName}</mainClass>
                     <attachList>
