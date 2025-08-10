@@ -209,12 +209,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup GraalVM (Gluon build)
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '17'
-          distribution: 'graalvm'  # Otras opciones disponibles: 'graalvm-community', 'mandrel', 'liberica', etc.
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and setup GraalVM from Gluon
+        run: |
+          GRAALVM_ZIP="graalvm-svm-java17-darwin-aarch64-22.3.6-gluon.zip"
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            GRAALVM_ZIP="graalvm-svm-java17-linux-aarch64-22.3.6-gluon.zip"
+          fi
+          curl -L "https://download.gluonhq.com/graalvm/22.3.6/${GRAALVM_ZIP}" -o graalvm.zip
+          unzip -q graalvm.zip -d $HOME
+          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
+          echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
+          echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
+          java --version
+          native-image --version
 
       - name: Verify java & native-image
         run: |
@@ -323,12 +330,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup GraalVM (Gluon build)
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '17'
-          distribution: 'graalvm'  # Otras opciones disponibles: 'graalvm-community', 'mandrel', 'liberica', etc.
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and setup GraalVM from Gluon
+        run: |
+          GRAALVM_ZIP="graalvm-svm-java17-darwin-aarch64-22.3.6-gluon.zip"
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            GRAALVM_ZIP="graalvm-svm-java17-linux-aarch64-22.3.6-gluon.zip"
+          fi
+          curl -L "https://download.gluonhq.com/graalvm/22.3.6/${GRAALVM_ZIP}" -o graalvm.zip
+          unzip -q graalvm.zip -d $HOME
+          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
+          echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
+          echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
+          java --version
+          native-image --version
 
       - name: Verify java & native-image
         run: |
