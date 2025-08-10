@@ -113,7 +113,7 @@
 			<dependency>
 			  <groupId>com.gluonhq</groupId>
 			  <artifactId>substrate</artifactId>
-			  <version>${substrate.version}</version>
+			  <version>0.0.66</version>
 			</dependency>
     </dependencies>
 
