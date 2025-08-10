@@ -151,6 +151,7 @@
 						<list>push-notifications</list>
 						<list>runtime-args</list>
                     </attachList>
+                    
                 </configuration>
             </plugin>
         </plugins>
@@ -179,4 +180,6 @@
 		  </properties>
 		</profile>
     </profiles>
+    
+    
 </project>

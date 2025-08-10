@@ -11,6 +11,10 @@ public class FxmlUtils {
 	private FxmlUtils() { } 
 	
 	public static FXMLLoader loadFXML(String path) {
+		if (path == null) {
+			logger.logFatal("La ruta no puede ser nula");
+			return null;
+		}
 		try {
 			FXMLLoader loader = new FXMLLoader(FxmlUtils.class.getResource(path));
 			return loader;

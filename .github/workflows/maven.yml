@@ -251,16 +251,31 @@ jobs:
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f mobile/pom.xml)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Build native image - compile (con debug)
+      - name: Build native image - compile (Android) (con debug)
         working-directory: mobile
         run: |
           set -e
           mvn -Pandroid gluonfx:compile gluonfx:link gluonfx:package || (
-            echo "=== GluonFX compile log ==="
-            find mobile/target/gluonfx/aarch64-android/gvm/log -type f -name "process-compile*.log" -exec cat {} \;
+            echo "Compilación Android fallida. Preparando logs..."
+            mkdir -p ../compile-logs/android
+            find target/gluonfx/aarch64-android/gvm/log -type f -name "*.log" -exec cp {} ../compile-logs/android/ \; || true
+            find target/gluonfx/log -type f -name "*.log" -exec cp {} ../compile-logs/android/ \; || true
+            cd ../compile-logs && zip -r android-compile-logs.zip android
+            echo "upload_path=$(pwd)/android-compile-logs.zip" >> $GITHUB_OUTPUT
             exit 1
           )
         continue-on-error: false
+
+      - name: Upload Android compile logs to Release
+        if: failure()
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: compile-logs/android-compile-logs.zip
+          asset_name: RemoteHealth-${{ steps.get_version_mobile.outputs.version }}-android-compile-logs.zip
+          asset_content_type: application/zip
 
       - name: list mobile/target/gluonfx
         run: ls -la mobile/target/gluonfx || true
@@ -343,10 +358,26 @@ jobs:
         run: |
           set -e
           mvn -Pios gluonfx:compile gluonfx:link gluonfx:package || (
-            echo "=== GluonFX compile log ==="
-            find mobile/target/gluonfx/aarch64-ios/gvm/log -type f -name "process-compile*.log" -exec cat {} \;
+            echo "Compilación iOS fallida. Preparando logs..."
+            mkdir -p ../compile-logs/ios
+            find target/gluonfx/aarch64-ios/gvm/log -type f -name "*.log" -exec cp {} ../compile-logs/ios/ \; || true
+            find target/gluonfx/log -type f -name "*.log" -exec cp {} ../compile-logs/ios/ \; || true
+            cd ../compile-logs && zip -r ios-compile-logs.zip ios
+            echo "upload_path=$(pwd)/ios-compile-logs.zip" >> $GITHUB_OUTPUT
             exit 1
           )
+        continue-on-error: false
+
+      - name: Upload iOS compile logs to Release
+        if: failure()
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: compile-logs/ios-compile-logs.zip
+          asset_name: RemoteHealth-${{ steps.get_version_mobile_ios.outputs.version }}-ios-compile-logs.zip
+          asset_content_type: application/zip
 
       - name: list mobile/target/gluonfx
         run: ls -la mobile/target/gluonfx || true
