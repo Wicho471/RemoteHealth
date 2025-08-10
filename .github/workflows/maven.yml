@@ -209,90 +209,26 @@ jobs:
         with:
           fetch-depth: 0
 
-
-      - name: Download and setup Gluon GraalVM (from GitHub Releases)
-        env:
-          # Cambia este tag si quieres usar otro release disponible en https://github.com/gluonhq/graal/releases
-          GRAAL_TAG: gluon-22.1.0.1-Final
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and setup GraalVM from Gluon (direct link)
         run: |
-          set -euo pipefail
-
-          ARCH=$(uname -m)
-          OSNAME=$(uname -s)
-          VERSION=${GRAAL_TAG#gluon-}
-
-          if [ "$OSNAME" = "Darwin" ]; then
-            if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then OS_KW="darwin-m1"; else OS_KW="darwin"; fi
-          elif [ "$OSNAME" = "Linux" ]; then
-            OS_KW="linux"
-          else
-            echo "Unsupported OS: $OSNAME"
-            exit 1
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            # Detectar si es M1 o Intel
+            if [[ "$(uname -m)" == "arm64" ]]; then
+              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-m1-gluon-22.1.0.1-Final.tar.gz"
+            else
+              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-gluon-22.1.0.1-Final.tar.gz"
+            fi
           fi
 
-          echo "Looking for Gluon GraalVM release tag=$GRAAL_TAG, os_kw=$OS_KW, version=$VERSION"
-
-          api_url="https://api.github.com/repos/gluonhq/graal/releases/tags/${GRAAL_TAG}"
-          echo "Querying release: $api_url"
-
-          release_json=$(curl -sSL -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" "$api_url")
-          export OS_KW VERSION
-
-          download_url=$(echo "$release_json" | python3 - <<'PY'
-          import sys, json, os
-          j=json.load(sys.stdin)
-          assets=j.get("assets",[])
-          kw=os.environ["OS_KW"]
-          ver=os.environ["VERSION"]
-          # Prefer an asset that contains java17 + os kw + version
-          cands=[a for a in assets if "graalvm-svm-java17" in a["name"] and kw in a["name"] and ver in a["name"]]
-          if not cands:
-              # fallback: java17 + version
-              cands=[a for a in assets if "graalvm-svm-java17" in a["name"] and ver in a["name"]]
-          if not cands:
-              # fallback: any java17 build
-              cands=[a for a in assets if "graalvm-svm-java17" in a["name"]]
-          if not cands:
-              sys.exit(0)
-          print(cands[0]["browser_download_url"])
-          PY
-          )
-
-          if [ -z "$download_url" ]; then
-            echo "No asset found for tag $GRAAL_TAG. Revisa https://github.com/gluonhq/graal/releases y actualiza GRAAL_TAG."
-            exit 1
-          fi
-
-          echo "Downloading $download_url"
-          curl -L --retry 5 --retry-delay 10 -o graal_asset "$download_url"
-
-          # Extract (tar.gz or zip)
-          if file graal_asset | grep -qi 'gzip'; then
-            tar -xzf graal_asset -C $HOME
-          elif file graal_asset | grep -qi 'Zip'; then
-            unzip -q graal_asset -d $HOME
-          else
-            # try both
-            tar -xzf graal_asset -C $HOME || unzip -q graal_asset -d $HOME
-          fi
-
-          GRAALVM_DIR=$(find $HOME -maxdepth 2 -type d -name "graalvm*" | head -n 1)
-          if [ -z "$GRAALVM_DIR" ]; then
-            echo "No se encontró la carpeta graalvm después de extraer. Listado de $HOME:"
-            ls -la $HOME
-            exit 1
-          fi
-
+          curl -L --retry 5 --retry-delay 10 "$GRAALVM_URL" -o graalvm.tar.gz
+          tar -xzf graalvm.tar.gz -C $HOME
+          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
           echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
           echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
-
           java --version
-          native-image --version || true
-
-
-
-
+          native-image --version
 
       - name: Verify java & native-image
         run: |
@@ -401,85 +337,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and setup Gluon GraalVM (from GitHub Releases)
-        env:
-          # Cambia este tag si quieres usar otro release disponible en https://github.com/gluonhq/graal/releases
-          GRAAL_TAG: gluon-22.1.0.1-Final
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and setup GraalVM from Gluon (direct link)
         run: |
-          set -euo pipefail
-
-          ARCH=$(uname -m)
-          OSNAME=$(uname -s)
-          VERSION=${GRAAL_TAG#gluon-}
-
-          if [ "$OSNAME" = "Darwin" ]; then
-            if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then OS_KW="darwin-m1"; else OS_KW="darwin"; fi
-          elif [ "$OSNAME" = "Linux" ]; then
-            OS_KW="linux"
-          else
-            echo "Unsupported OS: $OSNAME"
-            exit 1
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            # Detectar si es M1 o Intel
+            if [[ "$(uname -m)" == "arm64" ]]; then
+              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-m1-gluon-22.1.0.1-Final.tar.gz"
+            else
+              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-gluon-22.1.0.1-Final.tar.gz"
+            fi
           fi
 
-          echo "Looking for Gluon GraalVM release tag=$GRAAL_TAG, os_kw=$OS_KW, version=$VERSION"
-
-          api_url="https://api.github.com/repos/gluonhq/graal/releases/tags/${GRAAL_TAG}"
-          echo "Querying release: $api_url"
-
-          release_json=$(curl -sSL -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" "$api_url")
-          export OS_KW VERSION
-
-          download_url=$(echo "$release_json" | python3 - <<'PY'
-          import sys, json, os
-          j=json.load(sys.stdin)
-          assets=j.get("assets",[])
-          kw=os.environ["OS_KW"]
-          ver=os.environ["VERSION"]
-          # Prefer an asset that contains java17 + os kw + version
-          cands=[a for a in assets if "graalvm-svm-java17" in a["name"] and kw in a["name"] and ver in a["name"]]
-          if not cands:
-              # fallback: java17 + version
-              cands=[a for a in assets if "graalvm-svm-java17" in a["name"] and ver in a["name"]]
-          if not cands:
-              # fallback: any java17 build
-              cands=[a for a in assets if "graalvm-svm-java17" in a["name"]]
-          if not cands:
-              sys.exit(0)
-          print(cands[0]["browser_download_url"])
-          PY
-          )
-
-          if [ -z "$download_url" ]; then
-            echo "No asset found for tag $GRAAL_TAG. Revisa https://github.com/gluonhq/graal/releases y actualiza GRAAL_TAG."
-            exit 1
-          fi
-
-          echo "Downloading $download_url"
-          curl -L --retry 5 --retry-delay 10 -o graal_asset "$download_url"
-
-          # Extract (tar.gz or zip)
-          if file graal_asset | grep -qi 'gzip'; then
-            tar -xzf graal_asset -C $HOME
-          elif file graal_asset | grep -qi 'Zip'; then
-            unzip -q graal_asset -d $HOME
-          else
-            # try both
-            tar -xzf graal_asset -C $HOME || unzip -q graal_asset -d $HOME
-          fi
-
-          GRAALVM_DIR=$(find $HOME -maxdepth 2 -type d -name "graalvm*" | head -n 1)
-          if [ -z "$GRAALVM_DIR" ]; then
-            echo "No se encontró la carpeta graalvm después de extraer. Listado de $HOME:"
-            ls -la $HOME
-            exit 1
-          fi
-
+          curl -L --retry 5 --retry-delay 10 "$GRAALVM_URL" -o graalvm.tar.gz
+          tar -xzf graalvm.tar.gz -C $HOME
+          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
           echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
           echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
-
           java --version
-          native-image --version || true
+          native-image --version
+
 
       - name: Verify java & native-image
         run: |
