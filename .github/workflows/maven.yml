@@ -214,7 +214,6 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            # Detectar si es M1 o Intel
             if [[ "$(uname -m)" == "arm64" ]]; then
               GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-m1-gluon-22.1.0.1-Final.tar.gz"
             else
@@ -224,11 +223,18 @@ jobs:
 
           curl -L --retry 5 --retry-delay 10 "$GRAALVM_URL" -o graalvm.tar.gz
           tar -xzf graalvm.tar.gz -C $HOME
+
           GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
           echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
+          echo "JAVA_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
           echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
+
+          export JAVA_HOME="$GRAALVM_DIR"
+          export PATH="$JAVA_HOME/bin:$PATH"
+
           java --version
           native-image --version
+
 
       - name: Verify java & native-image
         run: |
@@ -342,7 +348,6 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            # Detectar si es M1 o Intel
             if [[ "$(uname -m)" == "arm64" ]]; then
               GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-m1-gluon-22.1.0.1-Final.tar.gz"
             else
@@ -352,9 +357,15 @@ jobs:
 
           curl -L --retry 5 --retry-delay 10 "$GRAALVM_URL" -o graalvm.tar.gz
           tar -xzf graalvm.tar.gz -C $HOME
+
           GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
           echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
+          echo "JAVA_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
           echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
+
+          export JAVA_HOME="$GRAALVM_DIR"
+          export PATH="$JAVA_HOME/bin:$PATH"
+
           java --version
           native-image --version
 
