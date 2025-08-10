@@ -209,12 +209,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Gluon GraalVM (iOS compatible)
-        uses: gluonhq/setup-graalvm@v1
+      - name: Setup GraalVM (Gluon build)
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17'
-          graalvm-version: '22.3.6'
-          distribution: 'gluon'
+          distribution: 'graalvm'  # Otras opciones disponibles: 'graalvm-community', 'mandrel', 'liberica', etc.
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify java & native-image
@@ -324,14 +323,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Gluon GraalVM (Android compatible)
-        uses: gluonhq/setup-graalvm@v1
+      - name: Setup GraalVM (Gluon build)
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17'
-          graalvm-version: '22.3.6'
-          distribution: 'gluon'
+          distribution: 'graalvm'  # Otras opciones disponibles: 'graalvm-community', 'mandrel', 'liberica', etc.
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Verify java & native-image
         run: |
