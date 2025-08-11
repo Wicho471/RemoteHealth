@@ -209,12 +209,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Gluon's GraalVM
-        uses: gluonhq/setup-graalvm@master
-        with:
-          graalvm: '22.1.0.1-Final'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and setup GraalVM 22.1.0.1 (Java 17)
+        run: |
+          curl -L -o graalvm.tar.gz https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz
+          tar -xzf graalvm.tar.gz
+          export GRAALVM_HOME=$(pwd)/graalvm-svm-java17-linux-gluon-22.1.0.1-Final
+          echo "GRAALVM_HOME=$GRAALVM_HOME" >> $GITHUB_ENV
+          export PATH=$GRAALVM_HOME/bin:$PATH
+          echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
 
       - name: Install libraries
         run: |
@@ -330,8 +332,6 @@ jobs:
 
       - name: Setup Gluon's GraalVM
         uses: gluonhq/setup-graalvm@master
-        with:
-          graalvm: '22.1.0.1-Final'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
