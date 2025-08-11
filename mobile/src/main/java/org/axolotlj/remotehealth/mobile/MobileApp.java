@@ -67,7 +67,7 @@ public class MobileApp extends MobileApplication {
 		try {
 			return FxmlUtils.loadFXML(fxml).load();
 		} catch (IOException e) {
-			e.printStackTrace();
+			dataLogger.logException("Ocurrio un error cargando la vista '"+fxml+"'", e);
 			return new View(new Label("Error cargando " + fxml));
 		}
 	}

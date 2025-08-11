@@ -209,32 +209,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and setup GraalVM from Gluon (direct link)
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install libraries
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            if [[ "$(uname -m)" == "arm64" ]]; then
-              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-m1-gluon-22.1.0.1-Final.tar.gz"
-            else
-              GRAALVM_URL="https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-darwin-gluon-22.1.0.1-Final.tar.gz"
-            fi
-          fi
-
-          curl -L --retry 5 --retry-delay 10 "$GRAALVM_URL" -o graalvm.tar.gz
-          tar -xzf graalvm.tar.gz -C $HOME
-
-          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
-          echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
-          echo "JAVA_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
-          echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
-
-          export JAVA_HOME="$GRAALVM_DIR"
-          export PATH="$JAVA_HOME/bin:$PATH"
-
-          java --version
-          native-image --version
-
+          sudo apt-get update
+          sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
       - name: Verify java & native-image
         run: |
@@ -343,16 +326,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and setup GraalVM (macOS/iOS)
-        run: |
-          GRAALVM_ZIP="graalvm-svm-java17-darwin-aarch64-22.3.6.zip"
-          curl -L "https://github.com/gluonhq/graal/releases/download/gluon-22.3.6/${GRAALVM_ZIP}" -o graalvm.zip
-          unzip -q graalvm.zip -d $HOME
-          GRAALVM_DIR=$(find $HOME -maxdepth 1 -type d -name "graalvm*" | head -n 1)
-          echo "GRAALVM_HOME=$GRAALVM_DIR" >> $GITHUB_ENV
-          echo "$GRAALVM_DIR/bin" >> $GITHUB_PATH
-          java --version
-          native-image --version
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify java & native-image
         run: |
