@@ -212,8 +212,8 @@ jobs:
       - name: Setup Gluon's GraalVM
         uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '17'
-          graalvm-version: '17.0.15'
+          graalvm: '17.0.15'
+          jdk: '17'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -332,8 +332,8 @@ jobs:
       - name: Setup Gluon's GraalVM
         uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '17'
-          graalvm-version: '17.0.15'
+          graalvm: '17.0.15'
+          jdk: '17'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
