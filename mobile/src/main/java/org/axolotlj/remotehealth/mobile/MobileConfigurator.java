@@ -16,7 +16,6 @@ public class MobileConfigurator implements PlatformConfigurator {
 
 	static {
 		ConfigFileHelper.setPathResolver(new MobilePathResolver());
-		CommonApp.initialize();
 	}
 
 	@Override

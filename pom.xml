@@ -25,7 +25,7 @@
 
         <!-- bibliotecas más usadas -->
         <javafx.version>21.0.6</javafx.version>
-        <gluonfx.version>1.0.13</gluonfx.version>
+        <gluonfx.version>1.0.22</gluonfx.version>
     </properties>
 
     <!-- repositorios comunes -->

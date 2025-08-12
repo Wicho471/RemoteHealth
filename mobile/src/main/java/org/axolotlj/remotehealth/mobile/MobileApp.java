@@ -3,6 +3,7 @@ package org.axolotlj.remotehealth.mobile;
 import java.io.IOException;
 
 import org.axolotlj.remotehealth.core.AppContext;
+import org.axolotlj.remotehealth.core.CommonApp;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
 import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.DataLogger;
@@ -77,6 +78,8 @@ public class MobileApp extends MobileApplication {
 		configurator.checkPaths();
 		configurator.getDeviceInfo();
 		configurator.devConfigs();
+		
+		CommonApp.initialize();
 
 		launch(args);
 	}

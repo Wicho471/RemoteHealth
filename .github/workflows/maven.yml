@@ -237,11 +237,11 @@ jobs:
       - name: Setup Android SDK tools
         uses: android-actions/setup-android@v3
 
-      - name: Install/Setup Android NDK (r21e) and CMake
+      - name: Install/Setup Android NDK (r23b) and CMake
         uses: nttld/setup-ndk@v1
         id: setup_ndk
         with:
-          ndk-version: r21e
+          ndk-version: r23b
           link-to-sdk: true
 
       - name: Export ANDROID_NDK_HOME
