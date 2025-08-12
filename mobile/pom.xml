@@ -149,9 +149,6 @@
 						<list>push-notifications</list>
 						<list>runtime-args</list>
                     </attachList>
-						<linkerArgs>
-                            <arg>-fPIC</arg>
-                        </linkerArgs>
                 </configuration>
             </plugin>
         </plugins>
@@ -172,13 +169,26 @@
             <properties>
                 <gluonfx.target>android</gluonfx.target>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.gluonhq</groupId>
+                        <artifactId>gluonfx-maven-plugin</artifactId>
+                        <configuration>
+                            <linkerArgs>
+                                <arg>-fPIC</arg>
+                            </linkerArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
-		<profile>
-		  <id>ios</id>
-		  <properties>
-		    <gluonfx.target>ios</gluonfx.target>
-		  </properties>
-		</profile>
+        <profile>
+          <id>ios</id>
+          <properties>
+            <gluonfx.target>ios</gluonfx.target>
+          </properties>
+        </profile>
     </profiles>
     
     
