@@ -140,7 +140,7 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
-                <version>${gluonfx.version}</version><!--$NO-MVN-MAN-VER$-->
+                <version>1.0.14</version><!--$NO-MVN-MAN-VER$-->
                 <configuration>
                     <mainClass>${mainClassName}</mainClass>
                     <attachList>
