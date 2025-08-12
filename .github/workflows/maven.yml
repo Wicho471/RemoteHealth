@@ -218,6 +218,11 @@ jobs:
           export PATH=$GRAALVM_HOME/bin:$PATH
           echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
 
+      - name: Setup Maven version 3.8.8
+        uses: actions/setup-maven@v4
+        with:
+          maven-version: '3.8.8'
+
       - name: Install libraries
         run: |
           sudo apt-get update
