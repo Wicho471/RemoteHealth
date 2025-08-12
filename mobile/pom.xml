@@ -149,7 +149,9 @@
 						<list>push-notifications</list>
 						<list>runtime-args</list>
                     </attachList>
-                    
+						<linkerArgs>
+                            <arg>-fPIC</arg>
+                        </linkerArgs>
                 </configuration>
             </plugin>
         </plugins>
