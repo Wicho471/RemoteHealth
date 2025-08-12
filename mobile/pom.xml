@@ -109,12 +109,6 @@
 		    <artifactId>runtime-args</artifactId>
 		    <version>${attach.version}</version>
 		  </dependency>
-
-			<dependency>
-			  <groupId>com.gluonhq</groupId>
-			  <artifactId>substrate</artifactId>
-			  <version>0.0.66</version>
-			</dependency>
     </dependencies>
 
     <!-- ─────────────────────────────
@@ -140,7 +134,6 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
-                <version>1.0.14</version><!--$NO-MVN-MAN-VER$-->
                 <configuration>
                     <mainClass>${mainClassName}</mainClass>
                     <attachList>
