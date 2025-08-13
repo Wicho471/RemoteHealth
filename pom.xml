@@ -25,7 +25,7 @@
 
         <!-- bibliotecas más usadas -->
         <javafx.version>21.0.6</javafx.version>
-        <gluonfx.version>1.0.27</gluonfx.version>
+        <gluonfx.plugin.version>1.0.27</gluonfx.plugin.version>
     </properties>
 
     <!-- repositorios comunes -->
@@ -51,12 +51,6 @@
                     <configuration>
                         <release>${maven.compiler.release}</release>
                     </configuration>
-                </plugin>
-                
-               <plugin>
-                    <groupId>com.gluonhq</groupId>
-                    <artifactId>gluonfx-maven-plugin</artifactId>
-                    <version>${gluonfx.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
