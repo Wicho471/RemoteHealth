@@ -237,15 +237,17 @@ jobs:
       - name: Setup Android SDK tools
         uses: android-actions/setup-android@v3
 
-      - name: Install/Setup Android NDK (r23b) and CMake
+      # Fuerza NDK r28 y úsalo
+      - name: Install NDK r28
+        id: ndk
         uses: nttld/setup-ndk@v1
-        id: setup_ndk
         with:
-          ndk-version: r23b
+          ndk-version: r28
           link-to-sdk: true
-
-      - name: Export ANDROID_NDK_HOME
-        run: echo "ANDROID_NDK_HOME=${{ steps.setup_ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+      - name: Export ANDROID_NDK vars
+        run: |
+          echo "ANDROID_NDK=${{ steps.ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=${{ steps.ndk.outputs.ndk-path }}" >> $GITHUB_ENV
 
       - name: Build all project modules
         run: mvn -B clean install -DskipTests
@@ -266,7 +268,7 @@ jobs:
         working-directory: mobile
         run: |
           set -e
-          mvn -Pandroid gluonfx:compile gluonfx:link gluonfx:package || (
+          mvn -B -Pandroid -DskipTests gluonfx:build gluonfx:package || (
             echo "Compilación Android fallida. Preparando logs..."
             mkdir -p ../compile-logs/android
             find target/gluonfx/aarch64-android/gvm/log -type f -name "*.log" -exec cp {} ../compile-logs/android/ \; || true

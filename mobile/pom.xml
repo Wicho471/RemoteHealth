@@ -133,7 +133,7 @@
             <!-- GluonFX: build y native-image -->
             <plugin>
                 <groupId>com.gluonhq</groupId>
-                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>${gluonfx.plugin.version}</version>
                 <configuration>
                     <mainClass>${mainClassName}</mainClass>
                     <attachList>
