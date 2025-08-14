@@ -27,8 +27,8 @@
     <properties>
         <!-- Las heredadas del padre ya incluyen maven.compiler.release=17 -->
         <javafx.version>21.0.6</javafx.version>
-        <glisten.version>6.2.0</glisten.version>
-        <attach.version>4.0.16</attach.version>
+        <glisten.version>6.0.5</glisten.version>
+        <attach.version>4.0.8</attach.version>
         <mainClassName>org.axolotlj.remotehealth.mobile.MobileApp</mainClassName>
     </properties>
 

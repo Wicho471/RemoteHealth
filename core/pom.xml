@@ -14,34 +14,12 @@
     <packaging>jar</packaging>
     <name>remotehealth-core</name>
 
-    <!-- ───── DEPENDENCIAS 100 % NO-UI (lógicas / utilidades) ───── -->
-    <dependencies>
-    
-    	<!-- JavaFx compartido -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        
-		<dependency>
-		    <groupId>org.openjfx</groupId>
-		    <artifactId>javafx-fxml</artifactId>
-		    <version>${javafx.version}</version>
-		</dependency>
-		
-		<dependency>
-		  <groupId>org.openjfx</groupId>
-		  <artifactId>javafx-graphics</artifactId>
-		  <version>${javafx.version}</version>
-		</dependency>
-		
-		<dependency>
-		  <groupId>org.openjfx</groupId>
-		  <artifactId>javafx-base</artifactId>
-		  <version>${javafx.version}</version>
-		</dependency>
+    <!-- 
+      NOTA: Las dependencias de JavaFX se han movido a la sección de perfiles 
+      para manejar las versiones específicas de cada sistema operativo.
+    -->
 
+    <dependencies>
         <!-- Cálculo y filtrado de señales -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -86,19 +64,16 @@
             <version>2.1.1</version>
             <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
             <version>2.1.1</version>
         </dependency>
-        
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
             <version>2.2.0</version>
         </dependency>
-        
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-container-grizzly-server</artifactId>
@@ -112,7 +87,7 @@
             <version>[2.0.0,3.0.0)</version>
         </dependency>
         
-        <!-- Libreria para hacer request a servidores (usado para comprobar conexiones a internet) -->
+        <!-- Libreria para hacer request a servidores -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
@@ -125,7 +100,6 @@
             <artifactId>gson</artifactId>
             <version>2.12.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -184,4 +158,81 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- 
+      SECCIÓN DE PERFILES PARA MANEJAR DEPENDENCIAS POR SISTEMA OPERATIVO
+    -->
+    <profiles>
+        <!-- Perfil para Windows -->
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>win</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-fxml</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>win</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-graphics</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>win</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-base</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>win</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Perfil para Linux -->
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>linux</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-fxml</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>linux</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-graphics</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>linux</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-base</artifactId>
+                    <version>${javafx.version}</version>
+                    <classifier>linux</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
