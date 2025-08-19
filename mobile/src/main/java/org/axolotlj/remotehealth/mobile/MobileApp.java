@@ -20,6 +20,7 @@ import com.gluonhq.charm.glisten.mvc.View;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 
+@SuppressWarnings("deprecation")
 public class MobileApp extends MobileApplication {
 	
 	private DataLogger dataLogger = Log.get();

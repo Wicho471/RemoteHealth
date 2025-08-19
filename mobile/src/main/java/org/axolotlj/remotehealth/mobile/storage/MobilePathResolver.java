@@ -14,9 +14,10 @@ public class MobilePathResolver implements PathResolver {
     @Override
     public Path resolveMainDir() {
         Optional<StorageService> storage = StorageService.create();
-        Optional<File> base = storage.flatMap(StorageService::getPrivateStorage);
+        Optional<File> base = storage.flatMap(s -> s.getPublicStorage("Documents"));
 
         if (base.isPresent()) {
+        	System.out.println("Asignando ruta '"+base.get().toPath().resolve("RemoteHealth")+"'");
             return base.get().toPath().resolve("RemoteHealth");
         } else {
             String os = System.getProperty("os.name").toLowerCase();

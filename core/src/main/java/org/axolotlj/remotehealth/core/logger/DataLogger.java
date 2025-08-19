@@ -16,8 +16,3 @@ public abstract class DataLogger {
     public abstract String getLogFilePath();
 }
 
-/**
- * Clase responsable de registrar los mensajes y eventos en un archivo de texto.
- * Soporta múltiples niveles de log y escritura asíncrona para no bloquear el hilo principal.
- */
-

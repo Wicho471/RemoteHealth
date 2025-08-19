@@ -112,13 +112,6 @@
             <version>[2.0.0,3.0.0)</version>
         </dependency>
         
-        <!-- Libreria para hacer request a servidores (usado para comprobar conexiones a internet) -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
-        </dependency>
-        
         <!-- Librerias para manejar JSon -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

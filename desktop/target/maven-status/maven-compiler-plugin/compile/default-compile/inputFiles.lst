@@ -1,44 +1,44 @@
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\scene\DashboardController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\StartupController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\TableUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\includes\FilterTypeOption.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\window\LogsController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\SerialMonitorService.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\SystemMonitor.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\ButtonUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\ChartUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\DesktopPathResolver.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\window\ESP32ToolsController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\SerialOutputBuffer.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\CsvFileInfo.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\ESPLoader.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\SeriesUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\scene\FlashEsp32Controller.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\FileChooserUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\scene\FilterSettingsController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\Fonts.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\DesktopConfigurator.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\DesktopApp.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\SceneUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\scene\SceneManager.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\DesktopPaths.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\includes\MenuBarController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\SerialDeviceInfo.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\DesktopQRDecorer.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\Struct.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\ToolTipUtil.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\DialogPanelUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\Images.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\scene\DeviceSetupController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\includes\FilterOptionsController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\window\CsvSelectorController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\utils\FilterResult.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\scene\SceneType.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\serial\Esp32Detector.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\Utilites.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\AlertUtil.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\scene\DataAnalysisController.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\ui\TextUtils.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\QRScanner.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\service\DesktopDeviceInfoProvider.java
-C:\Users\Luis Emmanuel\Desktop\TecNM\Espacio de trabajo Eclipse\RemoteHealth\desktop\src\main\java\org\axolotlj\remotehealth\desktop\controller\window\DeviceConfigController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/scene/SceneType.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/AlertUtil.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/Struct.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/scene/SceneManager.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/FilterResult.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/includes/FilterTypeOption.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/QRScanner.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/SerialDeviceInfo.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/SceneUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/TextUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/DesktopDeviceInfoProvider.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/FileChooserUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/SystemMonitor.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/ButtonUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/DesktopPathResolver.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/scene/DashboardController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/includes/FilterOptionsController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/scene/FilterSettingsController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/DesktopPaths.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/ChartUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/window/DeviceConfigController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/scene/DataAnalysisController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/window/CsvSelectorController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/DesktopApp.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/Utilites.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/ToolTipUtil.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/SerialOutputBuffer.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/window/ESP32ToolsController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/window/LogsController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/SerialMonitorService.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/Fonts.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/DesktopQRDecorer.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/SeriesUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/DialogPanelUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/DesktopConfigurator.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/scene/FlashEsp32Controller.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/StartupController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/includes/MenuBarController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/Images.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/controller/scene/DeviceSetupController.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/ui/TableUtils.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/ESPLoader.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/service/serial/Esp32Detector.java
+/home/wicho/RemoteHealth/desktop/src/main/java/org/axolotlj/remotehealth/desktop/utils/CsvFileInfo.java
