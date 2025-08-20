@@ -41,6 +41,8 @@ public class QrScannerController {
 	private void selectOrCaptureImage() {
 		dataLogger.logDebug("Intentando seleccionar imagen desde galería");
 
+		
+		
 		Services.get(PicturesService.class).ifPresentOrElse(picturesService -> {
 			javafx.application.Platform.runLater(() -> {
 				Optional<Image> imageOpt = picturesService.loadImageFromGallery();

@@ -5,6 +5,8 @@ public interface PlatformConfigurator {
 	void checkPaths();
 		
 	void getDeviceInfo();
+	
+	void getRuntimeArgs();
 
 	void devConfigs();
 }

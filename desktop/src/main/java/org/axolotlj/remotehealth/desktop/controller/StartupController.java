@@ -364,7 +364,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		var messageQueue = appContext.getMessageQueue();
 		var processedQueue = appContext.getProcessedQueue();
 
-		DataProcessor processor = new DataProcessor(messageQueue, processedQueue, dataLogger);
+		DataProcessor processor = new DataProcessor(messageQueue, processedQueue);
 		appContext.setDataProcessor(processor);
 		processor.startProcessing();
 

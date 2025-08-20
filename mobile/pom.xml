@@ -167,6 +167,7 @@
 			            <list>org.axolotlj.remotehealth.mobile.controller.HomeController</list>
 			            <list>org.axolotlj.remotehealth.mobile.controller.MonitorContoller</list>
 			            <list>org.axolotlj.remotehealth.mobile.controller.QrScannerController</list>
+			            <list>org.axolotlj.remotehealth.mobile.MobileConfigurator</list>	
 			        </reflectionList>
                 
                     <attachList>

@@ -13,8 +13,10 @@ public class MobilePathResolver implements PathResolver {
 	
     @Override
     public Path resolveMainDir() {
+    	System.out.println("Resolviendor rutas");
         Optional<StorageService> storage = StorageService.create();
         Optional<File> base = storage.flatMap(s -> s.getPublicStorage("Documents"));
+    	System.out.println("Seteando rutas exactas");
 
         if (base.isPresent()) {
         	System.out.println("Asignando ruta '"+base.get().toPath().resolve("RemoteHealth")+"'");

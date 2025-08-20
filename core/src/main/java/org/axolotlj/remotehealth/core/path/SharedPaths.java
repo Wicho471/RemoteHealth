@@ -2,8 +2,6 @@ package org.axolotlj.remotehealth.core.path;
 
 import java.util.List;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
-import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.path.verifier.PathsVerifier;
 
 public class SharedPaths {
@@ -151,22 +149,24 @@ public class SharedPaths {
 	public static final String THANKS_TXT = MISC_PATH + "thanks.txt";
 	
     static {
-    	DataLogger dataLogger = Log.get();
-    	dataLogger.logInfo("Verificando presencia de archivos compartidos");
+    	System.err.println();
+    	System.out.println();
+    	System.out.println("Verificando presencia de archivos compartidos");
         try {
             PathsVerifier verifier = new PathsVerifier();
             List<String> missing = verifier.verifyAllPaths(SharedPaths.class);
 
             if (!missing.isEmpty()) {
-            	dataLogger.logWarn("Archivos faltantes en SharedPaths:");
+            	System.err.println("Archivos faltantes en SharedPaths:");
                 for (String path : missing) {
-                	dataLogger.logWarn(" -> " + path);
+                	System.err.println(" -> " + path);
                 }
             } else {
-            	dataLogger.logInfo("Todos los recursos definidos en SharedPaths fueron encontrados.");
+            	System.out.println("Todos los recursos definidos en SharedPaths fueron encontrados.");
             }
         } catch (Exception e) {
-        	dataLogger.logException("Error durante la verificación automática de SharedPaths", e);
+        	System.err.println("Error durante la verificación automática de SharedPaths" + e.getMessage());
+        	e.printStackTrace();
         }
     }
 	public static void main(String[] args) {

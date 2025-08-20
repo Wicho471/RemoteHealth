@@ -10,13 +10,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementación de DataLogger que escribe logs en archivos locales de forma
  * inmediata.
  */
 public class FileDataLogger extends DataLogger {
-	
+
+	private Logger log;
+
 	private final Object lock = new Object();
 
 	private static final DateTimeFormatter FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
@@ -25,8 +29,14 @@ public class FileDataLogger extends DataLogger {
 	private final File logFile;
 	private final BufferedWriter writer;
 
-	public FileDataLogger() throws IOException {
+	public FileDataLogger(Class<?> clazz) throws IOException {
 		super(null);
+		this.log = LoggerFactory.getLogger(clazz);
+
+		System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
+		System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
+		System.setProperty("org.slf4j.simpleLogger.showDateTime", "false");
+		System.setProperty("org.slf4j.simpleLogger.showLevel", "false");
 
 		Path logDir = ConfigFileHelper.getDLogsDir();
 		Files.createDirectories(logDir);
@@ -36,14 +46,16 @@ public class FileDataLogger extends DataLogger {
 
 		this.writer = new BufferedWriter(new FileWriter(logFile, true));
 	}
-	
-	public FileDataLogger(Path logDir, File logFile, BufferedWriter writer) {
-	    super(null);
-	    if (logFile == null || writer == null) {
-	        throw new IllegalArgumentException("logFile y writer no pueden ser null");
-	    }
-	    this.logFile = logFile;
-	    this.writer = writer;
+
+	public FileDataLogger(Path logDir, File logFile, BufferedWriter writer, Class<?> clazz) {
+		super(null);
+		if (logFile == null || writer == null) {
+			throw new IllegalArgumentException("logFile y writer no pueden ser null");
+		}
+
+		this.log = LoggerFactory.getLogger(clazz);
+		this.logFile = logFile;
+		this.writer = writer;
 	}
 
 	@Override
@@ -55,20 +67,19 @@ public class FileDataLogger extends DataLogger {
 	public void logWarn(String message) {
 		writeLog(LogLevel.WARN, message);
 	}
-	
+
 	@Override
 	public void logException(String context, Exception exception) {
-	    String report = ExceptionReporter.generateReport(context, exception);
-	    writeLog(LogLevel.ERROR, report);
+		String report = ExceptionReporter.generateReport(context, exception);
+		writeLog(LogLevel.ERROR, report);
 	}
-	
 
 	@Override
 	public void logException(String message, Throwable throwable) {
 		String report = ExceptionReporter.generateReport(message, throwable);
-	    writeLog(LogLevel.ERROR, report);
+		writeLog(LogLevel.ERROR, report);
 	}
-	
+
 	@Override
 	public void logFatal(String message) {
 		writeLog(LogLevel.FATAL, message);
@@ -81,18 +92,18 @@ public class FileDataLogger extends DataLogger {
 
 	private void writeLog(LogLevel level, String message) {
 		String formatted = formatLogLine(level, message);
-		System.out.println(AnsiConsoleColor.colorForLevel(level, formatted));
-	    synchronized (lock) {
-	        try {
-	            writer.write(formatted);
-	            writer.newLine();
-	            writer.flush();
-	        } catch (IOException e) {
-	            System.err.println("Error al escribir log en archivo: " + e.getMessage());
-	        }
-	    }
+		System.out.println(AnsiConsoleColor.colorForLevel(level, "[Remote Health] " + message));
+		synchronized (lock) {
+			try {
+				writer.write(formatted);
+				writer.newLine();
+				writer.flush();
+			} catch (IOException e) {
+				System.err.println("Error al escribir log en archivo: " + e.getMessage());
+			}
+		}
 	}
-	
+
 	private String formatLogLine(LogLevel level, String message) {
 		String timestamp = LocalDateTime.now().format(LOG_FORMATTER);
 		String threadName = Thread.currentThread().getName();
@@ -119,16 +130,16 @@ public class FileDataLogger extends DataLogger {
 
 	@Override
 	public void close() {
-	    synchronized (lock) {
-	        try {
-	            writer.close();
-	            LogCompressor.overwriteLatest(logFile);
-	            LogCompressor.compress(logFile);
-	            LogCompressor.deleteOriginal(logFile);
-	        } catch (IOException e) {
-	            System.err.println("Error al cerrar FileDataLogger: " + e.getMessage());
-	        }
-	    }
+		synchronized (lock) {
+			try {
+				writer.close();
+				LogCompressor.overwriteLatest(logFile);
+				LogCompressor.compress(logFile);
+				LogCompressor.deleteOriginal(logFile);
+			} catch (IOException e) {
+				System.err.println("Error al cerrar FileDataLogger: " + e.getMessage());
+			}
+		}
 	}
 
 	@Override
@@ -136,4 +147,7 @@ public class FileDataLogger extends DataLogger {
 		return logFile.getAbsolutePath();
 	}
 
+	public void setLog(Logger log) {
+		this.log = log;
+	}
 }

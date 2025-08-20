@@ -11,7 +11,6 @@ org/axolotlj/remotehealth/core/service/datawriter/CsvDataWriter.class
 org/axolotlj/remotehealth/core/path/verifier/PathsVerifier.class
 org/axolotlj/remotehealth/core/config/filt/RealTimeFiltersConfig.class
 org/axolotlj/remotehealth/core/model/AnalysisData.class
-META-INF/maven/org.axolotlj/core/pom.xml
 org/axolotlj/remotehealth/core/validations/ValidationResult.class
 org/axolotlj/remotehealth/core/io/CsvUtils.class
 org/axolotlj/remotehealth/core/simulation/SyntheticDataGenerator.class
@@ -90,7 +89,6 @@ org/axolotlj/remotehealth/core/path/verifier/FileVerifier.class
 org/axolotlj/remotehealth/core/sensor/correction/Interpolator.class
 org/axolotlj/remotehealth/core/sensor/correction/SensorFieldAccessor$1.class
 org/axolotlj/remotehealth/core/model/DeviceInfo.class
-META-INF/maven/org.axolotlj/core/pom.properties
 org/axolotlj/remotehealth/core/logger/NoOpDataLogger.class
 org/axolotlj/remotehealth/core/model/VitalSigns.class
 org/axolotlj/remotehealth/core/concurrent/AsyncExecutor$1.class

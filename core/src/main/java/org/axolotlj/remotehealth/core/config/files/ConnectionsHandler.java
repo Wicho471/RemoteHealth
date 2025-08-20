@@ -1,5 +1,6 @@
 package org.axolotlj.remotehealth.core.config.files;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,8 @@ public class ConnectionsHandler {
         Path configDir = ConfigFileHelper.resolveMainDir();
         Path configFile = configDir.resolve(CONFIG_FILE_NAME);
 
+        if(!Files.exists(configFile)) return connections;
+        
         try {
             ConfigFileHelper.copyDefaultIfMissing(CONFIG_FILE_NAME, configFile);
             connections = JsonUtils.readConnectionsFromFile(configFile);

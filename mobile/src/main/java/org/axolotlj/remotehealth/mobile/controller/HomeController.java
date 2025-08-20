@@ -6,15 +6,13 @@ import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.config.files.ConnectionsHandler;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
-import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
 import org.axolotlj.remotehealth.mobile.navigation.ViewManager;
 import org.axolotlj.remotehealth.mobile.ui.LoadingOverlayManager;
 import org.axolotlj.remotehealth.mobile.ui.MobileAlertUtil;
 
-import com.gluonhq.charm.glisten.application.MobileApplication;
+import com.gluonhq.charm.glisten.application.AppManager;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.control.CharmListCell;
 import com.gluonhq.charm.glisten.control.CharmListView;
@@ -33,7 +31,6 @@ import javafx.scene.layout.HBox;
 
 public class HomeController implements ContextAware , DisposableController{
 
-	private final DataLogger dataLogger = Log.get();
 	private AppContext appContext = AppContext.getInstance();
 
 	@FXML
@@ -55,7 +52,7 @@ public class HomeController implements ContextAware , DisposableController{
 	}
 	
 	public static void configureDefaultAppBar() {
-	    AppBar appBar = MobileApplication.getInstance().getAppBar();
+	    AppBar appBar = AppManager.getInstance().getAppBar();
 	    appBar.setTitleText("RemoteHealth");
 	    appBar.setNavIcon(MaterialDesignIcon.MENU.button(e -> {}));
 	    appBar.getActionItems().clear();
@@ -87,7 +84,7 @@ public class HomeController implements ContextAware , DisposableController{
 				Button btnConfig = new Button("⚙");
 				btnConfig.setOnAction(e -> {
 					MobileAlertUtil.buildingModule();
-					dataLogger.logInfo("Configurar: " + connection);
+					System.out.println("[Remote Health] Configurar: " + connection);
 				});
 
 				// Etiqueta con el nombre
@@ -108,7 +105,7 @@ public class HomeController implements ContextAware , DisposableController{
 	}
 
 	private void startConnection(ConnectionData data) {
-		dataLogger.logInfo("Intentando establecer conexion con -> " + data.toString());
+		System.out.println("[Remote Health] Intentando establecer conexion con -> " + data.toString());
 		LoadingOverlayManager.showLoading();
 		appContext.getWsManager().connect(this::onConnectionSuccess, this::onConnectionFailure, data, data.getIpV6() != null);
 	}
@@ -117,7 +114,7 @@ public class HomeController implements ContextAware , DisposableController{
 		var messageQueue = appContext.getMessageQueue();
 		var processedQueue = appContext.getProcessedQueue();
 
-		DataProcessor processor = new DataProcessor(messageQueue, processedQueue, dataLogger);
+		DataProcessor processor = new DataProcessor(messageQueue, processedQueue);
 		appContext.setDataProcessor(processor);
 		processor.startProcessing();
 

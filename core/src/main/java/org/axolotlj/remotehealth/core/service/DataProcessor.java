@@ -5,7 +5,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 import org.axolotlj.remotehealth.core.sensor.handle.DataParser;
@@ -22,7 +21,6 @@ public class DataProcessor {
 	private BlockingQueue<String> messageQueue;
 	private BlockingQueue<DataPoint> processedQueue;
 	private Thread processorThread;
-	private DataLogger dataLogger;
 	
 	private final List<CommandResponseListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -50,12 +48,10 @@ public class DataProcessor {
 		}
 	}
 
-	public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<DataPoint> processedQueue,
-			DataLogger dataLogger) {
+	public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<DataPoint> processedQueue) {
 		this.active = true;
 		this.messageQueue = messageQueue;
 		this.processedQueue = processedQueue;
-		this.dataLogger = dataLogger;
 	}
 
 	public void startProcessing() {
@@ -93,7 +89,7 @@ public class DataProcessor {
 		if (isCsvEnabled || csvDataWriter != null)
 			return false;
 		try {
-			csvDataWriter = new FileCsvDataWriter(connectionData, patientName, dataLogger);
+			csvDataWriter = new FileCsvDataWriter(connectionData, patientName);
 			isCsvEnabled = true;
 			return true;
 		} catch (Exception e) {

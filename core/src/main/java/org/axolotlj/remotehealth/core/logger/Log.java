@@ -5,11 +5,11 @@ import java.io.IOException;
 public class Log {
     private static DataLogger logger;
 
-    public static DataLogger init() {
+    public static DataLogger init(Class<?> clazz) {
         if (logger != null) return logger; 
 
         try {
-        	logger = new FileDataLogger();
+        	logger = new FileDataLogger(clazz);
         	logger.logInfo("Logger iniciado correctamente");
             return logger;
         } catch (IOException e) {
@@ -27,7 +27,7 @@ public class Log {
 
     public static DataLogger get() {
         if (logger == null) {
-            init(); 
+        	init(null);
         }
         return logger;
     }

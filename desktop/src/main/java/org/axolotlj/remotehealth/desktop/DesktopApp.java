@@ -56,6 +56,7 @@ public class DesktopApp extends Application {
 		PlatformConfigurator configurator = new DesktopConfigurator();
 		configurator.checkPaths();
 		configurator.getDeviceInfo();
+		configurator.getRuntimeArgs();
 		configurator.devConfigs();
 		
 		CommonApp.initialize();

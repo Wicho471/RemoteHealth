@@ -1,13 +1,5 @@
 package org.axolotlj.remotehealth.core.service.datawriter;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
-import org.axolotlj.remotehealth.core.io.FileCompressor;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
-import org.axolotlj.remotehealth.core.model.ConnectionData;
-import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,6 +10,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
+import org.axolotlj.remotehealth.core.io.FileCompressor;
+import org.axolotlj.remotehealth.core.model.ConnectionData;
+import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 
 /**
  * Implementación que escribe datos CSV en archivos físicos de forma asíncrona y con formato estructurado.
@@ -31,11 +30,9 @@ public class FileCsvDataWriter extends CsvDataWriter {
     public final BlockingQueue<String[]> writeQueue;
     private final Thread writerThread;
     private volatile boolean running = true;
-    private DataLogger dataLogger;
 
     @SuppressWarnings("deprecation")
-	public FileCsvDataWriter(ConnectionData connectionData, String patientName, DataLogger dataLogger) throws IOException {
-    	this.dataLogger = dataLogger;
+	public FileCsvDataWriter(ConnectionData connectionData, String patientName) throws IOException {
     	
         Path dataDir = ConfigFileHelper.getDataDir();
         Files.createDirectories(dataDir);
@@ -58,7 +55,7 @@ public class FileCsvDataWriter extends CsvDataWriter {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } catch (IOException e) {
-                    dataLogger.logException("Error al escribir en archivo CSV", e);
+                    System.err.println("Error al escribir en archivo CSV" + e.getMessage());
                 }
             }
         }, "CsvDataWriter-WriterThread");
@@ -73,7 +70,7 @@ public class FileCsvDataWriter extends CsvDataWriter {
 
         String[] values = rawLine.split(",");
         if (values.length != 6) {
-            dataLogger.logWarn("Formato inválido de línea CSV: " + rawLine);
+        	System.out.println("Formato inválido de línea CSV: " + rawLine);
             return;
         }
         writeQueue.offer(values);
@@ -96,11 +93,11 @@ public class FileCsvDataWriter extends CsvDataWriter {
                 FileCompressor.compress(dataFile);
                 Files.deleteIfExists(dataFile.toPath());
             } catch (IOException e) {
-                dataLogger.logException("CsvDataWriter - error al comprimir archivo CSV: " , e);
+                System.err.println("CsvDataWriter - error al comprimir archivo CSV: " + e.getMessage());
             }
-            dataLogger.logDebug("FileCsvDataWriter cerrado correctamente después de vaciar la cola.");
+            System.out.println("FileCsvDataWriter cerrado correctamente después de vaciar la cola.");
         } catch (IOException | InterruptedException e) {
-            dataLogger.logException("Error al cerrar FileCsvDataWriter: " , e);
+            System.err.println("Error al cerrar FileCsvDataWriter: " + e.getMessage());
         }
     }
 

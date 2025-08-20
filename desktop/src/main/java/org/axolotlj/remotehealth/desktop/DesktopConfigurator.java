@@ -1,5 +1,7 @@
 package org.axolotlj.remotehealth.desktop;
 
+import java.util.Properties;
+
 import org.axolotlj.remotehealth.core.CommonApp;
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
@@ -17,6 +19,7 @@ public class DesktopConfigurator implements PlatformConfigurator {
 	
 	static {
 		ConfigFileHelper.setPathResolver(new DesktopPathResolver());
+		Log.init(DesktopApp.class);
 	}
 
 	@Override
@@ -48,5 +51,11 @@ public class DesktopConfigurator implements PlatformConfigurator {
 		if (CommonApp.isDevMode()) {
 
 		}
+	}
+
+	@Override
+	public void getRuntimeArgs() {
+		Properties properties = System.getProperties();
+		properties.forEach((key, value) -> dataLogger.logDebug(key + " = " + value));
 	}
 }

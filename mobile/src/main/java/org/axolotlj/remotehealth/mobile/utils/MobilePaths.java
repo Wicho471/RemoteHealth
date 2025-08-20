@@ -2,8 +2,6 @@ package org.axolotlj.remotehealth.mobile.utils;
 
 import java.util.List;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
-import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.path.verifier.PathsVerifier;
 
 public class MobilePaths {
@@ -16,23 +14,22 @@ public class MobilePaths {
     public static final String MONITOR = VIEW_PATH + "monitor.fxml";
     
     static {
-    	DataLogger dataLogger = Log.get();
-    	dataLogger.logInfo("Verificando presencia de archivos para mobile");
+    	System.out.println("Verificando presencia de archivos para mobile");
         try {
         	
             PathsVerifier verifier = new PathsVerifier();
             List<String> missing = verifier.verifyAllPaths(MobilePaths.class);
 
             if (!missing.isEmpty()) {
-                dataLogger.logWarn("Archivos faltantes en MobilePaths:");
+            	System.err.println("Archivos faltantes en MobilePaths:");
                 for (String path : missing) {
-                	dataLogger.logWarn(" -> " + path);
+                	System.err.println(" -> " + path);
                 }
             } else {
-            	dataLogger.logInfo("Todos los recursos definidos en MobilePaths fueron encontrados.");
+            	System.out.println("Todos los recursos definidos en MobilePaths fueron encontrados.");
             }
         } catch (Exception e) {
-            dataLogger.logException("Error durante la verificación automática de MobilePaths", e);
+        	System.err.println("Error durante la verificación automática de MobilePaths "+ e.getMessage());
         }
     }
 }

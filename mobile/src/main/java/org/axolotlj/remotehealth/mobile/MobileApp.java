@@ -6,11 +6,11 @@ import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.CommonApp;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
 import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
-import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.mobile.navigation.ViewManager;
 import org.axolotlj.remotehealth.mobile.utils.DevUtils;
 import org.axolotlj.remotehealth.mobile.utils.MobilePaths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gluonhq.attach.lifecycle.LifecycleEvent;
 import com.gluonhq.attach.lifecycle.LifecycleService;
@@ -23,25 +23,28 @@ import javafx.scene.control.Label;
 @SuppressWarnings("deprecation")
 public class MobileApp extends MobileApplication {
 	
-	private DataLogger dataLogger = Log.get();
+	private static final Logger dataLogger = LoggerFactory.getLogger(MobileApp.class);
 
 	@Override
 	public void init() {
-
+		System.out.println("[Remote Health]  Entrando en el metodo init");
 		LifecycleService.create().ifPresent(service -> {
 			service.addListener(LifecycleEvent.PAUSE, () -> {
-				dataLogger.logInfo("App en pausa");
+				System.out.println();
+				dataLogger.info("[Remote Health]  App en pausa");
 			});
 			service.addListener(LifecycleEvent.RESUME, () -> {
-				dataLogger.logInfo("App reanudada");
+				dataLogger.info("[Remote Health] App reanudada");
 			});
 		});
 		initViews();
+		System.out.println("[Remote Health] Saliendo del metodo init");
 	}
 
 	@Override
 	public void postInit(Scene scene) {
-		dataLogger.logDebug("Iniciando post init");
+		System.out.println("[Remote Health]  Iniciando post init");
+		dataLogger.info("[Remote Health] Iniciando post init");
 		if (DevUtils.isDevMode()) {
 			scene.getWindow().setWidth(400);
 			scene.getWindow().setHeight(700);
@@ -51,7 +54,7 @@ public class MobileApp extends MobileApplication {
 
 	@Override
 	public void stop() {
-		dataLogger.logInfo("Aplicación cerrándose");
+		dataLogger.info("[Remote Health] Aplicación cerrándose");
 		AppContext.getInstance().finalize();
 	}
 
@@ -69,19 +72,26 @@ public class MobileApp extends MobileApplication {
 		try {
 			return FxmlUtils.loadFXML(fxml).load();
 		} catch (IOException e) {
-			dataLogger.logException("Ocurrio un error cargando la vista '"+fxml+"'", e);
+			System.err.println("[Remote Health] Ocurrio un error cargando la vista '"+fxml+"'");
+			dataLogger.error("[Remote Health] Ocurrio un error cargando la vista '"+fxml+"'", e);
+			e.printStackTrace();
 			return new View(new Label("Error cargando " + fxml));
 		}
 	}
 
 	public static void main(String[] args) {
+		dataLogger.info("Remote Health] Impresion de mensaje con Logger");
+		System.out.println("[Remote Health] Impresion de mensaje con System.out.println");		
+		
 		PlatformConfigurator configurator = new MobileConfigurator();
 		configurator.checkPaths();
 		configurator.getDeviceInfo();
+		configurator.getRuntimeArgs();
 		configurator.devConfigs();
+		dataLogger.info("[Remote Health] Configuracion terminada ");
 		
 		CommonApp.initialize();
-
+		
 		launch(args);
 	}
 }
