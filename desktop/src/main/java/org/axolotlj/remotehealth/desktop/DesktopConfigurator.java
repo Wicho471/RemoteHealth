@@ -19,7 +19,7 @@ public class DesktopConfigurator implements PlatformConfigurator {
 	
 	static {
 		ConfigFileHelper.setPathResolver(new DesktopPathResolver());
-		Log.init(DesktopApp.class);
+		Log.init();
 	}
 
 	@Override
