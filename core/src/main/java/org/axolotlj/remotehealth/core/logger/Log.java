@@ -9,6 +9,7 @@ public class Log {
 
 		try {
 			logger = new FileDataLogger();
+			System.out.println("[Remote Health] Logger iniciado correctamente");
 			logger.logInfo("Logger iniciado correctamente");
 			return logger;
 		} catch (Exception e) {
@@ -18,6 +19,7 @@ public class Log {
 				return logger = new Slf4jFileDataLogger();
 			} catch (Exception e2) {
 				System.err.println("Fallo inesperado al inicializar el loggers, se usará NoOp: \n" + e.getMessage());
+				e.printStackTrace();
 				return logger = new NoOpDataLogger();
 			}
 		}

@@ -3,31 +3,39 @@ package org.axolotlj.remotehealth.mobile;
 import java.io.IOException;
 
 import org.axolotlj.remotehealth.core.AppContext;
-import org.axolotlj.remotehealth.core.CommonApp;
-import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
 import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.mobile.navigation.ViewManager;
-import org.axolotlj.remotehealth.mobile.storage.MobilePathResolver;
-import org.axolotlj.remotehealth.mobile.utils.DevUtils;
+import org.axolotlj.remotehealth.mobile.service.websocket.WebSocketManager;
+import org.axolotlj.remotehealth.mobile.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.mobile.utils.MobilePaths;
 
 import com.gluonhq.attach.lifecycle.LifecycleEvent;
 import com.gluonhq.attach.lifecycle.LifecycleService;
+import com.gluonhq.attach.util.Platform;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.mvc.View;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 
+@SuppressWarnings("deprecation")
 public class MobileApp extends MobileApplication {
 	
-	//private static final Logger dataLogger = LoggerFactory.getLogger(MobileApp.class);
+	public static PlatformConfigurator configurator;
+
+	static {
+		System.out.println("[Remote Health] preferIPv4Stack=" + System.getProperty("java.net.preferIPv4Stack"));
+		System.out.println("[Remote Health] preferIPv6Addresses=" + System.getProperty("java.net.preferIPv6Addresses"));
+	}
 	
 	@Override
 	public void init() {
+		System.out.println("[Remote Health] Iniciando Init");
+		System.out.println("[Remote Health] Revisando informacion del disp");
+		configurator.getDeviceInfo();
 		DataLogger dataLogger = Log.get();
 		dataLogger.logDebug("Entrando en el metodo init");
 		LifecycleService.create().ifPresent(service -> {
@@ -40,18 +48,20 @@ public class MobileApp extends MobileApplication {
 		});
 		initViews();
 		dataLogger.logDebug("Saliendo del metodo init");
+		System.out.println("[Remote Health] Terminando init");
 	}
 
 	@Override
 	public void postInit(Scene scene) {
-//		System.out.println("  Iniciando post init");
+		System.out.println("[Remote Health] Iniciando post init");
 		Log.get().logDebug("Iniciando post init");
-		if (DevUtils.isDevMode()) {
-			Log.get().logDebug("Modo desarrolador detectado, cambiando disposicion de la pantalla");
+		if (Platform.isDesktop()) {
+			Log.get().logDebug("Modo escritorio, cambiando disposicion de la pantalla");
 			scene.getWindow().setWidth(400);
 			scene.getWindow().setHeight(700);
 		}
 		ViewManager.showHomeView();
+		System.out.println("[Remote Health] Terminando post init");
 	}
 
 	@Override
@@ -75,23 +85,28 @@ public class MobileApp extends MobileApplication {
 			return FxmlUtils.loadFXML(fxml).load();
 		} catch (IOException e) {
 //			System.err.println(" Ocurrio un error cargando la vista '"+fxml+"'");
-			Log.get().logException("Ocurrio un error cargando la vista '"+fxml+"'", e);
+			Log.get().logException("Ocurrio un error cargando la vista '" + fxml + "'", e);
 			e.printStackTrace();
 			return new View(new Label("Error cargando " + fxml));
 		}
 	}
 
 	public static void main(String[] args) {
-		PlatformConfigurator configurator = new MobileConfigurator();
+            
+		System.out.println("[Remote Health]");
+		MobileApp.configurator = new MobileConfigurator();
+		System.out.println("[Remote Health] Revisando rutas");
 		configurator.checkPaths();
-		configurator.getDeviceInfo();
+		System.out.println("[Remote Health] Revisando argumentos del del disp");
 		configurator.getRuntimeArgs();
+		System.out.println("[Remote Health] Revisando configuraciones del administrador");
 		configurator.devConfigs();
-		
+
+		System.out.println("[Remote Health] Configuracion terminada");
 		Log.get().logInfo("Configuracion terminada ");
-		
-		CommonApp.initialize();
-		
+
+		// CommonApp.initialize();
+		AppContext.initialize(new WebSocketServerSimulator(), queue -> new WebSocketManager(queue));
 		launch(args);
 	}
 }

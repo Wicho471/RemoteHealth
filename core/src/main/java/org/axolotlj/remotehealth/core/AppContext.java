@@ -1,13 +1,14 @@
 package org.axolotlj.remotehealth.core;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Function;
 
 import org.axolotlj.remotehealth.core.config.files.GeneralConfig;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
-import org.axolotlj.remotehealth.core.service.websocket.WebSocketManager;
-import org.axolotlj.remotehealth.core.service.websocket.WebSocketServerSimulator;
+import org.axolotlj.remotehealth.core.service.websocket.IWebSocketManager;
+import org.axolotlj.remotehealth.core.service.websocket.IWebSocketServerSimulator;
 
 /**
  * Contenedor singleton del contexto de la aplicación.
@@ -16,32 +17,33 @@ public class AppContext {
 
 	private static AppContext instance;
 
-	private final WebSocketServerSimulator simulator;
 	private final LinkedBlockingQueue<String> messageQueue;
 	private final LinkedBlockingQueue<DataPoint> processedQueue;
 
-	private final WebSocketManager wsManager;
+	private final IWebSocketServerSimulator simulator;
+	private final IWebSocketManager wsManager;
+	
 	private DataProcessor dataProcessor;
 	private GeneralConfig generalConfig;
 
-	private AppContext() {
+	private AppContext(IWebSocketServerSimulator simulator, Function<LinkedBlockingQueue<String>, IWebSocketManager> wsFactory) {
 		this.messageQueue = new LinkedBlockingQueue<>();
 		this.processedQueue = new LinkedBlockingQueue<>();
-		this.simulator = new WebSocketServerSimulator();
-		this.wsManager = new WebSocketManager(messageQueue);
+		this.simulator = simulator;
+		this.wsManager = wsFactory.apply(this.messageQueue); 
 		this.generalConfig = new GeneralConfig();
 	}
 
-	public static void initialize() {
-		
+	public static void initialize(IWebSocketServerSimulator simulator,
+			Function<LinkedBlockingQueue<String>, IWebSocketManager> wsFactory) {
 		Log.get().logDebug("Inicializando AppContext");
-	    if (instance == null) {
-	        instance = new AppContext();
-	    } else {
-	    	Log.get().logWarn("Ya existe una instancia de AppContext");
-	    }
+		if (instance == null) {
+			instance = new AppContext(simulator,wsFactory);
+		} else {
+			Log.get().logWarn("Ya existe una instancia de AppContext");
+		}
 	}
-	
+
 	public static AppContext getInstance() {
 		if (instance == null) {
 			throw new IllegalStateException("AppContext no ha sido inicializado.");
@@ -49,11 +51,11 @@ public class AppContext {
 		return instance;
 	}
 
-	public WebSocketManager getWsManager() {
+	public IWebSocketManager getWsManager() {
 		return wsManager;
 	}
 
-	public WebSocketServerSimulator getSimulator() {
+	public IWebSocketServerSimulator getSimulator() {
 		return simulator;
 	}
 
@@ -104,8 +106,8 @@ public class AppContext {
 		}
 		Log.get().close();
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 	}
 }

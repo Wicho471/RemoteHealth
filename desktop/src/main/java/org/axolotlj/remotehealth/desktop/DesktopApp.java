@@ -9,6 +9,8 @@ import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.util.Debug;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 
 import javafx.application.Application;
@@ -58,6 +60,8 @@ public class DesktopApp extends Application {
 		configurator.getDeviceInfo();
 		configurator.getRuntimeArgs();
 		configurator.devConfigs();
+		
+		AppContext.initialize(new WebSocketServerSimulator(), queue -> new WebSocketManager(queue));
 		
 		CommonApp.initialize();
 

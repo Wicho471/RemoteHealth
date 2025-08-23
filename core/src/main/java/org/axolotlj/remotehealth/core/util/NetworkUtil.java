@@ -1,23 +1,24 @@
 package org.axolotlj.remotehealth.core.util;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URI;
 import java.util.Enumeration;
-import java.util.function.Consumer;
 
-import org.glassfish.tyrus.client.ClientManager;
+import org.axolotlj.remotehealth.core.logger.DataLogger;
+import org.axolotlj.remotehealth.core.logger.Log;
 
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.Endpoint;
-import jakarta.websocket.EndpointConfig;
-import jakarta.websocket.Session;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Utilidad para validar estados de conectividad de red.
  */
 public class NetworkUtil {
+	
+	public static final DataLogger DATA_LOGGER = Log.get();
 
     public static boolean isReachable(String ip) {
     	if (ip == null) return false;
@@ -103,7 +104,27 @@ public class NetworkUtil {
      * @return true si hay conexión a Internet
      */
     public static boolean isInternetAvailable() {
-        return isReachable("8.8.8.8"); // Google DNS
+		OkHttpClient client = new OkHttpClient();
+		Request request = new Request.Builder()
+		    .url("https://www.google.com/generate_204")
+		    .build();
+		try (Response response = client.newCall(request).execute()) {
+		    return response.isSuccessful();
+		} catch (Exception e) {
+			DATA_LOGGER.logException("Ocurrio un error al intentar revisar conetividad a internet", e);
+		} finally {
+		    client.dispatcher().executorService().shutdown();
+		    client.connectionPool().evictAll();
+		    
+		    if (client.cache() != null) {
+		        try {
+					client.cache().close();
+				} catch (IOException e) {
+					DATA_LOGGER.logException("Ocurrio un error eliminando cache", e);
+				}
+		    }
+		}
+		return false;
     }
 
     /**
@@ -112,36 +133,47 @@ public class NetworkUtil {
      * @return true si puede alcanzar una dirección IPv6 pública
      */
     public static boolean isGlobalIPv6Available() {
-        try {
-            InetAddress ipv6 = InetAddress.getByName("2001:4860:4860::8888"); // Google IPv6 DNS
-            return ipv6.isReachable(1000);
+        OkHttpClient client = new OkHttpClient();
+        String testUrl = "http://[2606:4700:4700::1111]/";
+
+        Request request = new Request.Builder()
+                .url(testUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.isSuccessful();
         } catch (Exception e) {
-            System.err.println("NetworkUtil::isGlobalIPv6Available - Error IPv6: " + e.getMessage());
+        	DATA_LOGGER.logException("Ocurrio un error al intentar revisar conetividad a internet", e);
             return false;
+        } finally {
+            client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
+            
+		    if (client.cache() != null) {
+		        try {
+					client.cache().close();
+				} catch (IOException e) {
+					DATA_LOGGER.logException("Ocurrio un error eliminando cache", e);
+				}
+		    }
         }
     }
     
-    @Deprecated
-    public static void ping(URI uri, Consumer<Boolean> resultHandler) {
-        ClientManager client = ClientManager.createClient();
-        try {
-			client.asyncConnectToServer(new Endpoint() {
-			    @Override
-			    public void onOpen(Session session, EndpointConfig config) {
-			        try {
-			            session.close(); // conexión exitosa, cerrar de inmediato
-			        } catch (Exception ignored) { }
-			        resultHandler.accept(true);
+    public static boolean isSupportedIpv6() {
+		try {
+			for (NetworkInterface ni : java.util.Collections.list(NetworkInterface.getNetworkInterfaces())) {
+			    for (InetAddress address : java.util.Collections.list(ni.getInetAddresses())) {
+			        if (address instanceof java.net.Inet6Address) {
+			        	DATA_LOGGER.logDebug("Encontrada direccion IPv6: " + address.getHostAddress());
+			            return true;
+			        }
 			    }
-
-			    @Override
-			    public void onError(Session session, Throwable thr) {
-			        resultHandler.accept(false);
-			    }
-			}, uri);
-		} catch (DeploymentException e) {
-			resultHandler.accept(false);
-		}
-    }
+			}
+			return false;
+		} catch (SocketException e) {
+			DATA_LOGGER.logException("Ocurrio un erro inesperado", e);
+			return false;
+		} 
+	}
 }
 

@@ -38,6 +38,14 @@
             <id>gluon-releases</id>
             <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
         </repository>
+	     <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+	      <repository>
+        <id>google</id>
+        <url>https://maven.google.com/</url>
+    </repository>
     </repositories>
 
     <!-- plug-in de compilación estándar (heredable) -->

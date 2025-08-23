@@ -70,7 +70,7 @@
             </exclusions>
         </dependency>
 
-        <!-- Gluon Attach (servicios de dispositivo) -->
+   		 <!-- Gluon Attach (servicios de dispositivo) -->
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>display</artifactId>
@@ -129,21 +129,40 @@
 		    <artifactId>runtime-args</artifactId>
 		    <version>${attach.version}</version>
 		  </dependency>
+		  <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>connectivity</artifactId>
+		    <version>${attach.version}</version>
+		  </dependency>
+		  
+		  <dependency>
+		    <groupId>com.gluonhq.attach</groupId>
+		    <artifactId>local-notifications</artifactId>
+		    <version>${attach.version}</version>
+		  </dependency>
+		  
+<!--		  <dependency>
+			    <groupId>com.squareup.okhttp3</groupId>
+			    <artifactId>okhttp-android</artifactId>
+			    <version>5.1.0</version>
+			    <type>aar</type>
+				<scope>runtime</scope>
+		  </dependency>-->
+
 		  
 </dependencies>
 
 
-
-    <!-- ─────────────────────────────
+	<!-- ─────────────────────────────
          REPOSITORIOS  (ya heredados del padre)
          ───────────────────────────── -->
 
-    <!-- ─────────────────────────────
+	<!-- ─────────────────────────────
          PLUGINS DE BUILD
          ───────────────────────────── -->
     <build>
         <plugins>
-            <!-- JavaFX RUN (útil para simular) -->
+			<!-- JavaFX RUN (útil para simular) -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -153,7 +172,7 @@
                 </configuration>
             </plugin>
 
-            <!-- GluonFX: build y native-image -->
+			<!-- GluonFX: build y native-image -->
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
@@ -163,11 +182,16 @@
                 	
                 	<target>android</target>
                 	
+					<bundlesList>
+					    <list>org.axolotlj.remotehealth.shared.lang.messages</list>
+					</bundlesList>
+                	
 			        <reflectionList>
 			            <list>org.axolotlj.remotehealth.mobile.controller.HomeController</list>
 			            <list>org.axolotlj.remotehealth.mobile.controller.MonitorContoller</list>
 			            <list>org.axolotlj.remotehealth.mobile.controller.QrScannerController</list>
 			            <list>org.axolotlj.remotehealth.mobile.MobileConfigurator</list>	
+			            <list>org.axolotlj.remotehealth.core.model.ConnectionData</list>
 			        </reflectionList>
                 
                     <attachList>
@@ -182,20 +206,19 @@
                         <list>device</list>
 						<list>push-notifications</list>
 						<list>runtime-args</list>
+						<list>connectivity</list>
+						<list>local-notifications</list>
                     </attachList>
-                    
                     
 					<mainClass>${mainClassName}</mainClass>
                     <appIdentifier>org.axolotlj.remotehealth.mobile</appIdentifier>
-
-
 					
 					
 					<releaseConfiguration>
-						
+
 						<!-- for iOS -->
-					    
-					    <!-- for Android -->
+
+						<!-- for Android -->
 					    <appLabel>RemoteHealth</appLabel>
 					    
 					    <versionCode>${version.code}</versionCode>
@@ -207,7 +230,18 @@
 					    <providedKeyAliasPassword>${android.keyalias.password}</providedKeyAliasPassword>
 
 					</releaseConfiguration>
+				    <nativeImageArgs>
+			        	<nativeImageArg>-J-Xmx8g</nativeImageArg>
 
+			        	<nativeImageArg>--enable-http</nativeImageArg>
+						<nativeImageArg>--enable-https</nativeImageArg>
+						<nativeImageArg>--enable-url-protocols=http,https</nativeImageArg>
+
+			        </nativeImageArgs>
+					<runtimeArgs>
+			        	<arg>-Djava.net.preferIPv4Stack=false</arg>
+			        	<arg>-Djava.net.preferIPv6Addresses=true</arg>
+			        </runtimeArgs>
                 </configuration>
             </plugin>
         </plugins>
@@ -221,7 +255,7 @@
 	</repositories>
 
 
-    <!-- Perfil rápido para Android: mvn -Pandroid gluonfx:build -->
+	<!-- Perfil rápido para Android: mvn -Pandroid gluonfx:build -->
     <profiles>
 		<profile>
 		    <id>android</id>

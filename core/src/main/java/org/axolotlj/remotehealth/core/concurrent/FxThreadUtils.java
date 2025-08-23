@@ -22,6 +22,8 @@ public final class FxThreadUtils {
 			} else {
 				Platform.runLater(action);
 			}
+		} catch (IllegalStateException e) {
+			Log.get().logException("El hilo JavaFx aun no esta inicializado", e);
 		} catch (Exception e) {
 			Log.get().logException("Ocurrio un error inesperado en el hilo JavaFX", e);
 		}

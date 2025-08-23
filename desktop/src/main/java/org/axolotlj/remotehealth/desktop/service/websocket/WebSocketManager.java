@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.service.websocket;
+package org.axolotlj.remotehealth.desktop.service.websocket;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
+import org.axolotlj.remotehealth.core.service.websocket.IWebSocketManager;
 import org.glassfish.tyrus.client.ClientManager;
 
 import jakarta.websocket.CloseReason;
@@ -21,7 +22,7 @@ import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 
-public class WebSocketManager {
+public class WebSocketManager implements IWebSocketManager { 
 
 	private BlockingQueue<String> messageQueue;
 	private final AtomicReference<Session> sessionRef = new AtomicReference<>();
@@ -187,7 +188,7 @@ public class WebSocketManager {
 			dataLogger.logException("Error al cerrar WebSocket", e);
 		}
 		if (wsExecutor != null && !wsExecutor.isShutdown()) {
-			wsExecutor.shutdownNow(); // ⛔ Mata hilos de Tyrus
+			wsExecutor.shutdownNow(); 
 			wsExecutor = null;
 		}
 	}

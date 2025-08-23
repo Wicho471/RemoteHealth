@@ -10,10 +10,10 @@ public class CommonApp {
 	private static final boolean IS_DEV_MODE = System.getProperty("app.env", "dev").equals("dev");
 	
 	public static void initialize() {
+		System.out.println("[Remote Health] CommonApp");
 		Locale savedLocale = LanguageConfig.loadSavedLocale();
 		I18n.setLocale(savedLocale);
 
-		AppContext.initialize();
 	}
 	
 	public static boolean isDevMode() {

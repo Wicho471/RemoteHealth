@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.service.websocket;
+package org.axolotlj.remotehealth.desktop.service.websocket;
 
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
@@ -7,6 +7,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
 import org.axolotlj.remotehealth.core.logger.DataLogger;
+import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.path.SharedPaths;
 import org.axolotlj.remotehealth.core.simulation.DataPayloadGenerator;
 import org.axolotlj.remotehealth.core.simulation.RealDataSimulator;
@@ -25,11 +26,10 @@ public class SimulatedEndpoint {
 
 	private ScheduledExecutorService executor;
 	private DataPayloadGenerator generator;
-	private DataLogger dataLogger;
+	private DataLogger dataLogger = Log.get();
 
 	public SimulatedEndpoint() {
-		this.dataLogger = WebSocketServerSimulator.getDataLogger();
-		switch (WebSocketServerSimulator.getGenerationMode()) {
+		switch (WebSocketServerSimulator.generationMode) {
 		case REAL -> this.generator = new RealDataSimulator(SharedPaths.REF_CSV.substring(1));
 		case SYNTHETIC -> this.generator = new SyntheticDataGenerator(); 
 		}

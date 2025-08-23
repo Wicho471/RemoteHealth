@@ -18,12 +18,12 @@ import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
-import org.axolotlj.remotehealth.core.service.websocket.WebSocketManager;
-import org.axolotlj.remotehealth.core.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.core.util.NetworkUtil;
 import org.axolotlj.remotehealth.desktop.controller.window.DeviceConfigController;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ButtonUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
@@ -101,7 +101,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 
 	@FXML
 	private void connectSimuBtnHandle() {
-		WebSocketServerSimulator simulator = appContext.getSimulator();
+		WebSocketServerSimulator simulator = (WebSocketServerSimulator) appContext.getSimulator();
 		if (simulator.isActive()) {
 			startConnection(simulator.getConnection(), false);
 		}
@@ -121,7 +121,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 	@Override
 	public void setAppContext(AppContext context) {
 		StartupController.appContext = context;
-		StartupController.wsManager = context.getWsManager();
+		StartupController.wsManager = (WebSocketManager) context.getWsManager();
 	}
 
 	@SuppressWarnings("unchecked")

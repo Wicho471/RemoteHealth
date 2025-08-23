@@ -21,10 +21,10 @@ import org.axolotlj.remotehealth.core.lang.LocaleChangeNotifier;
 import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.path.SharedPaths;
-import org.axolotlj.remotehealth.core.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.core.simulation.GenerationMode;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.DialogPanelUtils;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
@@ -81,7 +81,7 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 		// Selección por defecto (opcional)
 		option1Sim.setSelected(true);
 
-		switch (WebSocketServerSimulator.getGenerationMode()) {
+		switch (WebSocketServerSimulator.generationMode) {
 		case REAL:
 			option1Sim.setSelected(true);
 			break;
@@ -217,7 +217,7 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	@Override
 	public void setAppContext(AppContext context) {
 		this.appContext = context;
-		this.simu = appContext.getSimulator();
+		this.simu = (WebSocketServerSimulator) appContext.getSimulator();
 	}
 
 	@Override

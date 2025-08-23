@@ -32,15 +32,11 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?import com.gluonhq.charm.glisten.control.AppBar?>
-<?import com.gluonhq.charm.glisten.control.BottomNavigation?>
-<?import com.gluonhq.charm.glisten.control.BottomNavigationButton?>
 <?import com.gluonhq.charm.glisten.control.CharmListView?>
-<?import com.gluonhq.charm.glisten.control.Icon?>
-<?import com.gluonhq.charm.glisten.control.TextField?>
 <?import com.gluonhq.charm.glisten.mvc.View?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -48,20 +44,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+
 <View fx:id="homeView" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.remotehealth.mobile.controller.HomeController">
    <bottom>
-      <BottomNavigation>
-         <BottomNavigationButton>
-            <graphic>
-               <Icon content="FAVORITE" />
-            </graphic>
-         </BottomNavigationButton>
-         <BottomNavigationButton>
-            <graphic>
-               <Icon content="BOOKMARK" />
-            </graphic>
-         </BottomNavigationButton>
-      </BottomNavigation>
    </bottom>
    <top>
    </top>
@@ -76,7 +61,7 @@
                            <graphic>
                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/busqueda.png" />
+                                    <Image url="@../img/buttons/busqueda.png" />
                                  </image>
                               </ImageView>
                            </graphic>
