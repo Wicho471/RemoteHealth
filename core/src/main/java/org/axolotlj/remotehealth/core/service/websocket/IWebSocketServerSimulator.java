@@ -10,42 +10,52 @@ import javafx.beans.property.BooleanProperty;
  */
 public interface IWebSocketServerSimulator {
 
-    /**
-     * Inicia el servidor WebSocket.
-     */
-    void start();
+	String LOCAL_IPV4 = "127.0.0.1";
+	String LOCAL_IPV6 = "::1";
+	int PORT=8081;
+	String PATH = "/simulator";
+	String NAME = "Simulador";
 
-    /**
-     * Detiene el servidor WebSocket.
-     */
-    void stop();
+	/**
+	 * Inicia el servidor WebSocket.
+	 */
+	void start();
 
-    /**
-     * Reinicia el servidor WebSocket si está activo, o lo inicia si no lo está.
-     */
-    void restart();
+	/**
+	 * Detiene el servidor WebSocket.
+	 */
+	void stop();
 
-    /**
-     * Indica si el servidor está activo.
-     * @return true si está activo, false en caso contrario
-     */
-    boolean isActive();
+	/**
+	 * Reinicia el servidor WebSocket si está activo, o lo inicia si no lo está.
+	 */
+	void restart();
 
-    /**
-     * Propiedad observable que refleja el estado activo del servidor.
-     * @return propiedad booleana activa
-     */
-    BooleanProperty activeProperty();
+	/**
+	 * Indica si el servidor está activo.
+	 * 
+	 * @return true si está activo, false en caso contrario
+	 */
+	boolean isActive();
 
-    /**
-     * Configura el modo de generación de datos.
-     * @param generationMode modo de generación
-     */
-    void setGenerationMode(GenerationMode generationMode);
+	/**
+	 * Propiedad observable que refleja el estado activo del servidor.
+	 * 
+	 * @return propiedad booleana activa
+	 */
+	BooleanProperty activeProperty();
 
-    /**
-     * Obtiene los datos de conexión del servidor.
-     * @return objeto ConnectionData con información de la conexión
-     */
-    ConnectionData getConnection();
+	/**
+	 * Configura el modo de generación de datos.
+	 * 
+	 * @param generationMode modo de generación
+	 */
+	void setGenerationMode(GenerationMode generationMode);
+
+	/**
+	 * Obtiene los datos de conexión del servidor.
+	 * 
+	 * @return objeto ConnectionData con información de la conexión
+	 */
+	ConnectionData getConnection();
 }

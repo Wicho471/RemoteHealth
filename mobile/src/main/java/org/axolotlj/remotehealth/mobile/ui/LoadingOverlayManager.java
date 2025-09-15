@@ -1,7 +1,7 @@
 package org.axolotlj.remotehealth.mobile.ui;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.ProgressIndicator;

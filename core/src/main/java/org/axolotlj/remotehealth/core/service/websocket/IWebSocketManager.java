@@ -1,5 +1,7 @@
 package org.axolotlj.remotehealth.core.service.websocket;
 
+import java.util.function.Consumer;
+
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 
 /**
@@ -16,7 +18,7 @@ public interface IWebSocketManager {
      * @param connectionData Datos de conexión (URI, identificadores, etc.).
      * @param isGlobal Define si se debe usar IPv6 (true) o IPv4 (false).
      */
-    void connect(Runnable onSuccess, Runnable onFailure, ConnectionData connectionData, boolean isGlobal);
+    void connect(Runnable onSuccess, Consumer<String> onFailure, ConnectionData connectionData, boolean isGlobal);
 
     /**
      * Envía un mensaje de texto por el WebSocket.
@@ -52,4 +54,7 @@ public interface IWebSocketManager {
      * @return true si la conexión está activa, false en caso contrario.
      */
     boolean isConnected();
+    
+    
+    void setOnDisconnectHandler(Consumer<String> handler);
 }

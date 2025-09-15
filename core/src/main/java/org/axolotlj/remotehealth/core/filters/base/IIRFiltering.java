@@ -2,8 +2,8 @@ package org.axolotlj.remotehealth.core.filters.base;
 
 import com.github.psambit9791.jdsp.signal.Convolution;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import com.github.psambit9791.jdsp.filter.Butterworth;
 

@@ -1,9 +1,9 @@
-package org.axolotlj.remotehealth.core.javafx;
+package org.axolotlj.remotehealth.core.javafx.util;
 
-import static org.axolotlj.remotehealth.core.concurrent.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

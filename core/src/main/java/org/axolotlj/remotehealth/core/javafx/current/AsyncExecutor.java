@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.concurrent;
+package org.axolotlj.remotehealth.core.javafx.current;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +21,7 @@ public class AsyncExecutor {
         };
     }
 
-    public static <T> void runFilterTask(String executorName, Supplier<T> task, Consumer<T> onSuccess, Consumer<Throwable> onError) {
+    public static <T> void runAsyncTask(String executorName, Supplier<T> task, Consumer<T> onSuccess, Consumer<Throwable> onError) {
         ExecutorService executor = Executors.newSingleThreadExecutor(namedThreadFactory(executorName));
 
         Task<T> javafxTask = new Task<>() {

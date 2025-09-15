@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
-import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
+import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.mobile.navigation.ViewManager;
 import org.axolotlj.remotehealth.mobile.service.websocket.WebSocketManager;
 import org.axolotlj.remotehealth.mobile.service.websocket.WebSocketServerSimulator;

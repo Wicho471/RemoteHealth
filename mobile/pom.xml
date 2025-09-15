@@ -192,6 +192,12 @@
 			            <list>org.axolotlj.remotehealth.mobile.controller.QrScannerController</list>
 			            <list>org.axolotlj.remotehealth.mobile.MobileConfigurator</list>	
 			            <list>org.axolotlj.remotehealth.core.model.ConnectionData</list>
+			            
+					    <list>java.net.NetworkInterface</list>
+					    <list>java.net.InetAddress</list>
+					    <list>java.net.Inet4Address</list>
+					    <list>java.net.Inet6Address</list>
+					    <list>java.net.InetAddress$InetAddressHolder</list>
 			        </reflectionList>
                 
                     <attachList>
@@ -230,17 +236,23 @@
 					    <providedKeyAliasPassword>${android.keyalias.password}</providedKeyAliasPassword>
 
 					</releaseConfiguration>
-				    <nativeImageArgs>
-			        	<nativeImageArg>-J-Xmx8g</nativeImageArg>
-
-			        	<nativeImageArg>--enable-http</nativeImageArg>
-						<nativeImageArg>--enable-https</nativeImageArg>
-						<nativeImageArg>--enable-url-protocols=http,https</nativeImageArg>
-
+			        <nativeImageArgs>
+			            <nativeImageArg>-J-Xmx8g</nativeImageArg>
+			
+			            <nativeImageArg>--enable-http</nativeImageArg>
+			            <nativeImageArg>--enable-https</nativeImageArg>
+			            <nativeImageArg>--enable-url-protocols=http,https</nativeImageArg>
+			
+			            <nativeImageArg>-Djava.net.preferIPv6Addresses=true</nativeImageArg>
+			            <nativeImageArg>-Djava.net.preferIPv4Stack=false</nativeImageArg>
+			            
+			            <nativeImageArg>--enable-all-security-services</nativeImageArg>
+			
 			        </nativeImageArgs>
-					<runtimeArgs>
-			        	<arg>-Djava.net.preferIPv4Stack=false</arg>
-			        	<arg>-Djava.net.preferIPv6Addresses=true</arg>
+			        
+			        <runtimeArgs>
+			            <arg>-Djava.net.preferIPv6Addresses=true</arg>
+			            <arg>-Djava.net.preferIPv4Stack=false</arg>
 			        </runtimeArgs>
                 </configuration>
             </plugin>

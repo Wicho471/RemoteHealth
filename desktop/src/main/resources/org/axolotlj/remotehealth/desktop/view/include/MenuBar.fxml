@@ -13,15 +13,8 @@
 	<menus>
 		<Menu fx:id="menuEsp32" mnemonicParsing="false" text="ESP32">
 			<items>
-				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false" onAction="#flashEsp32Handle" text="Cargar programa">
-					<graphic>
-						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Microcontroler.png" />
-							</image>
-						</ImageView>
-					</graphic>
-				</MenuItem>
+				<MenuItem fx:id="itemFlashEsp32" mnemonicParsing="false" onAction="#flashEsp32Handle" text="Cargar programa" />
+            <MenuItem mnemonicParsing="false" onAction="#handleScanEsp32" text="Buscar dispositivo" />
 			</items>
 		</Menu>
 		<Menu fx:id="menuAnalysis" mnemonicParsing="false" text="Analisis">

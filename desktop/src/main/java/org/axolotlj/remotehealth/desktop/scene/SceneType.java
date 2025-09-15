@@ -14,8 +14,8 @@ public enum SceneType {
 	DASHBOARD("Panel de Control", DesktopPaths.VIEW_SCENE_DASHBOARDSCENE_FXML, Images.IMG_FAVICONS_DASHBOARD),
 	FLASH_ESP("Flashear ESP32", DesktopPaths.VIEW_SCENE_FLASHESP32SCENE_FXML, Images.IMG_FAVICONS_UPLOAD),
 	ANALYSIS("Análisis de Datos", DesktopPaths.VIEW_SCENE_DATAANALYSISSCENE_FXML, Images.IMG_FAVICONS_ANALYSIS),
-	FILTERS_SETTINGS("Configuración de Filtros", DesktopPaths.VIEW_SCENE_FILTERSETTINGSSCENE_FXML,
-			Images.IMG_FAVICONS_SETTINGS);
+	FILTERS_SETTINGS("Configuración de Filtros", DesktopPaths.VIEW_SCENE_FILTERSETTINGSSCENE_FXML, Images.IMG_FAVICONS_SETTINGS),
+	CONFIG_ESP32("Configuracion del esp32", DesktopPaths.VIEW_SCENE_CONFIG_ESP32_FXML, Images.IMG_FAVICONS_SETTINGS);
 
 	private final String title;
 	private final String fxmlPath;

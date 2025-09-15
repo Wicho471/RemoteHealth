@@ -10,8 +10,8 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.AnalysisData;
 import org.axolotlj.remotehealth.core.model.AnomalyData;
 import org.axolotlj.remotehealth.core.sensor.io.CsvDataManager;
@@ -20,7 +20,7 @@ import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ChartUtils;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
-import org.axolotlj.remotehealth.desktop.ui.SceneUtils;
+import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
 import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.utils.Images;
@@ -158,7 +158,7 @@ public class DataAnalysisController implements DisposableController {
 
 	@FXML
 	private void openRecHandle() {
-		SceneUtils.openModalWindow(DesktopPaths.VIEW_WINDOW_CSVSELECTORWINDOW_FXML, "Seleccionar archivo CSV", this, Images.IMG_FAVICONS_CSV);
+		ModalUtils.openModalWindow(DesktopPaths.VIEW_WINDOW_CSVSELECTORWINDOW_FXML, "Seleccionar archivo CSV", this, Images.IMG_FAVICONS_CSV);
 	}
 	
 	@FXML

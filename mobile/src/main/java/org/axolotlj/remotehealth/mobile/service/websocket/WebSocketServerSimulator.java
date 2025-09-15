@@ -1,7 +1,7 @@
 package org.axolotlj.remotehealth.mobile.service.websocket;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.websocket.IWebSocketServerSimulator;
 import org.axolotlj.remotehealth.core.simulation.GenerationMode;

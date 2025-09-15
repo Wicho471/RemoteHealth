@@ -1,4 +1,7 @@
-package org.axolotlj.remotehealth.core.logger;
+package org.axolotlj.remotehealth.core.logger.api;
+
+import static org.axolotlj.remotehealth.core.logger.format.AnsiConsoleColor.colorForLevel;
+import static org.axolotlj.remotehealth.core.logger.format.FormaterLoggerUtils.formatLogLine;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,9 +10,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
+import org.axolotlj.remotehealth.core.logger.LogCompressor;
+import org.axolotlj.remotehealth.core.logger.LogLevel;
+import org.axolotlj.remotehealth.core.logger.format.ExceptionReporter;
 
 /**
  * Implementación de DataLogger que escribe logs en archivos locales de forma
@@ -18,22 +23,12 @@ import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 public class FileDataLogger extends DataLogger {
 
 	private final Object lock = new Object();
-	
-	private static final String PREFIX = "Remote Health";
-
-	private static final DateTimeFormatter FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-	private static final DateTimeFormatter LOG_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private final File logFile;
 	private final BufferedWriter writer;
 
 	public FileDataLogger() throws IOException {
 		super(null);
-
-		System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
-		System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
-		System.setProperty("org.slf4j.simpleLogger.showDateTime", "false");
-		System.setProperty("org.slf4j.simpleLogger.showLevel", "false");
 
 		Path logDir = ConfigFileHelper.getDLogsDir();
 		Files.createDirectories(logDir);
@@ -88,7 +83,7 @@ public class FileDataLogger extends DataLogger {
 
 	private void writeLog(LogLevel level, String message) {
 		String formatted = formatLogLine(level, message);
-		System.out.println(AnsiConsoleColor.colorForLevel(level, formatted));
+		System.out.println(colorForLevel(level, formatted));
 		synchronized (lock) {
 			try {
 				writer.write(formatted);
@@ -98,30 +93,6 @@ public class FileDataLogger extends DataLogger {
 				System.err.println("Error al escribir log en archivo: " + e.getMessage());
 			}
 		}
-	}
-
-	private String formatLogLine(LogLevel level, String message) {
-		String timestamp = LocalDateTime.now().format(LOG_FORMATTER);
-		String threadName = Thread.currentThread().getName();
-		String source = getCallerSource();
-		return String.format("[%s] [%s] [%-5s] [%s/%s]: %s", PREFIX, timestamp, level.getLabel(), threadName, source, message);
-	}
-
-	private String getCallerSource() {
-		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-
-		for (int i = 2; i < stack.length; i++) {
-			StackTraceElement element = stack[i];
-			String className = element.getClassName();
-
-			if (!className.equals(this.getClass().getName()) && !className.equals(Thread.class.getName())) {
-
-				String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
-				String methodName = element.getMethodName();
-				return simpleClassName + "." + methodName;
-			}
-		}
-		return "UnknownSource";
 	}
 
 	@Override

@@ -3,8 +3,8 @@ package org.axolotlj.remotehealth.desktop.service;
 import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.desktop.utils.DesktopQRDecorer;
 
 import com.github.sarxos.webcam.Webcam;

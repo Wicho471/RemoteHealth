@@ -2,8 +2,8 @@ package org.axolotlj.remotehealth.mobile.utils;
 
 import java.util.List;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.path.verifier.PathsVerifier;
 
 public class MobilePaths {

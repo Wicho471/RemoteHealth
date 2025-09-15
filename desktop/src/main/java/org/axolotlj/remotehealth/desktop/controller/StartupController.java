@@ -1,5 +1,8 @@
 package org.axolotlj.remotehealth.desktop.controller;
 
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.AsyncExecutor.runAsyncTask;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -9,25 +12,27 @@ import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.config.files.ConnectionsHandler;
-import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
-import org.axolotlj.remotehealth.core.javafx.ImageViewUtils;
+import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
+import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.lang.I18n;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeListener;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeNotifier;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
 import org.axolotlj.remotehealth.core.util.NetworkUtil;
 import org.axolotlj.remotehealth.desktop.controller.window.DeviceConfigController;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
+import org.axolotlj.remotehealth.desktop.service.CommandManager;
 import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
 import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ButtonUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
 import org.axolotlj.remotehealth.desktop.ui.ToolTipUtil;
+import org.axolotlj.remotehealth.desktop.ui.modal.QR;
 import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.utils.Images;
 
@@ -71,7 +76,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 	@FXML
 	private ImageView imgDriverStatus, imgLANStatus, imgInternetStatus, imgIpv6Status, simuStatusImg;
 	@FXML
-	private Button refreshStatusBtn, refreshDevicesBtn, addDeviceBtn, connectSimuBtn;
+	private Button refreshStatusBtn, refreshDevicesBtn, addDeviceBtn, connectSimuBtn, qrSimulatorBtn;
 	@FXML
 	private MenuBar menuBar;
 	@FXML
@@ -107,10 +112,18 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		}
 	}
 
+	@FXML
+	private void handleQrSimu() {
+		dataLogger.logDebug("Boton QR simulador precionado");
+		QR.showQrHandle(NetworkUtil.getIPv4(), NetworkUtil.getGlobalIPv6(), WebSocketServerSimulator.PATH,
+				WebSocketServerSimulator.PORT, "Simulator");
+	}
+
 	private void updateSimuStatus(boolean isActive) {
 		Image image = isActive ? Images.IMG_ICONS_GREEN : Images.IMG_ICONS_RED;
 		ImageViewUtils.setImage(simuStatusImg, image);
 		connectSimuBtn.setDisable(!isActive);
+		qrSimulatorBtn.setDisable(!isActive);
 	}
 
 	private void setupSearchField() {
@@ -193,7 +206,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 
 					iconView.setImage(Images.IMG_BUTTONS_LOADING);
 					ButtonUtils.waitingButton(connectButton);
-					connectButton.setDisable(true); 
+					connectButton.setDisable(true);
 					new Thread(() -> {
 						boolean reachable = NetworkUtil.isReachable(ip);
 						Image image = reachable ? Images.IMG_BUTTONS_CONECTAR : Images.IMG_BUTTONS_NO_WIFI;
@@ -203,8 +216,8 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 							ButtonUtils.disableButton(connectButton);
 						}
 						ImageViewUtils.setImage(iconView, image, 25, 25);
-						Platform.runLater(() ->connectButton.setDisable(!reachable));
-						
+						Platform.runLater(() -> connectButton.setDisable(!reachable));
+
 					}, "Check-Local-Ping").start();
 
 					HBox box = new HBox(connectButton);
@@ -267,7 +280,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 			}
 		});
 
-		// Botón eliminar
+		// Botón config
 		TableColumn<ConnectionData, Void> deleteCol = new TableColumn<>("Configurar");
 		deleteCol.setCellFactory(col -> new TableCell<>() {
 			private final Button btn = new Button();
@@ -357,32 +370,31 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		StartupController.connectingAlert = AlertUtil.showInformationAlert("Conectando", null,
 				"Estableciendo conexion...", true);
 
-		wsManager.connect(this::onConnectionSuccess, this::onConnectionFailure, data, isRemote);
+		wsManager.connect(() -> {
+			runAsyncTask("Connection-starter", () -> {
+				var messageQueue = appContext.getMessageQueue();
+				var processedQueue = appContext.getProcessedQueue();
+
+				DataProcessor processor = new DataProcessor(messageQueue, processedQueue, new CommandManager());
+				appContext.setDataProcessor(processor);
+				processor.startProcessing();
+				return "";
+			}, result -> {
+				closeConnectingAlert();
+				SceneManager.switchTo(SceneType.DASHBOARD);
+			}, error -> {
+				
+			});
+		}, message -> {
+			closeConnectingAlert();
+			AlertUtil.showErrorAlert("Error al conectar", message, "Vuelve a internar conectar");
+		}, data, isRemote);
 	}
 
-	private void onConnectionSuccess() {
-		var messageQueue = appContext.getMessageQueue();
-		var processedQueue = appContext.getProcessedQueue();
-
-		DataProcessor processor = new DataProcessor(messageQueue, processedQueue);
-		appContext.setDataProcessor(processor);
-		processor.startProcessing();
-
-		Platform.runLater(() -> {
-			if (connectingAlert != null) {
-				connectingAlert.close();
-			}
-		});
-		SceneManager.switchTo(SceneType.DASHBOARD);
-	}
-
-	private void onConnectionFailure() {
-		Platform.runLater(() -> {
-			if (connectingAlert != null) {
-				connectingAlert.close();
-			}
-			AlertUtil.showErrorAlert("Error", "No se pudo conectar", "Verifica tus conexiones a la red");
-		});
+	private void closeConnectingAlert() {
+		if (connectingAlert != null) {
+			runOnUIThread(() -> connectingAlert.close());
+		}
 	}
 
 	private void loadStatus() {

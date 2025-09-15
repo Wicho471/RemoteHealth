@@ -14,7 +14,7 @@ import org.axolotlj.remotehealth.core.analysis.bp.core.BPMonitor;
 import org.axolotlj.remotehealth.core.analysis.hr.HrMonitor;
 import org.axolotlj.remotehealth.core.analysis.spo2.Spo2Monitor;
 import org.axolotlj.remotehealth.core.filters.IirRealTimeFilter;
-import org.axolotlj.remotehealth.core.javafx.ImageViewUtils;
+import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 import org.axolotlj.remotehealth.core.sensor.data.Status;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
@@ -23,6 +23,7 @@ import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.SystemMonitor;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ChartUtils;
+import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
 import org.axolotlj.remotehealth.desktop.ui.SeriesUtils;
 import org.axolotlj.remotehealth.desktop.ui.TextUtils;
 import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
@@ -102,6 +103,14 @@ public class DashboardController implements ContextAware, DisposableController {
 		initSystemMonitor();
 		setupCharts();
 		startDataUpdater();
+		handleOnDisconect();
+	}
+
+	private void handleOnDisconect() {
+		AppContext.getInstance().getWsManager().setOnDisconnectHandler(reason -> {
+			AlertUtil.showErrorAlert("Conexion perdida", reason, "Intenta volver a conectar");
+			SceneManager.switchTo(SceneType.DEVICE_SELECTOR);
+		});
 	}
 
 	@Override
@@ -193,22 +202,12 @@ public class DashboardController implements ContextAware, DisposableController {
 
 	@FXML
 	private void configEsp32Handle() {
-		System.out.println("Precionado config esp32");
-//		try {
-//			BorderPane page = (BorderPane) FxmlUtils.loadFXML(DesktopPaths.VIEW_SCENE_ESP32TOOLSSCENE_FXML).load();
-//
-//			Stage popupStage = new Stage();
-//			Scene scene = new Scene(page);
-//			popupStage.setScene(scene);
-//			popupStage.setTitle("Configuracion");
-//
-//			popupStage.initModality(Modality.APPLICATION_MODAL);
-//
-//			popupStage.showAndWait();
-//		} catch (Exception e) {
-//			System.err.println(e.getMessage());
-//			AlertUtil.showErrorAlert("Error", "Error al abrir la ventana emergente", e.getMessage());
-//		}
+		ModalUtils.openModalWindow(DesktopPaths.VIEW_SCENE_CONFIG_ESP32_FXML, "Configuracion del esp32", this,
+				Images.IMG_FAVICONS_MICROCONTROLER,
+				controller -> {
+					ConfigEsp32Controller esp32Controller = (ConfigEsp32Controller) controller;
+					esp32Controller.setCommandCommunicator(appContext.getDataProcessor().getCommunicator());
+				});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -353,7 +352,8 @@ public class DashboardController implements ContextAware, DisposableController {
 	private void initMonitors() {
 		this.hrMonitor = new HrMonitor(250, 5, hr -> {
 			TextUtils.setText(BPM, hr.getRight());
-			Image image = (hr.getRight() > 100 || hr.getRight() < 60) ? Images.IMG_VITALS_HEARTH_ALERT : Images.IMG_VITALS_OK;
+			Image image = (hr.getRight() > 100 || hr.getRight() < 60) ? Images.IMG_VITALS_HEARTH_ALERT
+					: Images.IMG_VITALS_OK;
 			ImageViewUtils.setImage(statusBpm, image);
 		});
 

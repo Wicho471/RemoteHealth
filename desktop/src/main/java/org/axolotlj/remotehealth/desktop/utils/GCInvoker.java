@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.util;
+package org.axolotlj.remotehealth.desktop.utils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

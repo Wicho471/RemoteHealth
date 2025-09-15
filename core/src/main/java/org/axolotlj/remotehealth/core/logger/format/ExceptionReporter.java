@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.logger;
+package org.axolotlj.remotehealth.core.logger.format;
 
 /**
  * Utilidad para generar un reporte detallado de una excepción,

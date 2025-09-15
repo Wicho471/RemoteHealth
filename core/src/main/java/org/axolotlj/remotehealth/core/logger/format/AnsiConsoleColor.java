@@ -1,4 +1,6 @@
-package org.axolotlj.remotehealth.core.logger;
+package org.axolotlj.remotehealth.core.logger.format;
+
+import org.axolotlj.remotehealth.core.logger.LogLevel;
 
 /**
  * Utilidad para aplicar colores ANSI a texto para consola.

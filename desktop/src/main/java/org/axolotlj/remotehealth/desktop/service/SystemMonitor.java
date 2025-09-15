@@ -2,8 +2,8 @@ package org.axolotlj.remotehealth.desktop.service;
 
 import java.lang.management.ManagementFactory;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import com.sun.management.OperatingSystemMXBean;
 

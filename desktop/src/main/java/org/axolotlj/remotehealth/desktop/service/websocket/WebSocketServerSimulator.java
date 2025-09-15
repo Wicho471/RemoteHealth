@@ -1,14 +1,13 @@
 package org.axolotlj.remotehealth.desktop.service.websocket;
 
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.websocket.IWebSocketServerSimulator;
 import org.axolotlj.remotehealth.core.simulation.GenerationMode;
@@ -22,17 +21,10 @@ import javafx.beans.property.SimpleBooleanProperty;
  */
 public class WebSocketServerSimulator implements IWebSocketServerSimulator {
 
-	private static final String LOCAL_IPV4 = "127.0.0.1";
-	private static final String LOCAL_IPV6 = "::1";
-	private static final int PORT = 8081;
-	private static final String PATH = "/simulator";
-	private static final String NAME = "Simulador";
-
 	private Server server;
-	private ScheduledExecutorService executor;
 	private volatile boolean isActive = false;
 	private final BooleanProperty activeProperty = new SimpleBooleanProperty(isActive);
-	private static DataLogger dataLogger = Log.get();
+	private DataLogger dataLogger = Log.get();
 	public static GenerationMode generationMode = GenerationMode.REAL;
 
 	public WebSocketServerSimulator() {
@@ -48,7 +40,7 @@ public class WebSocketServerSimulator implements IWebSocketServerSimulator {
 		try {
 			server = new Server(LOCAL_IPV4, PORT, "", null, SimulatedEndpoint.class);
 			server.start();
-			dataLogger.logInfo("Servidor WebSocket iniciado en ws://localhost:8081/simulator");
+			dataLogger.logInfo("Servidor WebSocket iniciado en ws://"+LOCAL_IPV4+":"+PORT+PATH);
 			this.isActive = true;
 			this.activeProperty.set(true);
 		} catch (Exception e) {
@@ -57,9 +49,6 @@ public class WebSocketServerSimulator implements IWebSocketServerSimulator {
 	}
 
 	public void stop() {
-		if (executor != null && !executor.isShutdown()) {
-			executor.shutdownNow();
-		}
 		if (server != null) {
 			server.stop();
 			server = null;
@@ -78,8 +67,7 @@ public class WebSocketServerSimulator implements IWebSocketServerSimulator {
 			try {
 				dataLogger.logInfo("Reiniciando servidor WebSocket...");
 				stop();
-				// Breve espera para asegurar liberación de recursos
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (Exception e) {
 				dataLogger.logException("Error al detener el servidor durante reinicio", e);
 				return;

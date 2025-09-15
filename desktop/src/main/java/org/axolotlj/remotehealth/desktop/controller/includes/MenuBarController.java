@@ -18,8 +18,8 @@ import org.axolotlj.remotehealth.core.config.files.LanguageConfig;
 import org.axolotlj.remotehealth.core.lang.I18n;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeListener;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeNotifier;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.path.SharedPaths;
 import org.axolotlj.remotehealth.core.simulation.GenerationMode;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
@@ -28,7 +28,7 @@ import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimula
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.DialogPanelUtils;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
-import org.axolotlj.remotehealth.desktop.ui.SceneUtils;
+import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
 import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.utils.Images;
 
@@ -180,7 +180,7 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 
 	@FXML
 	private void logHandle() {
-		SceneUtils.openModalWindow(DesktopPaths.VIEW_WINDOW_LOG_FXML, "Visualizador de registros", this, Images.IMG_FAVICONS_LOG);
+		ModalUtils.openModalWindow(DesktopPaths.VIEW_WINDOW_LOG_FXML, "Visualizador de registros", this, Images.IMG_FAVICONS_LOG);
 	}
 	
 	@FXML
@@ -243,5 +243,10 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 	@FXML
 	private void benchmarkHandle() {
     	AlertUtil.buildingModule();
+	}
+	
+	@FXML
+	private void handleScanEsp32() {
+		ModalUtils.openModalWindow(DesktopPaths.VIEW_WINDOW_BLUETOOTH_LIST_FXML, "Conexiones Bluetooth", this, Images.IMG_FAVICONS_SETTINGS);
 	}
 }

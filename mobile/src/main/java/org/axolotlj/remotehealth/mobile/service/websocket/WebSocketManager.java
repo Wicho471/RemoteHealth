@@ -3,9 +3,10 @@ package org.axolotlj.remotehealth.mobile.service.websocket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.websocket.IWebSocketManager;
 import org.axolotlj.remotehealth.mobile.network.DualStackDns;
@@ -94,6 +95,7 @@ public class WebSocketManager implements IWebSocketManager {
 			@Override
 			public void onFailure(WebSocket webSocket, Throwable t, Response response) {
 				dataLogger.logException("Fallo en WebSocket: ", t);
+				t.printStackTrace();
 				socketRef.set(null);
 				isConnected = false;
 				
@@ -166,5 +168,18 @@ public class WebSocketManager implements IWebSocketManager {
 
 	public boolean isConnected() {
 		return isConnected;
+	}
+
+	@Override
+	public void connect(Runnable onSuccess, Consumer<String> onFailure, ConnectionData connectionData,
+			boolean isGlobal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOnDisconnectHandler(Consumer<String> handler) {
+		// TODO Auto-generated method stub
+		
 	}
 }

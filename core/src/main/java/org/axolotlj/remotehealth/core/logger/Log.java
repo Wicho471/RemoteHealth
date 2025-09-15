@@ -1,5 +1,10 @@
 package org.axolotlj.remotehealth.core.logger;
 
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
+import org.axolotlj.remotehealth.core.logger.api.FileDataLogger;
+import org.axolotlj.remotehealth.core.logger.api.NoOpDataLogger;
+import org.axolotlj.remotehealth.core.logger.api.Slf4jFileDataLogger;
+
 public class Log {
 	private static DataLogger logger;
 

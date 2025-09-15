@@ -7,9 +7,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.service.websocket.IWebSocketManager;
 import org.glassfish.tyrus.client.ClientManager;
@@ -22,7 +23,7 @@ import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 
-public class WebSocketManager implements IWebSocketManager { 
+public class WebSocketManager implements IWebSocketManager {
 
 	private BlockingQueue<String> messageQueue;
 	private final AtomicReference<Session> sessionRef = new AtomicReference<>();
@@ -31,11 +32,13 @@ public class WebSocketManager implements IWebSocketManager {
 	private ConnectionData connectionData;
 	private volatile boolean isConnected = false;
 
+	private volatile Consumer<String> onDisconnectHandler;
+
 	public WebSocketManager(BlockingQueue<String> messageQueue) {
 		this.messageQueue = messageQueue;
 	}
 
-	public void connect(Runnable onSuccess, Runnable onFailure, ConnectionData connectionData, boolean isGlobal) {
+	public void connect(Runnable onSuccess, Consumer<String> onFailure, ConnectionData connectionData, boolean isGlobal) {
 		this.connectionData = connectionData;
 		WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 		ClientManager client = ClientManager.createClient();
@@ -60,6 +63,7 @@ public class WebSocketManager implements IWebSocketManager {
 						dataLogger.logInfo("Conexión WebSocket establecida");
 						session.addMessageHandler(String.class, message -> processIncomingText(message));
 						session.addMessageHandler(ByteBuffer.class, message -> processIncomingBinary(message));
+						session.setMaxIdleTimeout(5000);
 						onSuccess.run();
 						isConnected = true;
 					}
@@ -69,6 +73,11 @@ public class WebSocketManager implements IWebSocketManager {
 						sessionRef.set(null);
 						dataLogger.logInfo("Conexión cerrada: " + closeReason.getReasonPhrase());
 						isConnected = false;
+						
+					    if (onDisconnectHandler != null 
+					            && closeReason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
+					        onDisconnectHandler.accept(closeReason.getReasonPhrase());
+					    }
 					}
 
 					@Override
@@ -85,28 +94,32 @@ public class WebSocketManager implements IWebSocketManager {
 				}, isGlobal ? connectionData.getUri6() : connectionData.getUri4());
 
 			} catch (ConnectException e) {
-				dataLogger.logWarn("Conexión rechazada al intentar establecer el WebSocket — Causa: " + e.getMessage());
+				String message = "Conexión rechazada al intentar establecer el WebSocket — Causa: " + e.getMessage();
+				dataLogger.logWarn(message);
 				this.connectionData = null;
 				isConnected = false;
-				onFailure.run();
+				onFailure.accept(message);
 
 			} catch (SocketTimeoutException e) {
-				dataLogger.logWarn("Tiempo de espera agotado al intentar conectar con el WebSocket — Causa: " + e.getMessage());
+				String message = "Tiempo de espera agotado al intentar conectar con el WebSocket — Causa: " + e.getMessage();
+				dataLogger.logWarn(message);
 				this.connectionData = null;
 				isConnected = false;
-				onFailure.run();
+				onFailure.accept(message);
 
 			} catch (DeploymentException e) {
-				dataLogger.logWarn("Fallo al desplegar el cliente WebSocket — Causa: " + e.getMessage());
+				String message = "Fallo al desplegar el cliente WebSocket — Causa: " + e.getMessage();
+				dataLogger.logWarn(message);
 				this.connectionData = null;
 				isConnected = false;
-				onFailure.run();
+				onFailure.accept(message);
 
 			} catch (Exception e) {
-				dataLogger.logException("Error inesperado al conectar WebSocket: ", e);
+				String message = "Error inesperado al conectar WebSocket: ";
+				dataLogger.logException(message, e);
 				this.connectionData = null;
 				isConnected = false;
-				onFailure.run();
+				onFailure.accept(message+e.getMessage());
 			}
 		});
 	}
@@ -188,9 +201,17 @@ public class WebSocketManager implements IWebSocketManager {
 			dataLogger.logException("Error al cerrar WebSocket", e);
 		}
 		if (wsExecutor != null && !wsExecutor.isShutdown()) {
-			wsExecutor.shutdownNow(); 
+			wsExecutor.shutdownNow();
 			wsExecutor = null;
 		}
+	}
+
+	/**
+	 * Permite registrar un callback que se ejecuta cuando la conexión se cierra por
+	 * causas ajenas a un cierre controlado.
+	 */
+	public void setOnDisconnectHandler(Consumer<String> handler) {
+		this.onDisconnectHandler = handler;
 	}
 
 	public ConnectionData getConnectionData() {

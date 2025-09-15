@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
-import org.axolotlj.remotehealth.core.concurrent.AsyncExecutor;
 import org.axolotlj.remotehealth.core.config.filt.AnalysisFiltersConfig;
 import org.axolotlj.remotehealth.core.config.filt.RealTimeFiltersConfig;
 import org.axolotlj.remotehealth.core.filters.AnalysisFilters;
-import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
+import org.axolotlj.remotehealth.core.javafx.current.AsyncExecutor;
+import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.path.SharedPaths;
 import org.axolotlj.remotehealth.core.sensor.TuplaUtil;
@@ -128,7 +128,7 @@ public class FilterSettingsController implements DisposableController {
 	private void applyChanges(FilterTypeOption option) {
 		AnalysisFilters analysisFilters = new AnalysisFilters();
 		
-	    AsyncExecutor.runFilterTask("AsyncFilters",
+	    AsyncExecutor.runAsyncTask("AsyncFilters",
 	        () -> {
 	            // Ejecución en hilo secundario
 	            ArrayList<MutablePair<Long, Double>> ecgFiltered = analysisFilters.getFilteredEcg(ecgData);
@@ -166,7 +166,7 @@ public class FilterSettingsController implements DisposableController {
 
 	
 	private void plotChart(FilterTypeOption option) {
-	    AsyncExecutor.runFilterTask(
+	    AsyncExecutor.runAsyncTask(
 	        "ChartPlotter",
 	        () -> {
 	            switch (option) {

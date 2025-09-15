@@ -1,57 +1,37 @@
 package org.axolotlj.remotehealth.core.service;
 
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.axolotlj.remotehealth.core.cmd.CommandCommunicator;
+import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 import org.axolotlj.remotehealth.core.sensor.handle.DataParser;
 import org.axolotlj.remotehealth.core.service.datawriter.CsvDataWriter;
 import org.axolotlj.remotehealth.core.service.datawriter.FileCsvDataWriter;
-import org.axolotlj.remotehealth.core.util.cmd.CommandHandler;
-import org.axolotlj.remotehealth.core.util.cmd.CommandResponseListener;
-import org.axolotlj.remotehealth.core.util.cmd.CommandType;
 
 public class DataProcessor {
+	
+	private final DataLogger dataLogger = Log.get();
 
 	private volatile boolean active;
 
 	private BlockingQueue<String> messageQueue;
 	private BlockingQueue<DataPoint> processedQueue;
+	private CommandCommunicator communicator;
 	private Thread processorThread;
 	
-	private final List<CommandResponseListener> listeners = new CopyOnWriteArrayList<>();
-
 	private CsvDataWriter csvDataWriter;
 	private volatile boolean isCsvEnabled;
+	
+	private static final String INVALID_DATA = ",NR,NR,NR,NR,NR";
 
-	public void addCommandResponseListener(CommandResponseListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeCommandResponseListener(CommandResponseListener listener) {
-		listeners.remove(listener);
-	}
-
-	private void notifyCommandResponse(String command) {
-		CommandType commandType = CommandType.fromResponse(command);
-		if (commandType == CommandType.UNKNOWN)
-			return;
-		String content = CommandHandler.extractResponseContent(command);
-		if (content.isEmpty() || content.isBlank())
-			return;
-		ImmutablePair<CommandType, String> cmd = new ImmutablePair<CommandType, String>(commandType, content);
-		for (CommandResponseListener listener : listeners) {
-			listener.onCommandResponse(cmd);
-		}
-	}
-
-	public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<DataPoint> processedQueue) {
+	public DataProcessor(BlockingQueue<String> messageQueue, BlockingQueue<DataPoint> processedQueue, CommandCommunicator communicator) {
 		this.active = true;
 		this.messageQueue = messageQueue;
 		this.processedQueue = processedQueue;
+		this.communicator = communicator;
 	}
 
 	public void startProcessing() {
@@ -60,15 +40,15 @@ public class DataProcessor {
 			while (active) {
 				try {
 					String data = messageQueue.take();
+					//Puede que haya mas de una linea de mensajes
 					if ("STOP".equals(data))
 						break;
-					if (data.startsWith(CommandHandler.PREFIX)) {
-						System.out.println("Se detecto un comando de respuesta");
-						notifyCommandResponse(data);
+					if (data.contains("{")) {
+						dataLogger.logDebug("Comando detectado -> "+ data);
+						communicator.dispatch(data);
 						continue;
 					}
-					if (data.endsWith(",NR,NR,NR,NR,NR") || data.contains(",NR,NR,NR,NR,NR"))
-						continue;
+					if (data.contains(INVALID_DATA)) continue;
 					DataPoint processedData = DataParser.process(data);
 					if (processedData == null)
 						continue;
@@ -114,18 +94,20 @@ public class DataProcessor {
 		stopRecordingData();
 		this.active = false;
 		if (messageQueue != null) {
-			messageQueue.offer("STOP"); // Despierta el take()
+			messageQueue.offer("STOP"); 
 		}
 		if (processorThread != null && processorThread.isAlive()) {
-			processorThread.interrupt(); // fuerza la parada si está atascado
+			processorThread.interrupt(); 
 			try {
-				processorThread.join(2000); // opcional: espera hasta 2 segundos para terminar
+				processorThread.join(2000); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
 			processorThread = null;
 		}
-		listeners.clear(); // 🔥 liberar los listeners por seguridad
 	}
 
+	public CommandCommunicator getCommunicator() {
+		return communicator;
+	}
 }

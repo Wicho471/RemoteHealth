@@ -1,7 +1,7 @@
 package org.axolotlj.remotehealth.core.filters.base;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import jwave.exceptions.JWaveException;
 import jwave.transforms.FastWaveletTransform;

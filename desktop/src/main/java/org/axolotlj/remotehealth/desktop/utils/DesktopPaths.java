@@ -2,8 +2,8 @@ package org.axolotlj.remotehealth.desktop.utils;
 
 import java.util.List;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.path.verifier.PathsVerifier;
 
 public class DesktopPaths {
@@ -45,6 +45,7 @@ public class DesktopPaths {
     public static final String VIEW_SCENE_FILTERSETTINGSSCENE_FXML = VIEW_SCENE_PATH + "FilterSettingsScene.fxml";
     public static final String VIEW_SCENE_FLASHESP32SCENE_FXML = VIEW_SCENE_PATH + "FlashEsp32Scene.fxml";
     public static final String VIEW_SCENE_STARTUPSCENE_FXML = VIEW_SCENE_PATH + "StartupScene.fxml";
+    public static final String VIEW_SCENE_CONFIG_ESP32_FXML = VIEW_SCENE_PATH + "ConfigEsp32.fxml";
 
     // -------- Window --------
     private static final String VIEW_WINDOW_PATH = VIEW_PATH + "window/";
@@ -52,6 +53,9 @@ public class DesktopPaths {
     public static final String VIEW_WINDOW_CSVSELECTORWINDOW_FXML = VIEW_WINDOW_PATH + "CsvSelectorWindow.fxml";
     public static final String VIEW_WINDOW_DEVICECONFIGWINDOW_FXML = VIEW_WINDOW_PATH + "DeviceConfigWindow.fxml";
     public static final String VIEW_WINDOW_LOG_FXML = VIEW_WINDOW_PATH + "LogsWindow.fxml";
+    public static final String VIEW_WINDOW_BLUETOOTH_LIST_FXML = VIEW_WINDOW_PATH + "BluetoothList.fxml";
+    public static final String VIEW_WINDOW_WIFI_LIST_FXML = VIEW_WINDOW_PATH + "WifiList.fxml";
+    public static final String VIEW_WINDOW_WIFI_PASSWORD_FXML = VIEW_WINDOW_PATH + "WifiPassword.fxml";
 
     static {
     	DataLogger dataLogger = Log.get();

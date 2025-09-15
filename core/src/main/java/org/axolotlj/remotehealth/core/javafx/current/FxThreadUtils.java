@@ -1,4 +1,4 @@
-package org.axolotlj.remotehealth.core.concurrent;
+package org.axolotlj.remotehealth.core.javafx.current;
 
 import org.axolotlj.remotehealth.core.logger.Log;
 

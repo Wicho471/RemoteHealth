@@ -1,10 +1,7 @@
 package org.axolotlj.remotehealth.desktop.controller.window;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
-import org.axolotlj.remotehealth.core.util.cmd.CommandResponseListener;
-import org.axolotlj.remotehealth.core.util.cmd.CommandType;
 import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
 
 import javafx.fxml.FXML;
@@ -13,7 +10,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-public class ESP32ToolsController implements ContextAware, CommandResponseListener {
+public class ESP32ToolsController implements ContextAware {
 
 	private WebSocketManager webSocketManager;
 	@FXML
@@ -77,10 +74,6 @@ public class ESP32ToolsController implements ContextAware, CommandResponseListen
 	@Override
 	public void setAppContext(AppContext context) {
 		this.webSocketManager = (WebSocketManager) context.getWsManager();
-	}
-
-	@Override
-	public void onCommandResponse(ImmutablePair<CommandType, String> response) {
 	}
 
 }

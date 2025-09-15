@@ -2,8 +2,8 @@ package org.axolotlj.remotehealth.core.sensor.correction;
 
 import java.util.List;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 import org.axolotlj.remotehealth.core.sensor.handle.SensorField;
 

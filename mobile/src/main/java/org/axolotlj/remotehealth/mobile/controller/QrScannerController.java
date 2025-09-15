@@ -1,13 +1,14 @@
 package org.axolotlj.remotehealth.mobile.controller;
 
-import static org.axolotlj.remotehealth.core.concurrent.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.io.File;
 import java.util.Optional;
 
+import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.config.files.ConnectionsHandler;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.mobile.navigation.ViewManager;
 import org.axolotlj.remotehealth.mobile.qr.MobileQRDecorer;
 import org.axolotlj.remotehealth.mobile.ui.MobileAlertUtil;
@@ -23,7 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
-public class QrScannerController {
+public class QrScannerController implements DisposableController {
 
 	private final DataLogger dataLogger = Log.get();
 
@@ -123,6 +124,11 @@ public class QrScannerController {
 			MobileAlertUtil.showWarningAlert("Advertencia", "PicturesService no disponible");
 			ViewManager.showHomeView();
 		});
+	}
+
+	@Override
+	public void dispose() {
+		dataLogger.logWarn("Dispose aun sin implementacion");
 	}
 
 }

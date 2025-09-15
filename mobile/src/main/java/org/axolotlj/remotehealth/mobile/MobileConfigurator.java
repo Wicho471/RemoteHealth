@@ -2,11 +2,11 @@ package org.axolotlj.remotehealth.mobile;
 
 import java.util.Properties;
 
-import org.axolotlj.remotehealth.core.concurrent.AsyncExecutor;
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 import org.axolotlj.remotehealth.core.config.PlatformConfigurator;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
+import org.axolotlj.remotehealth.core.javafx.current.AsyncExecutor;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.util.NetworkUtil;
 import org.axolotlj.remotehealth.mobile.attach.Connectivity;
 import org.axolotlj.remotehealth.mobile.storage.MobilePathResolver;
@@ -41,7 +41,7 @@ public class MobileConfigurator implements PlatformConfigurator {
 	@Override
 	public void getDeviceInfo() {
 		DataLogger dataLogger = Log.get();
-		AsyncExecutor.runFilterTask("DeviceInfoAsync", () -> {
+		AsyncExecutor.runAsyncTask("DeviceInfoAsync", () -> {
 			try {
 
 				dataLogger.logDebug("Obteniendo información del dispositivo y servicios disponibles");
@@ -67,6 +67,7 @@ public class MobileConfigurator implements PlatformConfigurator {
 				dataLogger.logDebug("Soporte para ipv6 -> " + (NetworkUtil.isSupportedIpv6()? "Soportado" : "Sin soporte"));
 				dataLogger.logDebug("Conexion global ipv6 -> " + (NetworkUtil.isGlobalIPv6Available()? "Connectado" : "Sin conexion"));
 				
+				NetworkUtil.logNetworkInterfaces();
 				// OrientationService
 				Services.get(OrientationService.class).ifPresentOrElse(orientation -> {
 					dataLogger.logDebug("==== OrientationService ====");

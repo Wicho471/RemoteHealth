@@ -1,9 +1,9 @@
 package org.axolotlj.remotehealth.mobile.navigation;
 
-import static org.axolotlj.remotehealth.core.concurrent.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import com.gluonhq.charm.glisten.application.MobileApplication;
 

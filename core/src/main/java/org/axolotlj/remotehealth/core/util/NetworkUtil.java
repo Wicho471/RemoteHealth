@@ -6,8 +6,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -159,21 +159,138 @@ public class NetworkUtil {
         }
     }
     
+    /**
+     * Verifica si es que se tiene una interfaz Inet6Address
+     * @return 
+     */
     public static boolean isSupportedIpv6() {
 		try {
 			for (NetworkInterface ni : java.util.Collections.list(NetworkInterface.getNetworkInterfaces())) {
 			    for (InetAddress address : java.util.Collections.list(ni.getInetAddresses())) {
+			    	DATA_LOGGER.logDebug(address.getHostName() + " -> " + address.getHostAddress());
 			        if (address instanceof java.net.Inet6Address) {
 			        	DATA_LOGGER.logDebug("Encontrada direccion IPv6: " + address.getHostAddress());
+			        	
 			            return true;
 			        }
 			    }
 			}
+			DATA_LOGGER.logWarn("No se encontro direccion Ipv6");
 			return false;
 		} catch (SocketException e) {
 			DATA_LOGGER.logException("Ocurrio un erro inesperado", e);
 			return false;
 		} 
 	}
+
+    /**
+     * Obtiene la primera dirección IPv4 válida del host.
+     *
+     * @return String con la IPv4 encontrada, o null si no existe
+     */
+    public static String getIPv4() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface ni = interfaces.nextElement();
+                if (!ni.isUp() || ni.isLoopback() || ni.isVirtual()) continue;
+
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof java.net.Inet4Address && !addr.isLoopbackAddress()) {
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            DATA_LOGGER.logException("Error al obtener IPv4", e);
+        }
+        return null;
+    }
+    
+    /**
+     * Obtiene la primera dirección IPv6 global del host.
+     *
+     * @return String con la IPv6 global, o null si no existe
+     */
+    public static String getGlobalIPv6() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface ni = interfaces.nextElement();
+                if (!ni.isUp() || ni.isLoopback() || ni.isVirtual()) continue;
+
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (isGlobalIPv6Address(addr)) {
+                        return addr.getHostAddress().split("%")[0]; // limpiar scope ID
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            DATA_LOGGER.logException("Error al obtener IPv6 global", e);
+        }
+        return null;
+    }
+
+    
+    /**
+     * Verifica si una IPv6 es global unicast (válida para Internet).
+     */
+    private static boolean isGlobalIPv6Address(InetAddress addr) {
+        return (addr instanceof java.net.Inet6Address)
+                && !addr.isLoopbackAddress()
+                && !addr.isLinkLocalAddress()
+                && !addr.isSiteLocalAddress();
+    }
+    
+    /**
+     * Registra en el log un informe detallado de todas las interfaces de red
+     * que la aplicación puede detectar, incluyendo sus estados y direcciones.
+     * Este método es crucial para diagnosticar problemas de conectividad en
+     * entornos nativos.
+     */
+    public static void logNetworkInterfaces() {
+        DATA_LOGGER.logDebug("==== INICIO REPORTE DE INTERFACES DE RED ====");
+        try {
+            for (NetworkInterface ni : java.util.Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                DATA_LOGGER.logDebug("Interfaz encontrada: " + ni.getDisplayName() + " (" + ni.getName() + ")");
+                DATA_LOGGER.logDebug("  -> Estado: " + (ni.isUp() ? "Activa" : "Inactiva"));
+                DATA_LOGGER.logDebug("  -> Es Virtual: " + (ni.isVirtual() ? "Sí" : "No"));
+                DATA_LOGGER.logDebug("  -> Es Loopback: " + (ni.isLoopback() ? "Sí" : "No"));
+                
+                if (ni.getHardwareAddress() != null) {
+                    // Formatear la dirección MAC para que sea legible
+                    byte[] mac = ni.getHardwareAddress();
+                    StringBuilder macBuilder = new StringBuilder();
+                    for (int i = 0; i < mac.length; i++) {
+                        macBuilder.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
+                    }
+                    DATA_LOGGER.logDebug("  -> MAC: " + macBuilder.toString());
+                } else {
+                    DATA_LOGGER.logDebug("  -> MAC: No disponible");
+                }
+
+                for (InetAddress address : java.util.Collections.list(ni.getInetAddresses())) {
+                    String ipType = (address instanceof java.net.Inet6Address) ? "IPv6" : "IPv4";
+                    String ipAddress = address.getHostAddress();
+                    
+                    // En IPv6, a veces las direcciones tienen un scope ID (e.g., %wlan0)
+                    if (address instanceof java.net.Inet6Address) {
+                       ipAddress = ipAddress.split("%")[0]; // Limpiar el scope id para claridad
+                    }
+                    
+                    DATA_LOGGER.logDebug("  -> Dirección [" + ipType + "]: " + ipAddress);
+                    DATA_LOGGER.logDebug("    -> Es Link-Local: " + (address.isLinkLocalAddress() ? "Sí" : "No"));
+                    DATA_LOGGER.logDebug("    -> Es Global: " + (!address.isSiteLocalAddress() && !address.isLinkLocalAddress() && !address.isLoopbackAddress() ? "Sí" : "No"));
+                }
+            }
+        } catch (SocketException e) {
+            DATA_LOGGER.logException("Error al obtener interfaces de red", e);
+        }
+        DATA_LOGGER.logDebug("==== FIN REPORTE DE INTERFACES DE RED ====");
+    }
 }
 

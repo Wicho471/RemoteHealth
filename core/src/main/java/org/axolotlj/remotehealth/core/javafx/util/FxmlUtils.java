@@ -1,7 +1,7 @@
-package org.axolotlj.remotehealth.core.javafx;
+package org.axolotlj.remotehealth.core.javafx.util;
 
-import org.axolotlj.remotehealth.core.logger.DataLogger;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import javafx.fxml.FXMLLoader;
 

@@ -19,12 +19,13 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 /**
- * Clase principal que lanza la aplicación de escritorio utilizando JavaFX.
- * Se encarga de inicializar la configuración de idioma, contexto de aplicación y escenas.
+ * Clase principal que lanza la aplicación de escritorio utilizando JavaFX. Se
+ * encarga de inicializar la configuración de idioma, contexto de aplicación y
+ * escenas.
  */
-	
+
 public class DesktopApp extends Application {
-	
+
 	@Override
 	public void start(Stage stage) {
 		Log.get().logInfo("Iniciando renderizado javaFX");
@@ -40,7 +41,7 @@ public class DesktopApp extends Application {
 		AppContext.getInstance().finalize();
 		Debug.printAllThreads(false);
 	}
-	
+
 	private void catchEventOnClose(Stage stage) {
 		stage.setOnCloseRequest(event -> {
 			event.consume();
@@ -54,18 +55,18 @@ public class DesktopApp extends Application {
 		});
 	}
 
-	public static void main(String[] args) {	
+	public static void main(String[] args) {
 		PlatformConfigurator configurator = new DesktopConfigurator();
 		configurator.checkPaths();
 		configurator.getDeviceInfo();
 		configurator.getRuntimeArgs();
 		configurator.devConfigs();
-		
+
 		AppContext.initialize(new WebSocketServerSimulator(), queue -> new WebSocketManager(queue));
-		
+
 		CommonApp.initialize();
 
 		launch(args);
 	}
-	
+
 }

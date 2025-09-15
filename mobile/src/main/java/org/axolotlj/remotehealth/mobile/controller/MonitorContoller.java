@@ -1,66 +1,37 @@
 package org.axolotlj.remotehealth.mobile.controller;
 
-import org.axolotlj.remotehealth.core.controller.AbstractMonitorController;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.axolotlj.remotehealth.core.AppContext;
+import org.axolotlj.remotehealth.core.AppContext.ContextAware;
+import org.axolotlj.remotehealth.core.AppContext.DisposableController;
+import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
 
 import com.gluonhq.charm.glisten.mvc.View;
 
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 
-public class MonitorContoller extends AbstractMonitorController {
+public class MonitorContoller implements ContextAware, DisposableController {
+	private DataLogger dataLogger = Log.get();
+	
+	private AppContext appContext;
+
+	protected ExecutorService parallelExecutor;
+	protected ScheduledExecutorService scheduler;
+	protected LinkedBlockingQueue<DataPoint> processedQueue;
 
 	@FXML
 	private View homeView;
 
 	@FXML
-	private TextField pacientNameField;
-
-	@FXML
-	private LineChart<Number, Number> ECG;
-
-	@FXML
-	private LineChart<Number, Number> PLETH;
-
-	@FXML
-	private TextArea BPM;
-
-	@FXML
-	private TextArea SPO2;
-
-	@FXML
-	private TextArea BP;
-
-	@FXML
-	private TextArea TEMP1;
-
-	@FXML
-	private TextArea MOV;
-
-	@FXML
-	private ImageView statusBpm;
-
-	@FXML
-	private ImageView statusSpo2;
-
-	@FXML
-	private ImageView statusBp;
-
-	@FXML
-	private ImageView statusTemp;
-
-	@FXML
-	private ImageView statusMov;
-
-	@FXML
-	private ImageView imgRecordStatus;
-
-	@FXML
-	private Button handleRec;
+	private TextArea test;
 
 	/**
 	 * Inicializa los componentes cuando se carga la vista.
@@ -68,29 +39,29 @@ public class MonitorContoller extends AbstractMonitorController {
 	@FXML
 	public void initialize() {
 		homeView.setOnShowing(e -> {
-			
+			startDataUpdater();
 		});
 	}
 
-	@Override
-	protected void applyToChart(DataPoint data) {
-		// TODO Auto-generated method stub
-		
+	protected void startDataUpdater() {
+		scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleAtFixedRate(() -> {
+			DataPoint data = processedQueue.poll();
+			dataLogger.logDebug(data.toCsvLine());
+			test.appendText(data.toString());
+		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 
-	@FXML
 	@Override
-	protected void handleClose() {
+	public void dispose() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	@FXML
 	@Override
-	protected void handleRec() {
-		// TODO Auto-generated method stub
-		
+	public void setAppContext(AppContext context) {
+		this.appContext = context;
+		this.processedQueue = context.getProcessedQueue();
 	}
-	
 
 }

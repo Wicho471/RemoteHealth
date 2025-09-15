@@ -1,6 +1,6 @@
 package org.axolotlj.remotehealth.mobile.ui;
 
-import static org.axolotlj.remotehealth.core.concurrent.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.util.concurrent.atomic.AtomicReference;
 

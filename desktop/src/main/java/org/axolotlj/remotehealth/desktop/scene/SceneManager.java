@@ -1,6 +1,6 @@
 package org.axolotlj.remotehealth.desktop.scene;
 
-import static org.axolotlj.remotehealth.core.concurrent.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -8,9 +8,9 @@ import java.lang.management.ManagementFactory;
 import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
-import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
-import org.axolotlj.remotehealth.core.logger.DataLogger;
+import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,7 +26,7 @@ public class SceneManager {
     private static Stage stage;
 
     private static SceneType lastScene;
-    private static Object currentController;
+    public static Object currentController;
     private static DataLogger dataLogger = Log.get();
 
     private SceneManager(Stage stage) {
@@ -80,6 +80,7 @@ public class SceneManager {
 
             System.gc();
         } catch (IOException e) {
+        	switchTo(SceneType.DEVICE_SELECTOR);
             dataLogger.logException("Error cargando la escena " + sceneType.name(), e);
         } finally {
             ManagementFactory.getMemoryMXBean().gc();

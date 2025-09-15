@@ -1,8 +1,9 @@
-package org.axolotlj.remotehealth.core.logger;
+package org.axolotlj.remotehealth.core.logger.api;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import static org.axolotlj.remotehealth.core.logger.format.ExceptionReporter.generateReport;
+import static org.axolotlj.remotehealth.core.logger.format.FormaterLoggerUtils.formatLogLine;
 
+import org.axolotlj.remotehealth.core.logger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +14,6 @@ import org.slf4j.LoggerFactory;
 public class Slf4jFileDataLogger extends DataLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(Slf4jFileDataLogger.class);
-
-    private static final String PREFIX = "Remote Health";
-
-    private static final DateTimeFormatter LOG_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     public Slf4jFileDataLogger() {
         super(null);
@@ -34,13 +31,13 @@ public class Slf4jFileDataLogger extends DataLogger {
 
     @Override
     public void logException(String context, Exception exception) {
-        String report = ExceptionReporter.generateReport(context, exception);
+        String report = generateReport(context, exception);
         log(LogLevel.ERROR, report);
     }
 
     @Override
     public void logException(String message, Throwable throwable) {
-        String report = ExceptionReporter.generateReport(message, throwable);
+        String report = generateReport(message, throwable);
         log(LogLevel.ERROR, report);
     }
 
@@ -63,28 +60,6 @@ public class Slf4jFileDataLogger extends DataLogger {
             case DEBUG -> logger.debug(formatted);
             default -> logger.info(formatted);
         }
-    }
-
-    private String formatLogLine(LogLevel level, String message) {
-        String timestamp = LocalDateTime.now().format(LOG_FORMATTER);
-        String threadName = Thread.currentThread().getName();
-        String source = getCallerSource();
-        return String.format("[%s] [%s] [%-5s] [%s/%s]: %s",
-                PREFIX, timestamp, level.getLabel(), threadName, source, message);
-    }
-
-    private String getCallerSource() {
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        for (int i = 2; i < stack.length; i++) {
-            StackTraceElement element = stack[i];
-            String className = element.getClassName();
-            if (!className.equals(this.getClass().getName()) && !className.equals(Thread.class.getName())) {
-                String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
-                String methodName = element.getMethodName();
-                return simpleClassName + "." + methodName;
-            }
-        }
-        return "UnknownSource";
     }
 
     @Override

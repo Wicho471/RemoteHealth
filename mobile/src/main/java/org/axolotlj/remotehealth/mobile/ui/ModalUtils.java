@@ -2,7 +2,7 @@ package org.axolotlj.remotehealth.mobile.ui;
 
 import java.io.IOException;
 
-import org.axolotlj.remotehealth.core.javafx.FxmlUtils;
+import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 
 import javafx.fxml.FXMLLoader;

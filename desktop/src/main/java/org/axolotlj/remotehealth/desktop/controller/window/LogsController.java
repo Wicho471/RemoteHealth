@@ -13,7 +13,7 @@ import javafx.scene.text.TextFlow;
 
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 import org.axolotlj.remotehealth.core.io.FileCompressor;
-import org.axolotlj.remotehealth.core.javafx.ImageViewUtils;
+import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.desktop.ui.ButtonUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
 import org.axolotlj.remotehealth.desktop.utils.Fonts;
