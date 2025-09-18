@@ -57,4 +57,6 @@ public interface IWebSocketManager {
     
     
     void setOnDisconnectHandler(Consumer<String> handler);
+    
+    long getDelay();
 }

@@ -13,6 +13,7 @@ import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.analysis.bp.core.BPMonitor;
 import org.axolotlj.remotehealth.core.analysis.hr.HrMonitor;
 import org.axolotlj.remotehealth.core.analysis.spo2.Spo2Monitor;
+import org.axolotlj.remotehealth.core.cmd.CommandExecutor;
 import org.axolotlj.remotehealth.core.filters.IirRealTimeFilter;
 import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.sensor.data.DataPoint;
@@ -21,6 +22,7 @@ import org.axolotlj.remotehealth.core.service.DataProcessor;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.SystemMonitor;
+import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ChartUtils;
 import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
@@ -45,6 +47,7 @@ import javafx.scene.image.ImageView;
  */
 public class DashboardController implements ContextAware, DisposableController {
 	private boolean isRecoding = false;
+	private CommandExecutor commandExecutor;
 
 	// ───────────────────── Constantes ─────────────────────
 	private static final int MAX_POINTS_ECG = 2500;
@@ -58,6 +61,7 @@ public class DashboardController implements ContextAware, DisposableController {
 	private ExecutorService parallelExecutor;
 	private ScheduledExecutorService scheduler;
 	private AppContext appContext;
+	private WebSocketManager socketManager;
 	private HrMonitor hrMonitor;
 	private Spo2Monitor spo2Monitor;
 	private BPMonitor bpMonitor;
@@ -104,6 +108,7 @@ public class DashboardController implements ContextAware, DisposableController {
 		setupCharts();
 		startDataUpdater();
 		handleOnDisconect();
+		//initPingMonitor();
 	}
 
 	private void handleOnDisconect() {
@@ -117,6 +122,8 @@ public class DashboardController implements ContextAware, DisposableController {
 	public void setAppContext(AppContext context) {
 		this.appContext = context;
 		this.processedQueue = context.getProcessedQueue();
+		this.socketManager = (WebSocketManager) context.getWsManager();
+		this.commandExecutor = new CommandExecutor(appContext.getDataProcessor().getCommunicator());
 	}
 
 	// ───────────────────── Manejo de UI ─────────────────────
@@ -203,10 +210,10 @@ public class DashboardController implements ContextAware, DisposableController {
 	@FXML
 	private void configEsp32Handle() {
 		ModalUtils.openModalWindow(DesktopPaths.VIEW_SCENE_CONFIG_ESP32_FXML, "Configuracion del esp32", this,
-				Images.IMG_FAVICONS_MICROCONTROLER,
-				controller -> {
+				Images.IMG_FAVICONS_MICROCONTROLER, controller -> {
 					ConfigEsp32Controller esp32Controller = (ConfigEsp32Controller) controller;
-					esp32Controller.setCommandCommunicator(appContext.getDataProcessor().getCommunicator());
+					esp32Controller.setCommandCommunicator(appContext.getDataProcessor().getCommunicator(),
+							appContext.getWsManager().getConnectionData());
 				});
 	}
 
@@ -266,6 +273,18 @@ public class DashboardController implements ContextAware, DisposableController {
 				applyToChart(data);
 			}
 		}, 0, 20, TimeUnit.MILLISECONDS);
+	}
+
+	private void initPingMonitor() {
+		scheduler.scheduleAtFixedRate(() -> {
+			commandExecutor.measurePing(2000).thenAccept(ping -> {
+				TextUtils.setText(LATENCY, ping);
+				TextUtils.updateTextFieldColor(LATENCY, ping, 0, 1000);
+			}).exceptionally(ex -> {
+				TextUtils.setText(LATENCY, "???");
+				return null;
+			});
+		}, 0, 5, TimeUnit.SECONDS);
 	}
 
 	private void processAndEnqueue(DataPoint data) {
@@ -331,7 +350,6 @@ public class DashboardController implements ContextAware, DisposableController {
 		processedSamples++;
 		long now = System.currentTimeMillis();
 		if (now - lastSampleUpdate >= 1000) {
-			long latency = Math.abs(now - data.getTimeStamp());
 			int samplesPerSecond = processedSamples;
 			int dataleft = processedQueue.size();
 
@@ -343,9 +361,6 @@ public class DashboardController implements ContextAware, DisposableController {
 
 			TextUtils.setText(dataRemaining, dataleft);
 			TextUtils.updateTextFieldColor(dataRemaining, dataleft, 0, 100);
-
-			TextUtils.setText(LATENCY, latency);
-			TextUtils.updateTextFieldColor(LATENCY, latency, 0, 1000);
 		}
 	}
 

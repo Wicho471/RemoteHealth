@@ -11,7 +11,10 @@ import org.axolotlj.remotehealth.core.cmd.response.SensorStatus;
 import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
+import org.axolotlj.remotehealth.core.model.ConnectionData;
+import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.TextUtils;
+import org.axolotlj.remotehealth.desktop.ui.modal.QR;
 import org.axolotlj.remotehealth.desktop.utils.Images;
 
 import javafx.fxml.FXML;
@@ -25,6 +28,7 @@ public class ConfigEsp32Controller implements DisposableController {
 	private final DataLogger dataLogger = Log.get();
 
 	private CommandExecutor executor;
+	private ConnectionData connectionData;
 
 	@FXML
 	TextField currentSSID, ipv4, ipv6, ssidAp, passwordAp, oximeterBrightness;
@@ -79,9 +83,10 @@ public class ConfigEsp32Controller implements DisposableController {
 		});
 		executor.sendCommandAndWait(CommandType.PREFERENCES_STATUS, 5000).thenAccept(response -> {
 			PreferencesStatus preferencesStatus = CommandResponseParser.parsePreferencesStatus(response);
-			TextUtils.setText(ssidAp, preferencesStatus.SSID_AP());
-			TextUtils.setText(passwordAp, preferencesStatus.passwordAP());
-			TextUtils.setText(oximeterBrightness, preferencesStatus.oximeterBrightnes());
+			TextUtils.setText(ssidAp, preferencesStatus.ssidAp());
+			TextUtils.setText(passwordAp, preferencesStatus.passwordAp());
+			TextUtils.setText(oximeterBrightness, preferencesStatus.oximeterBrightness());
+			TextUtils.setText(currentSSID, preferencesStatus.ssidSta());
 		}).exceptionally(ex -> {
 			TextUtils.setText(ssidAp, "Desconocido");
 			TextUtils.setText(passwordAp, "Desconocido");
@@ -107,12 +112,18 @@ public class ConfigEsp32Controller implements DisposableController {
 
 	@FXML
 	private void handleShowQr() {
-
+		String ipv4 = this.ipv4.getText();
+		String ipv6 = this.ipv6.getText();
+		if(ipv4.isEmpty() || ipv4.isBlank() || ipv4.equals("Desconocido") || ipv6.isEmpty() || ipv6.isBlank() || ipv6.equals("Desconocido")) {
+			QR.showQrHandle(connectionData);
+			AlertUtil.showWarningAlert("Alerta", "QR no actualizado correctamente", "Intenta refrescar la conexion");
+		}
+		QR.showQrHandle(ipv4, ipv6, connectionData.getPath(), connectionData.getPort(), connectionData.getName());
 	}
 
 	@FXML
 	private void handleAddConnection() {
-
+		
 	}
 
 	@FXML
@@ -122,12 +133,12 @@ public class ConfigEsp32Controller implements DisposableController {
 
 	@FXML
 	private void handleOpenCmd() {
-
+		
 	}
 
 	@FXML
 	private void handleApply() {
-
+		
 	}
 
 	@FXML
@@ -135,8 +146,8 @@ public class ConfigEsp32Controller implements DisposableController {
 
 	}
 
-	public void setCommandCommunicator(CommandCommunicator communicator) {		
-		dataLogger.logDebug("Se seteo el comunicador de comandos");
+	public void setCommandCommunicator(CommandCommunicator communicator, ConnectionData data) {		
+		this.connectionData = data;
 		this.executor = new CommandExecutor(communicator);
 		handleRefresh();
 	}

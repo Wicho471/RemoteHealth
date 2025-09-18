@@ -1,5 +1,10 @@
 package org.axolotlj.remotehealth.core.cmd.response;
 
-public record PreferencesStatus(String SSID_AP, String passwordAP, boolean APEnabled, int oximeterBrightnes) {
-
-}
+public record PreferencesStatus(
+        String ssidSta,
+        String passwordSta,
+        String ssidAp,
+        String passwordAp,
+        boolean apEnabled,
+        int oximeterBrightness
+) {}

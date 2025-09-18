@@ -127,7 +127,7 @@ public class BluetoothListController implements DisposableController {
 		scanner.establishConnection(device, () -> {
 			SceneManager.switchTo(SceneType.CONFIG_ESP32);
 			ConfigEsp32Controller configEsp32Controller = (ConfigEsp32Controller) SceneManager.currentController;
-			configEsp32Controller.setCommandCommunicator(scanner);
+			//configEsp32Controller.setCommandCommunicator(scanner, );
 			Stage stage = (Stage) bluetoothTable.getScene().getWindow();
 			stage.close();
 		}, () -> {

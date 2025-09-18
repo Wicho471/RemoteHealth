@@ -22,7 +22,7 @@ import okio.ByteString;
  * Gestor de conexiones WebSocket basado en OkHttp.
  */
 public class WebSocketManager implements IWebSocketManager {
-
+	
 	private BlockingQueue<String> messageQueue;
 	private final AtomicReference<WebSocket> socketRef = new AtomicReference<>();
 	private DataLogger dataLogger = Log.get();
@@ -181,5 +181,11 @@ public class WebSocketManager implements IWebSocketManager {
 	public void setOnDisconnectHandler(Consumer<String> handler) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public long getDelay() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

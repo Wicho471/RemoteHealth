@@ -40,10 +40,9 @@ public class DataProcessor {
 			while (active) {
 				try {
 					String data = messageQueue.take();
-					//Puede que haya mas de una linea de mensajes
 					if ("STOP".equals(data))
 						break;
-					if (data.contains("{")) {
+					if (data.startsWith("{")) {
 						dataLogger.logDebug("Comando detectado -> "+ data);
 						communicator.dispatch(data);
 						continue;

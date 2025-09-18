@@ -24,7 +24,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 
 public class WebSocketManager implements IWebSocketManager {
-
+		
 	private BlockingQueue<String> messageQueue;
 	private final AtomicReference<Session> sessionRef = new AtomicReference<>();
 	private DataLogger dataLogger = Log.get();
@@ -128,7 +128,7 @@ public class WebSocketManager implements IWebSocketManager {
 		if (textMessage.isBlank())
 			return;
 		try {
-			messageQueue.put(textMessage);
+			enqueMessage(textMessage);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			dataLogger.logException("Error al encolar texto: ", e);
@@ -140,13 +140,20 @@ public class WebSocketManager implements IWebSocketManager {
 		byteBuffer.get(data);
 		String base64 = java.util.Base64.getEncoder().encodeToString(data);
 		try {
-			messageQueue.put(base64);
+			enqueMessage(base64);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			dataLogger.logException("Error al encolar binario: ", e);
 		}
 	}
 
+	private void enqueMessage(String rawText) throws InterruptedException {
+		String messages [] = rawText.split("\n");
+		for (String message : messages) {
+			messageQueue.put(message);				
+		}
+	}
+	
 	/**
 	 * Envía un mensaje de texto por el WebSocket si la sesión está activa.
 	 * 
@@ -220,5 +227,11 @@ public class WebSocketManager implements IWebSocketManager {
 
 	public boolean isConnected() {
 		return isConnected;
+	}
+
+	@Override
+	public long getDelay() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

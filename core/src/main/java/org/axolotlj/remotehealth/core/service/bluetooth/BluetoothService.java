@@ -1,7 +1,6 @@
 package org.axolotlj.remotehealth.core.service.bluetooth;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.axolotlj.remotehealth.core.cmd.CommandCommunicator;
 

@@ -9,6 +9,8 @@ public enum CommandType {
 	SET_STA_CREDENTIALS("SetSTACredentials"),
 	SET_AP_CREDENTIALS("SetAPCredentials"),
 	
+	PING("ping"),
+	
 	SET_BRIGHNESS("SetBrightness"),
 	
     RESTART_SYSTEM("RestartSystem"),
