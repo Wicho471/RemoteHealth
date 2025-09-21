@@ -12,16 +12,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import org.axolotlj.remotehealth.desktop.utils.CsvFileInfo;
-import org.axolotlj.remotehealth.desktop.utils.Images;
 import org.axolotlj.remotehealth.core.config.ConfigFileHelper;
 import org.axolotlj.remotehealth.core.io.CsvUtils;
-import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
+import org.axolotlj.remotehealth.core.model.CsvFileInfo;
 import org.axolotlj.remotehealth.desktop.controller.scene.DataAnalysisController;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
+import org.axolotlj.remotehealth.desktop.ui.ImageViewUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
+import org.axolotlj.remotehealth.desktop.ui.TableUtils.ColumnAdjustMode;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 import org.axolotlj.remotehealth.core.sensor.io.CsvDataManager;
 
 import java.awt.Desktop;
@@ -322,6 +323,6 @@ public class CsvSelectorController {
 			}
 		});
 
-		TableUtils.adjustColumns(csvTable, false);
+		TableUtils.adjustColumns(csvTable, false, ColumnAdjustMode.DISTRIBUTE);
 	}
 }

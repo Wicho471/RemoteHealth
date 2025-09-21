@@ -1,21 +1,22 @@
 package org.axolotlj.remotehealth.desktop.controller.window;
 
-import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.desktop.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.util.List;
 
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
-import org.axolotlj.remotehealth.core.javafx.current.AsyncExecutor;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.service.bluetooth.BluetoothDeviceInfo;
 import org.axolotlj.remotehealth.core.service.bluetooth.BluetoothService;
 import org.axolotlj.remotehealth.desktop.controller.scene.ConfigEsp32Controller;
+import org.axolotlj.remotehealth.desktop.javafx.current.AsyncExecutor;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.bluetooth.BluetoothServiceFactory;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
+import org.axolotlj.remotehealth.desktop.ui.TableUtils.ColumnAdjustMode;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -65,7 +66,7 @@ public class BluetoothListController implements DisposableController {
 		bluetoothTable.getColumns().addAll(nameColumn, addressColumn, actionColumn);
 		bluetoothTable.setItems(deviceList);
 
-		TableUtils.adjustColumns(bluetoothTable, false);
+		TableUtils.adjustColumns(bluetoothTable, false, ColumnAdjustMode.DISTRIBUTE);
 
 		loadDevices();
 	}

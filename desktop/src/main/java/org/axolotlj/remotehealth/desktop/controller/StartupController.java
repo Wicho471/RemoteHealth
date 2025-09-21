@@ -1,7 +1,7 @@
 package org.axolotlj.remotehealth.desktop.controller;
 
-import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
-import static org.axolotlj.remotehealth.core.javafx.current.AsyncExecutor.runAsyncTask;
+import static org.axolotlj.remotehealth.desktop.javafx.current.AsyncExecutor.runAsyncTask;
+import static org.axolotlj.remotehealth.desktop.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,17 +12,19 @@ import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.config.files.ConnectionsHandler;
-import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
-import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.lang.I18n;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeListener;
 import org.axolotlj.remotehealth.core.lang.LocaleChangeNotifier;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
+import org.axolotlj.remotehealth.core.network.NetworkUtil;
+import org.axolotlj.remotehealth.core.network.ipv4.IPv4Network;
+import org.axolotlj.remotehealth.core.network.ipv6.IPv6Network;
 import org.axolotlj.remotehealth.core.service.DataProcessor;
-import org.axolotlj.remotehealth.core.util.NetworkUtil;
 import org.axolotlj.remotehealth.desktop.controller.window.DeviceConfigController;
+import org.axolotlj.remotehealth.desktop.javafx.FxmlUtils;
+import org.axolotlj.remotehealth.desktop.paths.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.CommandManager;
@@ -30,11 +32,12 @@ import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketManager;
 import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.ButtonUtils;
+import org.axolotlj.remotehealth.desktop.ui.ImageViewUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
 import org.axolotlj.remotehealth.desktop.ui.ToolTipUtil;
+import org.axolotlj.remotehealth.desktop.ui.TableUtils.ColumnAdjustMode;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 import org.axolotlj.remotehealth.desktop.ui.modal.QR;
-import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
-import org.axolotlj.remotehealth.desktop.utils.Images;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -114,9 +117,11 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 
 	@FXML
 	private void handleQrSimu() {
-		dataLogger.logDebug("Boton QR simulador precionado");
-		QR.showQrHandle(NetworkUtil.getIPv4(), NetworkUtil.getGlobalIPv6(), WebSocketServerSimulator.PATH,
-				WebSocketServerSimulator.PORT, "Simulator");
+		String ipv4 = IPv4Network.getIPv4();
+		String ipv6 = IPv6Network.getGlobalIPv6();
+		dataLogger.logDebug("[Datos del QR] IPv4=" + ipv4 + " | IPv6=" + ipv6);
+		QR.showQrHandle(ipv4, ipv6, WebSocketServerSimulator.PATH, WebSocketServerSimulator.PORT,
+				WebSocketServerSimulator.NAME);
 	}
 
 	private void updateSimuStatus(boolean isActive) {
@@ -291,40 +296,32 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 				btn.setOnAction(event -> {
 					ConnectionData data = getTableView().getItems().get(getIndex());
 					int index = getIndex();
+					try {
+						FXMLLoader loader = FxmlUtils.loadFXML(DesktopPaths.VIEW_WINDOW_DEVICECONFIGWINDOW_FXML);
+						Pane root = (Pane) loader.load();
 
-					Optional<ButtonType> result = AlertUtil.showConfirmationAlert("Confirmación de configuración",
-							"¿Deseas configurar este dispositivo?", "Dispositivo: " + data.getName());
-
-					if (result.isPresent() && result.get() == ButtonType.OK) {
-						// Abrimos la ventana emergente
-						try {
-							FXMLLoader loader = FxmlUtils.loadFXML(DesktopPaths.VIEW_WINDOW_DEVICECONFIGWINDOW_FXML);
-							Pane root = (Pane) loader.load();
-
-							DeviceConfigController controller = loader.getController();
-							controller.setData(data, index, () -> {
-								ConnectionsHandler.removeConnectionData(index);
-								Platform.runLater(() -> {
-									deviceTable.getItems().remove(index);
-								});
+						DeviceConfigController controller = loader.getController();
+						controller.setData(data, index, () -> {
+							ConnectionsHandler.removeConnectionData(index);
+							Platform.runLater(() -> {
+								deviceTable.getItems().remove(index);
 							});
+						});
 
-							Stage stage = new Stage();
-							stage.setTitle("Configurar dispositivo");
-							stage.setScene(new Scene(root));
-							stage.initModality(Modality.APPLICATION_MODAL);
-							stage.setResizable(false);
-							stage.showAndWait();
+						Stage stage = new Stage();
+						stage.setTitle("Configurar dispositivo");
+						stage.setScene(new Scene(root));
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.setResizable(false);
+						stage.showAndWait();
 
-							// Opcional: Refresh tabla si necesitas actualizar vista tras aplicar cambios
-							deviceTable.refresh();
+						// Opcional: Refresh tabla si necesitas actualizar vista tras aplicar cambios
+						deviceTable.refresh();
 
-						} catch (IOException e) {
-							dataLogger.logException("Ocurrio un error al intentar abrir la ventana de configuracion",
-									e);
-							AlertUtil.showErrorAlert("Error", "No se pudo abrir la ventana de configuración",
-									e.getMessage());
-						}
+					} catch (IOException e) {
+						dataLogger.logException("Ocurrio un error al intentar abrir la ventana de configuracion", e);
+						AlertUtil.showErrorAlert("Error", "No se pudo abrir la ventana de configuración",
+								e.getMessage());
 					}
 				});
 
@@ -344,7 +341,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		});
 
 		deviceTable.getColumns().setAll(deleteCol, numberCol, nameCol, statusLocalCol, statusRemoteCol);
-		TableUtils.adjustColumns(deviceTable, true);
+		TableUtils.adjustColumns(deviceTable, true, ColumnAdjustMode.DISTRIBUTE);
 	}
 
 	private <T> Callback<TableColumn<ConnectionData, T>, TableCell<ConnectionData, T>> centeredTextCellFactory() {
@@ -383,7 +380,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 				closeConnectingAlert();
 				SceneManager.switchTo(SceneType.DASHBOARD);
 			}, error -> {
-				
+
 			});
 		}, message -> {
 			closeConnectingAlert();
@@ -401,7 +398,7 @@ public class StartupController implements ContextAware, LocaleChangeListener, Di
 		setStatusAsync(imgDriverStatus, NetworkUtil::hasEnabledNetworkInterface);
 		setStatusAsync(imgLANStatus, NetworkUtil::isLocalNetworkAvailable);
 		setStatusAsync(imgInternetStatus, NetworkUtil::isInternetAvailable);
-		setStatusAsync(imgIpv6Status, NetworkUtil::isGlobalIPv6Available);
+		setStatusAsync(imgIpv6Status, IPv6Network::isGlobalIPv6Available);
 	}
 
 	private void setStatusAsync(ImageView imageView, Supplier<Boolean> checkFunction) {

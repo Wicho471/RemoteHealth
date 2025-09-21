@@ -15,6 +15,7 @@ import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.AnalysisData;
 import org.axolotlj.remotehealth.core.model.AnomalyData;
 import org.axolotlj.remotehealth.core.sensor.io.CsvDataManager;
+import org.axolotlj.remotehealth.desktop.paths.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
@@ -22,8 +23,8 @@ import org.axolotlj.remotehealth.desktop.ui.ChartUtils;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
 import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
 import org.axolotlj.remotehealth.desktop.ui.TableUtils;
-import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
-import org.axolotlj.remotehealth.desktop.utils.Images;
+import org.axolotlj.remotehealth.desktop.ui.TableUtils.ColumnAdjustMode;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -83,7 +84,7 @@ public class DataAnalysisController implements DisposableController {
 		ChartUtils.setStyle(spo2Chart, DesktopPaths.CSS_DASHBOARDSTYLE_CSS);
 		ChartUtils.setStyle(motionChart, DesktopPaths.CSS_DASHBOARDSTYLE_CSS);
 		ChartUtils.setStyle(bpChart, DesktopPaths.CSS_DASHBOARDSTYLE_CSS);
-		TableUtils.adjustColumns(anomalyTable, false);
+		TableUtils.adjustColumns(anomalyTable, false, ColumnAdjustMode.DISTRIBUTE);
 
 		initializeChoiseTimeLength();
 		showLoading(false);

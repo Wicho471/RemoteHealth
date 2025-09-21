@@ -5,12 +5,12 @@ import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
 import org.axolotlj.remotehealth.core.config.files.ConnectionsHandler;
+import org.axolotlj.remotehealth.desktop.io.QRDecorer;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.QRScanner;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
-import org.axolotlj.remotehealth.desktop.utils.DesktopQRDecorer;
 
 import com.google.gson.JsonObject;
 
@@ -54,7 +54,7 @@ public class DeviceSetupController implements DisposableController {
 		FileChooserUtils
 				.chooseFile(SceneManager.getStage(), "Seleccionar código QR", "Imágenes PNG", "*.png")
 				.ifPresent(file -> {
-					String qrContent = DesktopQRDecorer.decodeQRCode(file.getAbsolutePath());
+					String qrContent = QRDecorer.decodeQRCode(file.getAbsolutePath());
 					if (ConnectionsHandler.addConnetcionData(qrContent)) {
 						AlertUtil.showInformationAlert("Éxito", null, "Se añadió correctamente el dispositivo", true);
 					} else {

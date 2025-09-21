@@ -83,7 +83,7 @@
             <version>2.1.3</version>
         </dependency>
         
-        		<!-- Comunicacion serial -->
+        <!-- Comunicacion serial -->
         <dependency>
             <groupId>com.fazecast</groupId>
             <artifactId>jSerialComm</artifactId>

@@ -1,7 +1,7 @@
 package org.axolotlj.remotehealth.desktop.scene;
 
-import org.axolotlj.remotehealth.desktop.utils.Images;
-import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
+import org.axolotlj.remotehealth.desktop.paths.DesktopPaths;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 
 import javafx.scene.image.Image;
 

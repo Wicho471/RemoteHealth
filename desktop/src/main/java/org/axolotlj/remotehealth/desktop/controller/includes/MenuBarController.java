@@ -22,6 +22,7 @@ import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.path.SharedPaths;
 import org.axolotlj.remotehealth.core.simulation.GenerationMode;
+import org.axolotlj.remotehealth.desktop.paths.DesktopPaths;
 import org.axolotlj.remotehealth.desktop.scene.SceneManager;
 import org.axolotlj.remotehealth.desktop.scene.SceneType;
 import org.axolotlj.remotehealth.desktop.service.websocket.WebSocketServerSimulator;
@@ -29,8 +30,7 @@ import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
 import org.axolotlj.remotehealth.desktop.ui.DialogPanelUtils;
 import org.axolotlj.remotehealth.desktop.ui.FileChooserUtils;
 import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
-import org.axolotlj.remotehealth.desktop.utils.DesktopPaths;
-import org.axolotlj.remotehealth.desktop.utils.Images;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -41,7 +41,6 @@ import javafx.scene.control.ToggleGroup;
 public class MenuBarController implements ContextAware, LocaleChangeListener {
 	private AppContext appContext;
 	private DataLogger dataLogger = Log.get();
-	private SceneManager sceneManager;
 	private WebSocketServerSimulator simu;
 
 	@FXML
@@ -113,17 +112,17 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 
 	@FXML
 	private void openAnalysisHandler() {
-		sceneManager.switchTo(SceneType.ANALYSIS);
+		SceneManager.switchTo(SceneType.ANALYSIS);
 	}
 
 	@FXML
 	private void flashEsp32Handle() {
-		sceneManager.switchTo(SceneType.FLASH_ESP);
+		SceneManager.switchTo(SceneType.FLASH_ESP);
 	}
 
 	@FXML
 	private void filterSettingsHandler() {
-		sceneManager.switchTo(SceneType.FILTERS_SETTINGS);
+		SceneManager.switchTo(SceneType.FILTERS_SETTINGS);
 	}
 
 	@FXML
@@ -200,19 +199,43 @@ public class MenuBarController implements ContextAware, LocaleChangeListener {
 
 	@FXML
 	private void dirHandler() {
-		Path path = ConfigFileHelper.resolveMainDir();
-		try {
-			File file = new File(path.toAbsolutePath().toString());
-			if (!file.exists()) {
-				System.err.println("La ruta no existe: " + path);
-				return;
-			}
-			Desktop desktop = Desktop.getDesktop();
-			desktop.open(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	    dataLogger.logDebug("Se presionó el botón para abrir el directorio principal");
+	    try {
+	        Path path = ConfigFileHelper.resolveMainDir();
+	        File file = path.toFile();
+
+	        if (!file.exists()) {
+	            dataLogger.logWarn("La ruta no existe: " + path);
+	            return;
+	        }
+
+	        if (!Desktop.isDesktopSupported()) {
+	            dataLogger.logWarn("Desktop API no soportada en este sistema");
+	            return;
+	        }
+
+	        Desktop desktop = Desktop.getDesktop();
+
+	        if (!desktop.isSupported(Desktop.Action.OPEN)) {
+	            dataLogger.logWarn("La acción OPEN no está soportada en este sistema");
+	            return;
+	        }
+
+	        new Thread(() -> {
+	            try {
+	                dataLogger.logInfo("Abriendo el directorio principal: " + file.getAbsolutePath());
+	                desktop.open(file);
+	            } catch (Exception e) {
+	                dataLogger.logException("Error al intentar abrir el directorio", e);
+	            }
+	        }, "Opened-Main-Dir").start();
+
+	    } catch (Exception e) {
+	        dataLogger.logException("Error inesperado al intentar abrir el directorio", e);
+	    }
 	}
+
+
 
 	@Override
 	public void setAppContext(AppContext context) {

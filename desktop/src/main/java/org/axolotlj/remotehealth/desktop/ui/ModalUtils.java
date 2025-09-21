@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 
 import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
-import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
+import org.axolotlj.remotehealth.desktop.javafx.FxmlUtils;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

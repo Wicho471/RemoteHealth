@@ -1,6 +1,6 @@
 package org.axolotlj.remotehealth.desktop.scene;
 
-import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.desktop.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -8,9 +8,9 @@ import java.lang.management.ManagementFactory;
 import org.axolotlj.remotehealth.core.AppContext;
 import org.axolotlj.remotehealth.core.AppContext.ContextAware;
 import org.axolotlj.remotehealth.core.AppContext.DisposableController;
-import org.axolotlj.remotehealth.core.javafx.util.FxmlUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
+import org.axolotlj.remotehealth.desktop.javafx.FxmlUtils;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

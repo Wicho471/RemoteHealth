@@ -23,7 +23,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Analysis.png" />
+								<Image url="@../../img/favicons/Analysis.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -36,7 +36,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/Settings.png" />
+								<Image url="@../../img/favicons/Settings.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -49,7 +49,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/interactivo.png" />
+								<Image url="@../../img/favicons/interactivo.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -61,7 +61,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/electrocardiograma.png" />
+								<Image url="@../../img/icons/electrocardiograma.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -74,7 +74,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/seno.png" />
+								<Image url="@../../img/icons/seno.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -88,7 +88,7 @@
 					<graphic>
 						<ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/rendimiento.png" />
+								<Image url="@../../img/favicons/rendimiento.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -97,7 +97,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/carpetas.png" />
+                        <Image url="@../../img/favicons/carpetas.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -106,7 +106,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/log.png" />
+                        <Image url="@../../img/favicons/log.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -116,7 +116,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/dev.png" />
+                        <Image url="@../../img/favicons/dev.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -132,7 +132,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/langs/es.png" />
+								<Image url="@../../img/langs/es.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -141,7 +141,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/langs/us.png" />
+								<Image url="@../../img/langs/us.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -154,7 +154,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/manual.png" />
+								<Image url="@../../img/favicons/manual.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -163,7 +163,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/licencia.png" />
+                        <Image url="@../../img/favicons/licencia.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -173,7 +173,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/credit.png" />
+                        <Image url="@../../img/favicons/credit.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -182,7 +182,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/gracias.png" />
+                        <Image url="@../../img/favicons/gracias.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -191,7 +191,7 @@
 					<graphic>
 						<ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
 							<image>
-								<Image url="file:../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/favicons/acerca-de.png" />
+								<Image url="@../../img/favicons/acerca-de.png" />
 							</image>
 						</ImageView>
 					</graphic>

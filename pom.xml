@@ -14,7 +14,6 @@
     <modules>
         <module>core</module>
         <module>desktop</module>
-        <module>mobile</module>
     </modules>
 
     <!-- Versión centralizadas que heredan los hijos                        -->

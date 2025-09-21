@@ -8,10 +8,14 @@ import java.util.Locale;
 public class LogEntry {
     private final String name;
     private final File file;
+    private final String size;
+    private final long lineCount;
 
-    public LogEntry(String name, File file) {
+    public LogEntry(String name, File file, String size, long lineCount) {
         this.name = name;
         this.file = file;
+        this.size = size;
+        this.lineCount = lineCount;
     }
 
     public String getDisplayName() {
@@ -27,7 +31,19 @@ public class LogEntry {
         return sdf.format(new Date(modified));
     }
 
+    public String getName() {
+        return name;
+    }
+
     public File getFile() {
         return file;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public long getLineCount() {
+        return lineCount;
     }
 }

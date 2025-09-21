@@ -10,8 +10,8 @@ import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.DeviceInfo;
 import org.axolotlj.remotehealth.core.service.DeviceInfoService;
+import org.axolotlj.remotehealth.desktop.paths.DesktopPathResolver;
 import org.axolotlj.remotehealth.desktop.service.DesktopDeviceInfoProvider;
-import org.axolotlj.remotehealth.desktop.utils.DesktopPathResolver;
 
 public class DesktopConfigurator implements PlatformConfigurator {
 
@@ -25,7 +25,7 @@ public class DesktopConfigurator implements PlatformConfigurator {
 	@Override
 	public void checkPaths() {
 		try {
-			Class.forName("org.axolotlj.remotehealth.desktop.utils.DesktopPaths");
+			Class.forName("org.axolotlj.remotehealth.desktop.paths.DesktopPaths");
 			Class.forName("org.axolotlj.remotehealth.core.path.SharedPaths");
 		} catch (ClassNotFoundException e) {
 			String message = "Error al precargar rutas";
@@ -57,5 +57,11 @@ public class DesktopConfigurator implements PlatformConfigurator {
 	public void getRuntimeArgs() {
 		Properties properties = System.getProperties();
 		properties.forEach((key, value) -> dataLogger.logDebug(key + " = " + value));
+	}
+
+	@Override
+	public void setMainPath() {
+		// TODO Auto-generated method stub
+		
 	}
 }

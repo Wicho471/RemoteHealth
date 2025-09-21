@@ -1,12 +1,12 @@
 package org.axolotlj.remotehealth.desktop.ui;
 
-import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.desktop.javafx.current.FxThreadUtils.runOnUIThread;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.axolotlj.remotehealth.core.validations.ValidationResult;
-import org.axolotlj.remotehealth.desktop.utils.Images;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;

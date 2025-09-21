@@ -2,6 +2,8 @@ package org.axolotlj.remotehealth.core.validations;
 
 import java.io.File;
 
+import org.axolotlj.remotehealth.core.network.ipv6.IPv6Validator;
+
 /**
  * Contiene validaciones básicas y reutilizables para diversos tipos de datos.
  */
@@ -98,6 +100,6 @@ public abstract class BaseValidation {
 	 * @return true si es una IPv6 válida o "localhost"; false en caso contrario.
 	 */
 	public static boolean isValidIPv6(String ip) {
-	    return ip != null && (ip.equals("localhost") || ip.matches("^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$"));
+		return IPv6Validator.isValidIPv6(ip);
 	}
 }

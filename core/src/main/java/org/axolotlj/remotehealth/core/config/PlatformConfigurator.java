@@ -9,4 +9,6 @@ public interface PlatformConfigurator {
 	void getRuntimeArgs();
 
 	void devConfigs();
+	
+	void setMainPath();
 }

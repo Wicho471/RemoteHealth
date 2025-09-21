@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
-import org.axolotlj.remotehealth.desktop.utils.DesktopQRDecorer;
+import org.axolotlj.remotehealth.desktop.io.QRDecorer;
 
 import com.github.sarxos.webcam.Webcam;
 
@@ -44,7 +44,7 @@ public class QRScanner {
                 if (image == null) continue;
                 WritableImage fx = SwingFXUtils.toFXImage(image, null);
                 Platform.runLater(() -> targetView.setImage(fx));
-                String qr = DesktopQRDecorer.decodeQRCode(image);
+                String qr = QRDecorer.decodeQRCode(image);
                 if (qr != null) {
                 	dataLogger.logInfo("Codigo QR detectado");
                     running = false;

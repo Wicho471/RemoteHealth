@@ -1,6 +1,6 @@
 package org.axolotlj.remotehealth.desktop.ui;
 
-import static org.axolotlj.remotehealth.core.javafx.current.FxThreadUtils.runOnUIThread;
+import static org.axolotlj.remotehealth.desktop.javafx.current.FxThreadUtils.runOnUIThread;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;

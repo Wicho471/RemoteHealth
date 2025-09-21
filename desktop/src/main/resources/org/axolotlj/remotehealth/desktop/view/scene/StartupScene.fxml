@@ -31,7 +31,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                      <image>
-                        <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/trabajo-en-progreso.png" />
+                        <Image url="@../../img/icons/trabajo-en-progreso.png" />
                      </image>
                   </ImageView>
                   <Label text="Cotrolador de red">
@@ -48,7 +48,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                      <image>
-                        <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/trabajo-en-progreso.png" />
+                        <Image url="@../../img/icons/trabajo-en-progreso.png" />
                      </image>
                   </ImageView>
                   <Label text="Acceso a red local">
@@ -65,7 +65,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                      <image>
-                        <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/trabajo-en-progreso.png" />
+                        <Image url="@../../img/icons/trabajo-en-progreso.png" />
                      </image>
                   </ImageView>
                   <Label text="Internet">
@@ -82,7 +82,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                      <image>
-                        <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/trabajo-en-progreso.png" />
+                        <Image url="@../../img/icons/trabajo-en-progreso.png" />
                      </image>
                   </ImageView>
                   <Label text="Ipv6 global">
@@ -99,7 +99,7 @@
                <graphic>
                   <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/actualizar.png" />
+                        <Image url="@../../img/buttons/actualizar.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -124,7 +124,7 @@
                            <graphic>
                               <ImageView fx:id="simuStatusImg" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/icons/red.png" />
+                                    <Image url="@../../img/icons/red.png" />
                                  </image>
                               </ImageView>
                            </graphic>
@@ -139,7 +139,7 @@
                            <graphic>
                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/conectar.png" />
+                                    <Image url="@../../img/buttons/conectar.png" />
                                  </image>
                               </ImageView>
                            </graphic>
@@ -164,7 +164,7 @@
                            <graphic>
                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/busqueda.png" />
+                                    <Image url="@../../img/buttons/busqueda.png" />
                                  </image>
                               </ImageView>
                            </graphic>
@@ -193,7 +193,7 @@
                                        <graphic>
                                           <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
-                                                <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/actualizar.png" />
+                                                <Image url="@../../img/buttons/actualizar.png" />
                                              </image>
                                           </ImageView>
                                        </graphic>
@@ -205,7 +205,7 @@
                                        <graphic>
                                           <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
-                                                <Image url="@../../../../../../../../../../core/src/main/resources/org/axolotlj/remotehealth/shared/img/buttons/anadir.png" />
+                                                <Image url="@../../img/buttons/anadir.png" />
                                              </image>
                                           </ImageView>
                                        </graphic>

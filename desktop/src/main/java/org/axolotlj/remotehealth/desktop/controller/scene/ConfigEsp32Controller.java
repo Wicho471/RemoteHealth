@@ -8,14 +8,14 @@ import org.axolotlj.remotehealth.core.cmd.CommandType;
 import org.axolotlj.remotehealth.core.cmd.response.NetworkStatus;
 import org.axolotlj.remotehealth.core.cmd.response.PreferencesStatus;
 import org.axolotlj.remotehealth.core.cmd.response.SensorStatus;
-import org.axolotlj.remotehealth.core.javafx.util.ImageViewUtils;
 import org.axolotlj.remotehealth.core.logger.Log;
 import org.axolotlj.remotehealth.core.logger.api.DataLogger;
 import org.axolotlj.remotehealth.core.model.ConnectionData;
 import org.axolotlj.remotehealth.desktop.ui.AlertUtil;
+import org.axolotlj.remotehealth.desktop.ui.ImageViewUtils;
 import org.axolotlj.remotehealth.desktop.ui.TextUtils;
+import org.axolotlj.remotehealth.desktop.ui.assets.Images;
 import org.axolotlj.remotehealth.desktop.ui.modal.QR;
-import org.axolotlj.remotehealth.desktop.utils.Images;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;

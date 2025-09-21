@@ -32,6 +32,10 @@ public class ConfigFileHelper {
     public static Path getDLogsDir() {
         return resolveMainDir().resolve("logs");
     }
+    
+    public static Path getCrashReportDir() {
+        return resolveMainDir().resolve("crashes");
+    }
 
     public static Path getLanguageConfigFile() {
         Path configDir = getConfigDir();
