@@ -29,7 +29,9 @@ import org.axolotlj.remotehealth.desktop.ui.ImageViewUtils;
 import org.axolotlj.remotehealth.desktop.ui.ModalUtils;
 import org.axolotlj.remotehealth.desktop.ui.SeriesUtils;
 import org.axolotlj.remotehealth.desktop.ui.TextUtils;
+import org.axolotlj.remotehealth.desktop.ui.anim.BeatAnimator;
 import org.axolotlj.remotehealth.desktop.ui.assets.Images;
+import org.axolotlj.remotehealth.desktop.ui.assets.Sounds;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -92,7 +94,7 @@ public class DashboardController implements ContextAware, DisposableController {
 	@FXML
 	private TextField pacientNameField;
 	@FXML
-	private ImageView imgRecordStatus, statusBpm, statusSpo2, statusTemp, statusMov, statusBp;
+	private ImageView imgRecordStatus, statusBpm, statusSpo2, statusTemp, statusMov, statusBp, beat;
 
 	// ───────────────────── Inicialización ─────────────────────
 
@@ -108,7 +110,7 @@ public class DashboardController implements ContextAware, DisposableController {
 		setupCharts();
 		startDataUpdater();
 		handleOnDisconect();
-		//initPingMonitor();
+		// initPingMonitor();
 	}
 
 	private void handleOnDisconect() {
@@ -365,23 +367,31 @@ public class DashboardController implements ContextAware, DisposableController {
 	}
 
 	private void initMonitors() {
+		BeatAnimator beatAnimator = new BeatAnimator(beat, Images.IMG_VITALS_BEAT, Images.IMG_VITALS_IDLE, 200, Sounds.HEARTBEAT);
+
 		this.hrMonitor = new HrMonitor(250, 5, hr -> {
 			TextUtils.setText(BPM, hr.getRight());
 			Image image = (hr.getRight() > 100 || hr.getRight() < 60) ? Images.IMG_VITALS_HEARTH_ALERT
 					: Images.IMG_VITALS_OK;
 			ImageViewUtils.setImage(statusBpm, image);
+		}, () -> beatAnimator.playBeat(), message -> {
+
 		});
 
 		this.spo2Monitor = new Spo2Monitor(125.0, 20.0, 110.0, 8.0, spo2 -> {
 			TextUtils.setText(SPO2, spo2.getRight() + "%");
 			Image image = (spo2.getRight() < 90) ? Images.IMG_VITALS_DYSPNOEA_ALERT : Images.IMG_VITALS_OK;
 			ImageViewUtils.setImage(statusSpo2, image);
+		}, message -> {
+
 		});
 
 		this.bpMonitor = new BPMonitor(bp -> {
 			TextUtils.setText(BP, Math.round(bp.getMiddle()) + " / " + Math.round(bp.getRight()) + " mmHg");
 			Image image = (bp.getMiddle() > 140) ? Images.IMG_VITALS_HIP_ALERT : Images.IMG_VITALS_OK;
 			ImageViewUtils.setImage(statusBp, image);
+		}, message -> {
+
 		});
 	}
 

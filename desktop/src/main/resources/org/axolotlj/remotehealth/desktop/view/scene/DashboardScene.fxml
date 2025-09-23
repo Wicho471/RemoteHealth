@@ -19,30 +19,49 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="747.0" prefWidth="1027.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.remotehealth.desktop.controller.scene.DashboardController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="747.0" prefWidth="1027.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.axolotlj.remotehealth.desktop.controller.scene.DashboardController">
    <center>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox prefHeight="572.0" prefWidth="754.0" HBox.hgrow="ALWAYS">
+            <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER">
+                  <HBox alignment="CENTER_RIGHT" VBox.vgrow="NEVER">
                      <children>
-                        <Label alignment="CENTER" text="Nombre del paciente:">
+                        <HBox alignment="CENTER">
+                           <children>
+                              <Label alignment="CENTER" text="Nombre del paciente:">
+                                 <HBox.margin>
+                                    <Insets left="20.0" right="20.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="pacientNameField" prefWidth="300.0">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </TextField>
+                           </children>
                            <HBox.margin>
-                              <Insets left="20.0" right="20.0" />
+                              <Insets right="50.0" />
                            </HBox.margin>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="pacientNameField" prefWidth="300.0">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font></TextField>
+                        </HBox>
+                        <ImageView fx:id="beat" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <HBox.margin>
+                              <Insets left="50.0" />
+                           </HBox.margin>
+                           <image>
+                              <Image url="@../../../../../../../../../../../Descargas/idle.png" />
+                           </image>
+                        </ImageView>
                      </children>
                      <padding>
                         <Insets bottom="10.0" top="10.0" />
                      </padding>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
                   </HBox>
                   <LineChart id="ECG" fx:id="ECG" animated="false" axisSortingPolicy="NONE" cache="false" prefHeight="270.0" prefWidth="794.0" title="Electrocardiograma" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
                      <xAxis>

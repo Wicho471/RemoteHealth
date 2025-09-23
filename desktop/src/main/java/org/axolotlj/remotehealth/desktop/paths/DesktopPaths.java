@@ -9,6 +9,10 @@ import org.axolotlj.remotehealth.core.path.verifier.PathsVerifier;
 public class DesktopPaths {
 	private static final String MAIN_PATH = "/org/axolotlj/remotehealth/desktop/";
 
+	// ========================= SOUND =========================
+    private static final String SOUND_PATH = MAIN_PATH + "sound/";
+    public static final String SOUND_BEAT = SOUND_PATH  + "beep.wav";
+	
     // ========================= BIN =========================
     private static final String BIN_PATH = MAIN_PATH + "bin/";
     public static final String BIN_PRUEBADECARGA_INO_BIN = BIN_PATH + "PruebaDeCarga.ino.bin";
@@ -141,6 +145,8 @@ public class DesktopPaths {
 	public static final String IMG_STOP_ALERT_PNG = IMG_VITALS_PATH + "stopAlert.png";
 	public static final String IMG_TEMP_ALERT_PNG = IMG_VITALS_PATH + "tempAlert.png";
 	public static final String IMG_HIP_ALERT_PNG = IMG_VITALS_PATH + "hipertension.png";
+	public static final String IMG_BEAT_PNG = IMG_VITALS_PATH + "beat.png";
+	public static final String IMG_IDLE_PNG = IMG_VITALS_PATH + "idle.png";
 	
 	// -------- Langs --------
 	private static final String IMG_LANGS_PATH = IMG_PATH + "langs/";

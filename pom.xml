@@ -1,67 +1,56 @@
-<!-- RemoteHealth/pom.xml -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.axolotlj</groupId>
-    <artifactId>RemoteHealth</artifactId>
-    <version>0.3.5</version>
-    <packaging>pom</packaging>
-
-    <!-- Los tres sub-proyectos -->
-    <modules>
-        <module>core</module>
-        <module>desktop</module>
-    </modules>
-
-    <!-- Versión centralizadas que heredan los hijos                        -->
-    <!-- (si cambian sólo lo tocas aquí)                                    -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
-
-        <!-- bibliotecas más usadas -->
-        <javafx.version>21.0.8</javafx.version>
-        <gluonfx.plugin.version>1.0.27</gluonfx.plugin.version>
-    </properties>
-
-    <!-- repositorios comunes -->
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>gluon-releases</id>
-            <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
-        </repository>
-	     <repository>
-        <id>central</id>
-        <url>https://repo.maven.apache.org/maven2</url>
-        
+<?xml version="1.0" encoding="UTF-8"?><!-- RemoteHealth/pom.xml --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.axolotlj</groupId>
+  <artifactId>RemoteHealth</artifactId>
+  <version>0.3.5</version>
+  <packaging>pom</packaging>
+  <!-- Los tres sub-proyectos -->
+  <modules>
+    <module>core</module>
+    <module>desktop</module>
+    <module>ia</module>
+  </modules>
+  <!-- Versión centralizadas que heredan los hijos                        -->
+  <!-- (si cambian sólo lo tocas aquí)                                    -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+    <!-- bibliotecas más usadas -->
+    <javafx.version>21.0.8</javafx.version>
+    <gluonfx.plugin.version>1.0.27</gluonfx.plugin.version>
+  </properties>
+  <!-- repositorios comunes -->
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
-	      <repository>
-        <id>google</id>
-        <url>https://maven.google.com/</url>
+    <repository>
+      <id>gluon-releases</id>
+      <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
     </repository>
-
-    </repositories>
-
-    <!-- plug-in de compilación estándar (heredable) -->
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
-                    <configuration>
-                        <release>${maven.compiler.release}</release>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>google</id>
+      <url>https://maven.google.com/</url>
+    </repository>
+  </repositories>
+  <!-- plug-in de compilación estándar (heredable) -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.11.0</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

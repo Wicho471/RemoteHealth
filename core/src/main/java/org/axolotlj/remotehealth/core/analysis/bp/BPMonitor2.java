@@ -208,14 +208,50 @@ public class BPMonitor2 {
         return Arrays.stream(values).average().orElse(0);
     }
 
-    /**
-     * Objeto de salida para representar la estimación por latido.
-     *
-     * @param sbp   Presión sistólica estimada
-     * @param dbp   Presión diastólica estimada
-     * @param hr    Frecuencia cardíaca en bpm
-     * @param pttMs Tiempo de tránsito del pulso (ms)
-     */
-    public static record BPEstimate(double sbp, double dbp, double hr, double pttMs) {}
+    // Before (Java Record)
+    // public static record BPEstimate(double sbp, double dbp, double hr, double pttMs) {}
+
+    // After (Traditional Class)
+    public static class BPEstimate {
+        public final double sbp;
+        public final double dbp;
+        public final double hr;
+        public final double pttMs;
+
+        public BPEstimate(double sbp, double dbp, double hr, double pttMs) {
+            this.sbp = sbp;
+            this.dbp = dbp;
+            this.hr = hr;
+            this.pttMs = pttMs;
+        }
+
+        // Optional: You might want to override equals(), hashCode(), and toString()
+        // for behavior similar to a record.
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BPEstimate that = (BPEstimate) o;
+            return Double.compare(that.sbp, sbp) == 0 &&
+                    Double.compare(that.dbp, dbp) == 0 &&
+                    Double.compare(that.hr, hr) == 0 &&
+                    Double.compare(that.pttMs, pttMs) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(sbp, dbp, hr, pttMs);
+        }
+
+        @Override
+        public String toString() {
+            return "BPEstimate[" +
+                    "sbp=" + sbp + ", " +
+                    "dbp=" + dbp + ", " +
+                    "hr=" + hr + ", " +
+                    "pttMs=" + pttMs + ']';
+        }
+    }
+
 }
 

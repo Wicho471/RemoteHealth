@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.axolotlj.remotehealth.core.analysis.AnomalyTrigger;
 import org.axolotlj.remotehealth.core.analysis.bp.util.SignalUtils;
 
 /**
@@ -23,6 +24,8 @@ class BPEstimator {
 	private final Deque<Double> sbpWindow = new ArrayDeque<>();
 	private final Deque<Double> dbpWindow = new ArrayDeque<>();
 	private Consumer<ImmutableTriple<Long ,Double, Double>> listener;
+	private final AnomalyTrigger anomalyTrigger;
+
 
 	private double a = 49, b = 10_000, c = 0.30;
 	private double d = 16, e = 10_000, f = 0.20;
@@ -30,8 +33,14 @@ class BPEstimator {
 	private long previousRPeak = -1;
 	private double ewmaHR = 0, ewmaPTT = 0;
 
-	BPEstimator(Consumer<ImmutableTriple<Long ,Double, Double>> listener) {
+	BPEstimator(Consumer<ImmutableTriple<Long ,Double, Double>> listener, Consumer<String> anomalyCallback) {
 		this.listener = listener;
+		this.anomalyTrigger = new AnomalyTrigger(
+				1000,     // persistenceMs
+				5000,     // recoveryMs (mismo que persistencia)
+				0,        // cooldownMs (0 = sin bloqueo global; solo episodio)
+				anomalyCallback
+		);
 	}
 
 	void setCoefficients(double a, double b, double c, double d, double e, double f) {
@@ -98,9 +107,19 @@ class BPEstimator {
 				dbpWindow.poll();
 
 			listener.accept(ImmutableTriple.of(r,SignalUtils.mean(sbpWindow), SignalUtils.mean(dbpWindow)));
+
 		}
 	}
-	
+
+	private void checkAnomaly(double sbp, double dbp) {
+
+		boolean isAnomaly = sbp < 90 || sbp > 140 || dbp < 60 || dbp > 90;
+
+		if (anomalyTrigger != null) {
+			anomalyTrigger.evaluate(isAnomaly, System.currentTimeMillis(), (sbp < 90 || dbp < 60) ? "Baja presion arterial" : ("Presion arterial alta: " + (sbp > 140) + sbp + "/" + dbp));
+		}
+	}
+
 	void stop() {
 	    rPeaks.clear();
 	    ppgFoots.clear();

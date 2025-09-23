@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.axolotlj.remotehealth.core.analysis.bp.signal.ECGDetector;
 import org.axolotlj.remotehealth.core.analysis.bp.signal.PPGDetector;
+import org.axolotlj.remotehealth.core.logger.Log;
 
 /**
  * Monitor en tiempo real de presión arterial (SBP/DBP) basado en ECG y PPG RED.
@@ -20,8 +21,8 @@ public class BPMonitor {
      *
      * @param listener consumidor de estimaciones de presión
      */
-    public BPMonitor(Consumer<ImmutableTriple<Long ,Double, Double>> listener) {
-        this.estimator = new BPEstimator(listener);
+    public BPMonitor(Consumer<ImmutableTriple<Long ,Double, Double>> listener, Consumer<String> anomalyCallback) {
+        this.estimator = new BPEstimator(listener, anomalyCallback);
     }
 
     /**

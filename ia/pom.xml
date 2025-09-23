@@ -1,0 +1,197 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.axolotlj</groupId>
+        <artifactId>RemoteHealth</artifactId>
+        <version>0.3.5</version>
+    </parent>
+
+    <artifactId>ia</artifactId>
+    <packaging>jar</packaging>
+    <name>remotehealth-ia</name>
+    
+    <dependencies>
+        <!-- lógica compartida -->
+        <dependency>
+            <groupId>org.axolotlj</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- JavaFX UI de escritorio -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        
+	    <dependency>
+	        <groupId>org.openjfx</groupId>
+	        <artifactId>javafx-media</artifactId>
+	        <version>${javafx.version}</version>
+	    </dependency>
+	    
+	   	 <!-- IA -->
+		        <!-- OSHI -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+        <!-- Gson (1 vulnerabilidad) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- Commons IO (1 vulnerabilidad) -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.7</version>
+        </dependency>
+
+        <!-- FastUtil -->
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>6.5.7</version>
+        </dependency>
+
+        <!-- DL4J Utility Iterators -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-utility-iterators</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+
+        <!-- DL4J Resources -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+	
+		<dependency>
+		    <groupId>org.deeplearning4j</groupId>
+		    <artifactId>deeplearning4j-ui</artifactId>
+		    <version>1.0.0-M2.1</version>
+		</dependency>
+
+        <!-- ND4J API -->
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-api</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+
+        <!-- ND4J Native API -->
+		  <dependency>
+		    <groupId>org.nd4j</groupId>
+		    <artifactId>nd4j-cuda-11.6-platform</artifactId>
+		    <version>1.0.0-M2.1</version>
+		  </dependency>
+
+        <!-- ND4J Common -->
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-common</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+
+        <!-- ND4J Jackson -->
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>jackson</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+   			
+   		<dependency>
+		    <groupId>org.deeplearning4j</groupId>
+		    <artifactId>deeplearning4j-nn</artifactId>
+		    <version>1.0.0-M2.1</version>
+		</dependency> 
+    		
+    		<dependency>
+	        <groupId>org.slf4j</groupId>
+	        <artifactId>slf4j-api</artifactId>
+	        <version>2.0.9</version>
+	    </dependency>
+
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-simple</artifactId>
+		    <version>2.0.9</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.deeplearning4j</groupId>
+		    <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+		    <version>1.0.0-M2.1</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.deeplearning4j</groupId>
+		    <artifactId>deeplearning4j-core</artifactId>
+		    <version>1.0.0-M2.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.nd4j</groupId>
+		    <artifactId>nd4j-cuda-11.6</artifactId>
+		    <version>1.0.0-M2.1</version>
+		</dependency>
+		
+		    <dependency>
+		  <groupId>org.deeplearning4j</groupId>
+		  <artifactId>deeplearning4j-datasets</artifactId>
+		  <version>1.0.0-M2.1</version>
+		</dependency>
+	    
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <!-- Ejecutar en modo “mvn javafx:run” -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>org.axolotlj.remotehealth.ia.DesktopApp</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- Ensamblado JAR-con-dependencias para usuarios finales -->
+            <plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-assembly-plugin</artifactId>
+			    <version>3.3.0</version>
+			    <configuration>
+			        <finalName>${project.artifactId}-${project.version}</finalName>
+			        <appendAssemblyId>true</appendAssemblyId>
+			        <descriptorRefs>
+			            <descriptorRef>jar-with-dependencies</descriptorRef>
+			        </descriptorRefs>
+			        <archive>
+			            <manifest>
+			                <mainClass>org.axolotlj.remotehealth.desktop.DesktopApp</mainClass>
+			            </manifest>
+			        </archive>
+			    </configuration>
+			    <executions>
+			        <execution>
+			            <id>make-assembly</id>
+			            <phase>package</phase>
+			            <goals><goal>single</goal></goals>
+			        </execution>
+			    </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

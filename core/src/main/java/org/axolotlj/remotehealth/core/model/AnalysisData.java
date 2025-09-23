@@ -89,7 +89,7 @@ public class AnalysisData {
 		final ArrayList<MutableTriple<Long, Double, Double>> result = new ArrayList<>();
 
 		final BPMonitor bpMonitor = new BPMonitor(bp ->
-				result.add(MutableTriple.of(bp.getLeft(), bp.getMiddle(), bp.getRight())));
+				result.add(MutableTriple.of(bp.getLeft(), bp.getMiddle(), bp.getRight())), message -> {});
 		for (final DataPoint dataPoint : dataPoints) {
 			bpMonitor.feedCsvLine(dataPoint.toCsvLine());
 		}
@@ -105,7 +105,7 @@ public class AnalysisData {
 		final ArrayList<MutablePair<Long, Integer>> result = new ArrayList<>();
 
 		final Spo2Monitor spo2Monitor = new Spo2Monitor(104.0, 14.29, fs, 10.0,
-				spo2 -> result.add(MutablePair.of(spo2.getLeft(), spo2.getRight())));
+				spo2 -> result.add(MutablePair.of(spo2.getLeft(), spo2.getRight())), message -> {});
 		for (final MutableTriple<Long, Double, Double> sample : pleth) {
 			spo2Monitor.addPlethSample(sample.getMiddle(), sample.getRight(), sample.getLeft());
 		}
@@ -120,7 +120,7 @@ public class AnalysisData {
 		final long startTime = System.currentTimeMillis();
 		final ArrayList<MutablePair<Long, Integer>> result = new ArrayList<>();
 
-		final HrMonitor hrMonitor = new HrMonitor(fs, 5, hr -> result.add(MutablePair.of(hr.getLeft(), hr.getRight())));
+		final HrMonitor hrMonitor = new HrMonitor(fs, 5, hr -> result.add(MutablePair.of(hr.getLeft(), hr.getRight())), () -> {}, message -> {});
 		for (final MutablePair<Long, Double> sample : egc) {
 			hrMonitor.addEcgSample(sample.getRight(), sample.getLeft());
 		}

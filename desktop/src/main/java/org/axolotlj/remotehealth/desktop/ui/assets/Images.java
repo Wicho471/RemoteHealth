@@ -118,6 +118,8 @@ public class Images {
 	public static final Image IMG_VITALS_STOP_ALERT = load(DesktopPaths.IMG_STOP_ALERT_PNG);
 	public static final Image IMG_VITALS_TEMP_ALERT = load(DesktopPaths.IMG_TEMP_ALERT_PNG);
 	public static final Image IMG_VITALS_HIP_ALERT = load(DesktopPaths.IMG_HIP_ALERT_PNG);
+	public static final Image IMG_VITALS_BEAT = load(DesktopPaths.IMG_BEAT_PNG);
+	public static final Image IMG_VITALS_IDLE = load(DesktopPaths.IMG_IDLE_PNG);
 
 	// ========================= IMG/langs =========================
 	public static final Image IMG_LANGS_ES = load(DesktopPaths.IMG_LANGS_ES_PNG);

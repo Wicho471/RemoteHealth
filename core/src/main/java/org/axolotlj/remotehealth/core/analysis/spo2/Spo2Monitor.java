@@ -6,6 +6,8 @@ import java.util.Deque;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.axolotlj.remotehealth.core.analysis.AnomalyTrigger;
+import org.axolotlj.remotehealth.core.logger.Log;
 
 import com.github.psambit9791.jdsp.signal.peaks.FindPeak;
 import com.github.psambit9791.jdsp.signal.peaks.Peak;
@@ -29,6 +31,7 @@ public class Spo2Monitor {
 
 	private Consumer<ImmutablePair<Long, Integer>> listener;
 
+	private final AnomalyTrigger anomalyTrigger;
 	/**
 	 * Crea una nueva instancia de {@code Spo2Processor} con parámetros
 	 * personalizados.
@@ -39,12 +42,18 @@ public class Spo2Monitor {
 	 * @param spo2WindowSec Duración de la ventana de análisis para SpO2 (en
 	 *                      segundos).
 	 */
-	public Spo2Monitor(double spo2A, double spo2B, double fs, double spo2WindowSec, Consumer<ImmutablePair<Long, Integer>> listener) {
+	public Spo2Monitor(double spo2A, double spo2B, double fs, double spo2WindowSec, Consumer<ImmutablePair<Long, Integer>> listener, Consumer<String> anomalyCallback) {
 		this.spo2A = spo2A;
 		this.spo2B = spo2B;
 		this.fs = fs;
 		this.spo2WindowSec = spo2WindowSec;
 		this.listener = listener;
+		this.anomalyTrigger = new AnomalyTrigger(
+				1000,     // persistenceMs
+				5000,     // recoveryMs (mismo que persistencia)
+				0,        // cooldownMs (0 = sin bloqueo global; solo episodio)
+				anomalyCallback
+		);
 	}
 
 	/**
@@ -58,8 +67,8 @@ public class Spo2Monitor {
 	 * Estos valores están preconfigurados para un entorno de procesamiento estándar
 	 * de SpO2.
 	 */
-	public Spo2Monitor(Consumer<ImmutablePair<Long, Integer>> listener) {
-		this(110.0, 25.0, 100.0, 6.0, listener);
+	public Spo2Monitor(Consumer<ImmutablePair<Long, Integer>> listener, Consumer<String> anomalyCallback) {
+		this(110.0, 25.0, 100.0, 6.0, listener, anomalyCallback);
 	}
 
 	/**
@@ -104,7 +113,16 @@ public class Spo2Monitor {
 		if (spo2Buf.size() > 256)
 			spo2Buf.removeFirst();
 		double[] spo2Arr = spo2Buf.stream().mapToDouble(Double::doubleValue).toArray();
-		listener.accept(ImmutablePair.of(tMs, Math.min(100, ((int) mean(spo2Arr)))));
+		int spo2Result = Math.min(100,(int) mean(spo2Arr));
+		listener.accept(ImmutablePair.of(tMs, spo2Result));
+		checkAnomaly(spo2Result);
+	}
+
+	private void checkAnomaly(double spo2) {
+		boolean isAnomaly = spo2 < 90;
+		if (anomalyTrigger != null) {
+			anomalyTrigger.evaluate(isAnomaly, System.currentTimeMillis(), "Baja saturacion de oxigeno: " + spo2 + "%");
+		}
 	}
 
 	private void purgeOld(long now) {
